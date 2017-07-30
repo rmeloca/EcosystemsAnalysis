@@ -1,0 +1,65 @@
+{
+  "index": [
+    "react",
+    "lodash"
+  ],
+  "map": {
+    "react": 0,
+    "lodash": 1
+  },
+  "lodash": {
+    "repository": "http://github.com/lodash/lodash",
+    "tags": [
+      "framework"
+    ],
+    "ocurrences": {
+      "react": [
+        "15.6"
+      ]
+    },
+    "versions": {
+      "index": [
+        "0.1",
+        "15.6"
+      ],
+      "map": {
+        "0.1": 0,
+        "15.6": 1
+      },
+      "15.6": {
+        "datetime": "2016-07-01T15:34:00.290Z",
+        "downloads": 1234,
+        "linesOfCode": 1,
+        "localRegularityRate": 1.0,
+        "globalRegularityRate": 0.75,
+        "contextSize": 123,
+        "maintainers": 1,
+        "authors": {
+          "rmeloca@gmail.com": "Rômulo"
+        },
+        "licenses": [
+          {
+            "l": "MIT",
+            "g": "l"
+          },
+          {
+            "l": "gcpl-3",
+            "g": "u"
+          }
+        ],
+        "dependencies": {
+          "react": {
+            "d": ">=",
+            "v": "15.6",
+            "i": true
+          }
+        },
+        "ocurrences": {
+          "react": [
+            "15.6"
+          ]
+        }
+      }
+    }
+  }
+}
