@@ -74,5 +74,5 @@ class Package(object):
 		indexes = packagesHasOcurrences[self.index]
 		ocurrences = []
 		for package in indexes:
-			ocurrences.append(self.ecossystemDataManager.getpackageByIndex(indexes[package]))
+			ocurrences.append(self.ecossystemDataManager.getPackageByIndex(indexes[package]))
 		return ocurrences
