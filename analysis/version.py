@@ -29,7 +29,8 @@ class Version(object):
 		indexes = versionsHasDependencies[self.index]
 		dependencies = []
 		for dependency in indexes:
-			dependencies.append(Dependency(self.ecossystemDataManager, self, None, dependency))
+			inVersion = Version(self.ecossystemDataManager, None, dependency)
+			dependencies.append(Dependency(self.ecossystemDataManager, self, inVersion, dependency))
 		return dependencies
 
 	def getOcurrences(self):

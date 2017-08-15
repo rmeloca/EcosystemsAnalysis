@@ -1,8 +1,9 @@
 from ecossystemDataManager import EcossystemDataManager
 
-ecossystemDataManager = EcossystemDataManager("rubygems")
-package = ecossystemDataManager.getPackage("json")
-versions = package.getVersions()
-version = versions[2]
-context = version.getContext()
-print(context)
+if __name__ == '__main__':
+    ecossystemDataManager = EcossystemDataManager("cran")
+    package = ecossystemDataManager.getPackage("rAltmetric")
+    versions = package.getVersions()
+    version = versions[0]
+    context = version.getContext()
+    print(context)
