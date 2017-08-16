@@ -29,52 +29,88 @@ class EcossystemDataManager(object):
 		return os.path.join("..", self.ecossystem, "data", filename)
 
 	def loadPackagesHasIndex(self):
-		with open(self.getPath("packagesHasIndex.json")) as packagesHasIndexFile:
-			self.packagesHasIndex = json.load(packagesHasIndexFile)
+		try:
+			with open(self.getPath("packagesHasIndex.json")) as packagesHasIndexFile:
+				self.packagesHasIndex = json.load(packagesHasIndexFile)
+		except Exception as e:
+			self.savePackagesHasIndex()
 
 	def loadPackagesHasMap(self):
-		with open(self.getPath("packagesHasMap.json")) as packagesHasMapFile:
-			self.packagesHasMap = json.load(packagesHasMapFile)
+		try:
+			with open(self.getPath("packagesHasMap.json")) as packagesHasMapFile:
+				self.packagesHasMap = json.load(packagesHasMapFile)
+		except Exception as e:
+			self.savePackagesHasMap()
 
 	def loadPackagesHasVersions(self):
-		with open(self.getPath("packagesHasVersions.json")) as packagesHasVersionsFile:
-			self.packagesHasVersions = json.load(packagesHasVersionsFile)
+		try:
+			with open(self.getPath("packagesHasVersions.json")) as packagesHasVersionsFile:
+				self.packagesHasVersions = json.load(packagesHasVersionsFile)
+		except Exception as e:
+			self.savePackagesHasVersions()
 
 	def loadPackagesHasOcurrences(self):
-		with open(self.getPath("packagesHasOcurrences.json")) as packagesHasOcurrencesFile:
-			self.packagesHasOcurrences = json.load(packagesHasOcurrencesFile)
+		try:
+			with open(self.getPath("packagesHasOcurrences.json")) as packagesHasOcurrencesFile:
+				self.packagesHasOcurrences = json.load(packagesHasOcurrencesFile)
+		except Exception as e:
+			self.savePackagesHasOcurrences()
 
 	def loadVersionsHasIndex(self):
-		with open(self.getPath("versionsHasIndex.json")) as versionsHasIndexFile:
-			self.versionsHasIndex = json.load(versionsHasIndexFile)
+		try:
+			with open(self.getPath("versionsHasIndex.json")) as versionsHasIndexFile:
+				self.versionsHasIndex = json.load(versionsHasIndexFile)
+		except Exception as e:
+			self.saveVersionsHasIndex()
 
 	def loadVersionsHasPackage(self):
-		with open(self.getPath("versionsHasPackage.json")) as versionsHasPackageFile:
-			self.versionsHasPackage = json.load(versionsHasPackageFile)
+		try:
+			with open(self.getPath("versionsHasPackage.json")) as versionsHasPackageFile:
+				self.versionsHasPackage = json.load(versionsHasPackageFile)
+		except Exception as e:
+			self.saveVersionsHasPackage()
 
 	def loadVersionsHasOcurrences(self):
-		with open(self.getPath("versionsHasOcurrences.json")) as versionsHasOcurrencesFile:
-			self.versionsHasOcurrences = json.load(versionsHasOcurrencesFile)
+		try:
+			with open(self.getPath("versionsHasOcurrences.json")) as versionsHasOcurrencesFile:
+				self.versionsHasOcurrences = json.load(versionsHasOcurrencesFile)
+		except Exception as e:
+			self.saveVersionsHasOcurrences()
 
 	def loadVersionsHasGlobalRegularityRate(self):
-		with open(self.getPath("versionsHasGlobalRegularityRate.json")) as versionsHasGlobalRegularityRateFile:
-			self.versionsHasGlobalRegularityRate = json.load(versionsHasGlobalRegularityRateFile)
+		try:
+			with open(self.getPath("versionsHasGlobalRegularityRate.json")) as versionsHasGlobalRegularityRateFile:
+				self.versionsHasGlobalRegularityRate = json.load(versionsHasGlobalRegularityRateFile)
+		except Exception as e:
+			self.saveVersionsHasGlobalRegularityRate()
 
 	def loadVersionsHasLocalRegularityRate(self):
-		with open(self.getPath("versionsHasLocalRegularityRate.json")) as versionsHasLocalRegularityRateFile:
-			self.versionsHasLocalRegularityRate = json.load(versionsHasLocalRegularityRateFile)
+		try:
+			with open(self.getPath("versionsHasLocalRegularityRate.json")) as versionsHasLocalRegularityRateFile:
+				self.versionsHasLocalRegularityRate = json.load(versionsHasLocalRegularityRateFile)
+		except Exception as e:
+			self.saveVersionsHasLocalRegularityRate()
 
 	def loadVersionsHasDependencies(self):
-		with open(self.getPath("versionsHasDependencies.json")) as versionsHasDependenciesFile:
-			self.versionsHasDependencies = json.load(versionsHasDependenciesFile)
+		try:
+			with open(self.getPath("versionsHasDependencies.json")) as versionsHasDependenciesFile:
+				self.versionsHasDependencies = json.load(versionsHasDependenciesFile)
+		except Exception as e:
+			self.saveVersionsHasDependencies()
 
 	def loadDependenciesAreIrregular(self):
-		with open(self.getPath("dependenciesAreIrregular.json")) as dependenciesAreIrregularFile:
-			self.dependenciesAreIrregular = json.load(dependenciesAreIrregularFile)
+		try:
+			with open(self.getPath("dependenciesAreIrregular.json")) as dependenciesAreIrregularFile:
+				self.dependenciesAreIrregular = json.load(dependenciesAreIrregularFile)
+		except Exception as e:
+			self.saveDependenciesAreIrregular()
 
 	def loadVersionsHasLicenses(self):
-		with open(self.getPath("versionsHasLicenses.json")) as versionsHasLicensesFile:
-			self.versionsHasLicenses = json.load(versionsHasLicensesFile)
+		try:
+			with open(self.getPath("versionsHasLicenses.json")) as versionsHasLicensesFile:
+				self.versionsHasLicenses = json.load(versionsHasLicensesFile)
+		except Exception as e:
+			self.saveVersionsHasLicenses()
 
 	def getPackagesHasIndex(self):
 		if not self.packagesHasIndex:
@@ -184,7 +220,7 @@ class EcossystemDataManager(object):
 		with open(self.getPath("versionsHasLicenses.json"), "w") as versionsHasLicensesFile:
 			versionsHasLicensesFile.write(json.dumps(self.versionsHasLicenses, separators=(',', ':')))
 
-	def save():
+	def save(self):
 		if self.packagesHasIndex:
 			self.savePackagesHasIndex()
 		if self.packagesHasMap:
@@ -210,7 +246,7 @@ class EcossystemDataManager(object):
 		if self.versionsHasLicenses:
 			self.saveVersionsHasLicenses()
 
-	def load():
+	def load(self):
 		self.loadPackagesHasIndex()
 		self.loadPackagesHasMap()
 		self.loadPackagesHasVersions()
