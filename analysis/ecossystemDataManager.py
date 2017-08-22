@@ -283,14 +283,18 @@ class EcossystemDataManager(object):
 		return packages
 
 	def addPackage(self, name):
+		packagesHasMap = self.getPackagesHasMap()
 		try:
-			return self.getPackageByIndex(self.packagesHasMap[name])
+			return self.getPackageByIndex(packagesHasMap[name])
 		except Exception as e:
-			self.packagesHasMap[name] = len(self.packagesHasIndex)
-			self.packagesHasIndex.append(name)
-			self.packagesHasVersions.append({})
-			self.packagesHasOcurrences.append([])
-			return self.getPackageByIndex(self.packagesHasMap[name])
+			packagesHasIndex = self.getPackagesHasIndex()
+			packagesHasVersions = self.getPackagesHasVersions()
+			packagesHasOcurrences = self.getPackagesHasOcurrences()
+			packagesHasMap[name] = len(packagesHasIndex)
+			packagesHasIndex.append(name)
+			packagesHasVersions.append({})
+			packagesHasOcurrences.append([])
+			return self.getPackageByIndex(packagesHasMap[name])
 
 if __name__ == '__main__':
 	if len(sys.argv) < 2:
