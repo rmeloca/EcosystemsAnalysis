@@ -2,7 +2,7 @@ class Dependency(object):
 	"""docstring for Dependency"""
 	def __init__(self, ecosystemDataManager, outVersion, inVersion, index):
 		super(Dependency, self).__init__()
-		if not ecosystemDataManager or not outVersion or not inVersion or not index:
+		if not ecosystemDataManager or not outVersion or not inVersion or index == None:
 			raise Exception
 		self.ecosystemDataManager = ecosystemDataManager
 		self.outVersion = outVersion

@@ -51,7 +51,7 @@ class Version(object):
 	def addDependency(self, version):
 		versionsHasDependencies = self.ecosystemDataManager.get("VersionsHasDependencies")
 		if version.getIndex() in versionsHasDependencies[self.index]:
-			dependencyIndex = versionsHasDependencies[self.index].indexOf(version.getIndex())
+			dependencyIndex = versionsHasDependencies[self.index].index(version.getIndex())
 		else:
 			versionsHasOcurrences = self.ecosystemDataManager.get("VersionsHasOcurrences")
 			dependencyIndex = len(versionsHasDependencies[self.index])
@@ -61,7 +61,7 @@ class Version(object):
 		if self.package.getIndex() in packagesHasOcurrences[version.getPackage().getIndex()]:
 			pass
 		else:
-			packagesHasOcurrences[version.getPackage().getIndex()].append(self.package.getIndex())	
+			packagesHasOcurrences[version.getPackage().getIndex()].append(self.package.getIndex())
 		return Dependency(self.ecosystemDataManager, self, version, dependencyIndex)
 
 	def getDependencies(self):

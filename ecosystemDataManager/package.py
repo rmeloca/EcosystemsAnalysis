@@ -13,7 +13,7 @@ class Package(object):
 		return self.index
 
 	def getName(self):
-		return self.ecosystemDataManager.get("packagesHasIndex")[self.index]
+		return self.ecosystemDataManager.get("PackagesHasIndex")[self.index]
 
 	def setRepository(self, repository):
 		packagesHasRepository = self.ecosystemDataManager.get("PackagesHasRepository")
