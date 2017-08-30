@@ -1,0 +1,179 @@
+from .version import Version
+
+class Package(object):
+	"""docstring for Package"""
+	def __init__(self, ecosystemDataManager, index):
+		super(Package, self).__init__()
+		if not ecosystemDataManager or index == None:
+			raise Exception
+		self.ecosystemDataManager = ecosystemDataManager
+		self.index = index
+
+	def getIndex(self):
+		return self.index
+
+	def getName(self):
+		return self.ecosystemDataManager.get("packagesHasIndex")[self.index]
+
+	def setRepository(self, repository):
+		packagesHasRepository = self.ecosystemDataManager.get("PackagesHasRepository")
+		packagesHasRepository[self.index] = repository
+
+	def getRepository(self):
+		packagesHasRepository = self.ecosystemDataManager.get("PackagesHasRepository")
+		return packagesHasRepository[self.index]
+
+	def setTags(self, tags):
+		packagesHasTags =  self.ecosystemDataManager.get("PackagesHasTags")
+		packagesHasTags[self.index] = tags
+
+	def getTags(self):
+		packagesHasTags =  self.ecosystemDataManager.get("PackagesHasTags")
+		return packagesHasTags[self.index]
+
+	def addVersion(self, name):
+		packagesHasVersions = self.ecosystemDataManager.get("PackagesHasVersions")
+		try:
+			packagesHasVersions[self.index][name]
+		except Exception as e:
+			versionsHasIndex = self.ecosystemDataManager.get("VersionsHasIndex")
+			versionsHasPackage = self.ecosystemDataManager.get("VersionsHasPackage")
+			versionsHasOcurrences = self.ecosystemDataManager.get("VersionsHasOcurrences")
+			versionsHasGlobalRegularityRate = self.ecosystemDataManager.get("VersionsHasGlobalRegularityRate")
+			versionsHasLocalRegularityRate = self.ecosystemDataManager.get("VersionsHasLocalRegularityRate")
+			versionsHasAuthors = self.ecosystemDataManager.get("VersionsHasAuthors")
+			versionsHasContextSize = self.ecosystemDataManager.get("VersionsHasContextSize")
+			versionsHasDatetime = self.ecosystemDataManager.get("VersionsHasDatetime")
+			versionsHasDownloads = self.ecosystemDataManager.get("VersionsHasDownloads")
+			versionsHasLinesOfCode = self.ecosystemDataManager.get("VersionsHasLinesOfCode")
+			versionsHasMaintainers = self.ecosystemDataManager.get("VersionsHasMaintainers")
+			
+			versionsHasLicenses = self.ecosystemDataManager.get("VersionsHasLicenses")
+			licensesHasGroup = self.ecosystemDataManager.get("LicensesHasGroup")
+			
+			versionsHasDependencies = self.ecosystemDataManager.get("VersionsHasDependencies")
+			dependenciesAreIrregular = self.ecosystemDataManager.get("DependenciesAreIrregular")
+			dependenciesHasDelimiter = self.ecosystemDataManager.get("DependenciesHasDelimiter")
+			
+			packagesHasVersions[self.index][name] = len(versionsHasIndex)
+			versionsHasIndex.append(name)
+			versionsHasPackage.append(self.index)
+			versionsHasOcurrences.append([])
+			versionsHasGlobalRegularityRate.append(None)
+			versionsHasLocalRegularityRate.append(None)
+			versionsHasAuthors.append([])
+			versionsHasContextSize.append(None)
+			versionsHasDatetime.append(None)
+			versionsHasDownloads.append(None)
+			versionsHasLinesOfCode.append(None)
+			versionsHasMaintainers.append([])
+
+			versionsHasLicenses.append([])
+			licensesHasGroup.append([])
+			
+			versionsHasDependencies.append([])
+			dependenciesAreIrregular.append([])
+		finally:
+			return self.getVersionByIndex(packagesHasVersions[self.index][name])
+
+	def getVersionByIndex(self, index):
+		if index < 0:
+			raise Exception
+		try:
+			return Version(self.ecosystemDataManager, self, index)
+		except Exception as e:
+			raise e
+
+	def getVersions(self):
+		packagesHasVersions = self.ecosystemDataManager.get("PackagesHasVersions")
+		versionsHasIndex = packagesHasVersions[self.index]
+		versions = []
+		for version in versionsHasIndex:
+			versions.append(self.getVersionByIndex(versionsHasIndex[version]))
+		return versions
+
+	def getVersion(self, name):
+		packagesHasVersions = self.ecosystemDataManager.get("PackagesHasVersions")
+		try:
+			versionIndex = packagesHasVersions[self.index][name]
+			return self.getVersionByIndex(versionIndex)
+		except Exception as e:
+			raise e
+
+	def getLastestVersion(self):
+		versions = self.getVersions()
+		if len(versions) == 0:
+			raise Exception
+		latestVersion = versions[0]
+		for version in versions:
+			if version.getDatetime() > latestVersion.getDatetime():
+				latestVersion = version
+		return latestVersion
+
+	def getDependencies(self):
+		versions = self.getVersions()
+		dependencies = []
+		for version in versions:
+			dependencies += version.getDependencies()
+		return dependencies
+	
+	def getOcurrences(self):
+		versions = self.getVersions()
+		ocurrences = []
+		for version in versions:
+			ocurrences += version.getOcurrences()
+		return ocurrences
+
+	def getDescendents(self):
+		versions = self.getVersions()
+		descendents = []
+		for version in versions:
+			descendents += version.getDescendents()
+		return descendents
+
+	def getParents(self):
+		versions = self.getVersions()
+		parents = []
+		for version in versions:
+			parents += version.getParents()
+		return parents
+
+	def getContext(self):
+		return self.getParents() + self.getDescendents()
+
+	def getPackagesDependencies(self):
+		dependencies = self.getDependencies()
+		packages = []
+		for dependency in dependencies:
+			packages.append(dependency.getInVersion().getPackage())
+		return packages
+
+	def getPackagesOcurrences(self):
+		packagesHasOcurrences = self.ecosystemDataManager.get("PackagesHasOcurrences")
+		indexes = packagesHasOcurrences[self.index]
+		ocurrences = []
+		for package in indexes:
+			ocurrences.append(self.ecosystemDataManager.getPackageByIndex(indexes[package]))
+		return ocurrences
+		
+	def getPackagesDescendents(self):
+		descendents = self.getDescendents()
+		packages = []
+		for descendent in descendents:
+			packages.append(descendent.getPackage())
+		return packages
+
+	def getPackagesParents(self):
+		parents = self.getParents()
+		packages = []
+		for parent in parents:
+			packages.append(parent.getPackage())
+		return packages
+
+	def getPackagesContext(self):
+		return self.getPackagesParents() + self.getPackagesDescendents()
+
+	def equals(self, other):
+		if type(other) != type(self):
+			return False
+		return other.getIndex() == self.getIndex()

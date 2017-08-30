@@ -1,19 +1,19 @@
 class License(object):
 	"""docstring for License"""
-	def __init__(self, ecossystemDataManager, version, index):
+	def __init__(self, ecosystemDataManager, version, index):
 		super(License, self).__init__()
-		self.ecossystemDataManager = ecossystemDataManager
+		self.ecosystemDataManager = ecosystemDataManager
 		self.version = version
 		self.index = index
 
 	def getName(self):
-		versionsHasLicenses = self.ecossystemDataManager.getVersionsHasLicenses()
+		versionsHasLicenses = self.ecosystemDataManager.get("VersionsHasLicenses")
 		return versionsHasLicenses[self.version.getIndex()][self.index]
 
 	def getGroup(self):
-		licensesHasGroup = self.ecossystemDataManager.getLicensesHasGroup()
+		licensesHasGroup = self.ecosystemDataManager.get("LicensesHasGroup")
 		return Group(licensesHasGroup[self.version.getIndex()][self.index])
 
 	def setGroup(self, group):
-		licensesHasGroup = self.ecossystemDataManager.getLicensesHasGroup()
+		licensesHasGroup = self.ecosystemDataManager.get("LicensesHasGroup")
 		licensesHasGroup[self.version.getIndex()][self.index] = group.value
