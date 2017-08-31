@@ -49,7 +49,7 @@ class EcosystemDataManager(object):
 	def getPath(self, filename = "", extension = ""):
 		if extension:
 			extension = "." + extension
-		return os.path.join(self.ecosystem, "data", filename + extension)
+		return os.path.join(self.ecosystem, filename + extension)
 
 	def save(self, attribute = None):
 		if attribute:
@@ -92,10 +92,10 @@ class EcosystemDataManager(object):
 			raise e
 
 	def getPackages(self):
+		packagesHasIndex = self.get("PackagesHasIndex")
 		packages = []
-		packagesHasMap = self.get("PackagesHasMap")
-		for package in packagesHasMap:
-			packages.append(self.getPackageByIndex(packagesHasMap[package]))
+		for package in packagesHasIndex:
+			packages.append(self.getPackage(package))
 		return packages
 
 	def addPackage(self, name):

@@ -12,24 +12,28 @@ class Package(object):
 	def getIndex(self):
 		return self.index
 
+	def set(self, attribute, value):
+		table = self.ecosystemDataManager.get(attribute)
+		table[self.index] = value
+
+	def get(self, attribute):
+		table = self.ecosystemDataManager.get(attribute)
+		return table[self.index]
+
 	def getName(self):
-		return self.ecosystemDataManager.get("PackagesHasIndex")[self.index]
+		return self.get("PackagesHasIndex")
 
 	def setRepository(self, repository):
-		packagesHasRepository = self.ecosystemDataManager.get("PackagesHasRepository")
-		packagesHasRepository[self.index] = repository
+		self.set("PackagesHasRepository", repository)
 
 	def getRepository(self):
-		packagesHasRepository = self.ecosystemDataManager.get("PackagesHasRepository")
-		return packagesHasRepository[self.index]
+		return self.get("PackagesHasRepository")
 
 	def setTags(self, tags):
-		packagesHasTags =  self.ecosystemDataManager.get("PackagesHasTags")
-		packagesHasTags[self.index] = tags
+		self.set("PackagesHasTags", tags)
 
 	def getTags(self):
-		packagesHasTags =  self.ecosystemDataManager.get("PackagesHasTags")
-		return packagesHasTags[self.index]
+		return self.get("PackagesHasTags")
 
 	def addVersion(self, name):
 		packagesHasVersions = self.ecosystemDataManager.get("PackagesHasVersions")

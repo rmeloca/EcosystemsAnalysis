@@ -20,33 +20,52 @@ class Version(object):
 	def getPackage(self):
 		return self.package
 
+	def set(self, attribute, value):
+		table = self.ecosystemDataManager.get(attribute)
+		table[self.index] = value
+
+	def get(self, attribute):
+		table = self.ecosystemDataManager.get(attribute)
+		return table[self.index]
+
 	def getName(self):
-		versionsHasIndex = self.ecosystemDataManager.get("VersionsHasIndex")
-		return versionsHasIndex[self.index]
+		return self.get("VersionsHasIndex")
+
+	def setDatetime(self, datetime):
+		self.set("VersionsHasDatetime", datetime)
 
 	def getDatetime(self):
-		versionsHasDatetime = self.ecosystemDataManager.get("VersionsHasDatetime")
-		return versionsHasDatetime[self.index]
+		return self.get("VersionsHasDatetime")
+
+	def setDownloads(self, downloads):
+		self.set("VersionsHasDownloads", downloads)
 
 	def getDownloads(self):
-		versionsHasDownloads = self.ecosystemDataManager.get("VersionsHasDownloads")
-		return versionsHasDownloads[self.index]
+		return self.get("VersionsHasDownloads")
+
+	def setLinesOfCode(self, linesOfCode):
+		self.set("VersionsHasLinesOfCode", linesOfCode)
 
 	def getLinesOfCode(self):
-		versionsHasLinesOfCode = self.ecosystemDataManager.get("VersionsHasLinesOfCode")
-		return versionsHasLinesOfCode[self.index]
+		return self.get("VersionsHasLinesOfCode")
+
+	def setLocalRegularityRate(self, localRegularityRate):
+		self.set("VersionsHasLocalRegularityRate", localRegularityRate)
 
 	def getLocalRegularityRate(self):
-		versionsHasLocalRegularityRate = self.ecosystemDataManager.get("VersionsHasLocalRegularityRate")
-		return versionsHasLocalRegularityRate[self.index]
+		return self.get("VersionsHasLocalRegularityRate")
+
+	def setGlobalRegularityRate(self, globalRegularityRate):
+		self.set("VersionsHasGlobalRegularityRate", globalRegularityRate)
 
 	def getGlobalRegularityRate(self):
-		versionsHasGlobalRegularityRate = self.ecosystemDataManager.get("VersionsHasGlobalRegularityRate")
-		return versionsHasGlobalRegularityRate[self.index]
+		return self.get("VersionsHasGlobalRegularityRate")
+
+	def setLicenses(self, licenses):
+		self.set("VersionsHasLicenses", licenses)
 
 	def getLicenses(self):
-		versionsHasLicenses = self.ecosystemDataManager.get("VersionsHasLicenses")
-		return versionsHasLicenses[self.index]
+		return self.get("VersionsHasLicenses")
 
 	def addDependency(self, version):
 		versionsHasDependencies = self.ecosystemDataManager.get("VersionsHasDependencies")
