@@ -77,6 +77,7 @@ class Package(object):
 			
 			versionsHasDependencies.append([])
 			dependenciesAreIrregular.append([])
+			dependenciesHasDelimiter.append([])
 		finally:
 			return self.getVersionByIndex(packagesHasVersions[self.index][name])
 
