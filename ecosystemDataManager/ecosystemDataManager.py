@@ -49,7 +49,7 @@ class EcosystemDataManager(object):
 	def getPath(self, filename = "", extension = ""):
 		if extension:
 			extension = "." + extension
-		return os.path.join(self.ecosystem, "data", filename + extension)
+		return os.path.join(self.ecosystem, filename + extension)
 
 	def save(self, attribute = None):
 		if attribute:
