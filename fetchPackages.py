@@ -28,7 +28,7 @@ def fetchRubygems():
 	packages.pop(0)
 	packageNames = []
 	for package in packages:
-		packageNames.append(split[0])
+		packageNames.append(package.split(" ")[0])
 	return packageNames
 
 def fetch(ecossystem):
