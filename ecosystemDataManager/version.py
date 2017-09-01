@@ -62,7 +62,9 @@ class Version(object):
 		return self.get("VersionsHasGlobalRegularityRate")
 
 	def addLicense(self, license):
-		self.get("VersionsHasLicenses").append(license)
+		versionsHasLicenses = self.get("VersionsHasLicenses")
+		if license not in versionsHasLicenses:
+			versionsHasLicenses.append(license)
 
 	def setLicenses(self, licenses):
 		self.set("VersionsHasLicenses", licenses)
@@ -70,8 +72,8 @@ class Version(object):
 	def getLicenses(self):
 		return self.get("VersionsHasLicenses")
 
-	def addAuthor(self, author):
-		self.get("VersionsHasAuthors").append(author)
+	def addAuthor(self, email, name):
+		self.get("VersionsHasAuthors")[email] = name
 
 	def setAuthors(self, authors):
 		self.set("VersionsHasAuthors", authors)

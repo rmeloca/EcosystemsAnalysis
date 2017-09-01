@@ -69,7 +69,7 @@ class Package(object):
 			versionsHasOcurrences.append([])
 			versionsHasGlobalRegularityRate.append(None)
 			versionsHasLocalRegularityRate.append(None)
-			versionsHasAuthors.append([])
+			versionsHasAuthors.append({})
 			versionsHasContextSize.append(None)
 			versionsHasDatetime.append(None)
 			versionsHasDownloads.append(None)

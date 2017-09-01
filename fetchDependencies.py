@@ -27,20 +27,26 @@ def fetchNpm(package):
         print(package.getName(), "no repository")
     for metadataVersion in metadata["versions"]:
         version = package.addVersion(metadataVersion)
+        licenses = []
         try:
             for license in metadata["versions"][metadataVersion]["licenses"]:
-                version.addLicense(license["type"])
+                licenses.append(license["type"])
         except Exception as e:
             print(package.getName() + "@" + metadataVersion, "no licenses")
         try:
             licenses.append(metadata["versions"][metadataVersion]["license"])
         except Exception as e:
             print(package.getName() + "@" + metadataVersion, "no license")
+        version.setLicenses(licenses)
         version.setDatetime(metadata["time"][metadataVersion])
         try:
+            version.setAuthors({metadata["versions"][metadataVersion]["author"]["email"]: metadata["versions"][metadataVersion]["author"]["name"]})
+        except Exception as e:
+            print(package.getName() + "@" + metadataVersion, "no author")
+        try:
             for metadataDependency in metadata["versions"][metadataVersion]["dependencies"]:
-                key = metadata["versions"][metadataVersion]["dependencies"][metadataDependency]
-                value = metadataDependency
+                key = metadataDependency
+                value = metadata["versions"][metadataVersion]["dependencies"][metadataDependency]
                 requirements = value
                 value = value.split(" ")[0]
                 value = value.replace("x", "0")
@@ -94,6 +100,8 @@ def fetchRubygems(package):
         except Exception as e:
             print(package.getName() + "@" + metadataVersion, "no license")
         version.setDatetime(metadata["created_at"])
+        version.setAuthors({metadata["authors"]: metadata["mailing_list_uri"]})
+        version.setDownloads(metadata["version_downloads"])
         try:
             for metadataDependency in metadata["dependencies"]["runtime"]:
                 key = metadataDependency["name"]
