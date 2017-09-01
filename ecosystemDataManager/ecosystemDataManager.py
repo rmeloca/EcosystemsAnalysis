@@ -45,6 +45,7 @@ class EcosystemDataManager(object):
 		self.attributes["VersionsHasDependencies"] = []
 		self.attributes["DependenciesAreIrregular"] = []
 		self.attributes["DependenciesHasDelimiter"] = []
+		self.attributes["DependenciesHasRequirements"] = []
 
 	def getPath(self, filename = "", extension = ""):
 		if extension:

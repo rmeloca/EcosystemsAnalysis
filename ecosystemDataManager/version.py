@@ -61,11 +61,23 @@ class Version(object):
 	def getGlobalRegularityRate(self):
 		return self.get("VersionsHasGlobalRegularityRate")
 
+	def addLicense(self, license):
+		self.get("VersionsHasLicenses").append(license)
+
 	def setLicenses(self, licenses):
 		self.set("VersionsHasLicenses", licenses)
 
 	def getLicenses(self):
 		return self.get("VersionsHasLicenses")
+
+	def addAuthor(self, author):
+		self.get("VersionsHasAuthors").append(author)
+
+	def setAuthors(self, authors):
+		self.set("VersionsHasAuthors", authors)
+
+	def getAuthors(self):
+		return self.get("VersionsHasAuthors")
 
 	def addDependency(self, version):
 		versionsHasDependencies = self.ecosystemDataManager.get("VersionsHasDependencies")

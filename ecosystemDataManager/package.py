@@ -58,6 +58,7 @@ class Package(object):
 			versionsHasDependencies = self.ecosystemDataManager.get("VersionsHasDependencies")
 			dependenciesAreIrregular = self.ecosystemDataManager.get("DependenciesAreIrregular")
 			dependenciesHasDelimiter = self.ecosystemDataManager.get("DependenciesHasDelimiter")
+			dependenciesHasRequirements = self.ecosystemDataManager.get("DependenciesHasRequirements")
 			
 			packagesHasVersions[self.index][name] = len(versionsHasIndex)
 			versionsHasIndex.append(name)
@@ -78,6 +79,7 @@ class Package(object):
 			versionsHasDependencies.append([])
 			dependenciesAreIrregular.append([])
 			dependenciesHasDelimiter.append([])
+			dependenciesHasRequirements.append([])
 		finally:
 			return self.getVersionByIndex(packagesHasVersions[self.index][name])
 

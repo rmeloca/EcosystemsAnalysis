@@ -18,13 +18,31 @@ class Dependency(object):
 	def getInVersion(self):
 		return self.inVersion
 
+	def set(self, attribute, value):
+		table = self.ecosystemDataManager.get(attribute)
+		table[self.outVersion.getIndex()][self.index] = value
+
+	def get(self, attribute):
+		table = self.ecosystemDataManager.get(attribute)
+		return table[self.outVersion.getIndex()][self.index]
+
+	def setDelimiter(self, delimiter):
+		self.set("DependenciesHasDelimiter", delimiter)
+
 	def getDelimiter(self):
-		dependenciesHasDelimiter = self.ecosystemDataManager.get("DependenciesHasDelimiter")
-		return dependenciesHasDelimiter[self.outVersion.getIndex()][self.index]
+		return self.get("DependenciesHasDelimiter")
+
+	def setIrregular(self, irregular):
+		self.set("DependenciesAreIrregular", irregular)
 
 	def isIrregular(self):
-		dependenciesAreIrregular = self.ecosystemDataManager.get("DependenciesAreIrregular")
-		return dependenciesAreIrregular[self.outVersion.getIndex()][self.index]
+		return self.get("DependenciesAreIrregular")
+
+	def setRequirements(self, delimiter):
+		self.set("DependenciesHasRequirements", delimiter)
+
+	def getRequirements(self):
+		return self.get("DependenciesHasRequirements")
 
 	def isRegular(self):
 		return not self.isIrregular()
