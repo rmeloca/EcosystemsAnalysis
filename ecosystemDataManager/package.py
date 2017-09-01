@@ -12,6 +12,9 @@ class Package(object):
 	def getIndex(self):
 		return self.index
 
+	def getEcosystemDataManager(self):
+		return self.ecosystemDataManager
+
 	def set(self, attribute, value):
 		table = self.ecosystemDataManager.get(attribute)
 		table[self.index] = value
