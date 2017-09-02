@@ -56,7 +56,7 @@ if __name__ == '__main__':
 		print("Usage:", sys.argv[0], "<ecossystem> [<limit>]")
 		sys.exit(1)
 	if len(sys.argv) == 3:
-		limit = sys.argv[2]
+		limit = int(sys.argv[2])
 	else:
 		limit = -1
 	ecossystem = sys.argv[1]
