@@ -17,3 +17,4 @@ class License(object):
 	def setGroup(self, group):
 		licensesHasGroup = self.ecosystemDataManager.get("LicensesHasGroup")
 		licensesHasGroup[self.version.getIndex()][self.index] = group.value
+		return self

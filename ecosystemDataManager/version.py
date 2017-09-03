@@ -33,50 +33,78 @@ class Version(object):
 
 	def setDatetime(self, datetime):
 		self.set("VersionsHasDatetime", datetime)
+		return self
 
 	def getDatetime(self):
 		return self.get("VersionsHasDatetime")
 
 	def setDownloads(self, downloads):
 		self.set("VersionsHasDownloads", downloads)
+		return self
 
 	def getDownloads(self):
 		return self.get("VersionsHasDownloads")
 
 	def setLinesOfCode(self, linesOfCode):
 		self.set("VersionsHasLinesOfCode", linesOfCode)
+		return self
 
 	def getLinesOfCode(self):
 		return self.get("VersionsHasLinesOfCode")
 
 	def setLocalRegularityRate(self, localRegularityRate):
 		self.set("VersionsHasLocalRegularityRate", localRegularityRate)
+		return self
 
 	def getLocalRegularityRate(self):
 		return self.get("VersionsHasLocalRegularityRate")
 
 	def setGlobalRegularityRate(self, globalRegularityRate):
 		self.set("VersionsHasGlobalRegularityRate", globalRegularityRate)
+		return self
 
 	def getGlobalRegularityRate(self):
 		return self.get("VersionsHasGlobalRegularityRate")
 
+	def getLicenseByIndex(self, index):
+		if index < 0:
+			raise Exception
+		try:
+			return License(self.ecosystemDataManager, self, index)
+		except Exception as e:
+			raise e
+
 	def addLicense(self, license):
 		versionsHasLicenses = self.get("VersionsHasLicenses")
-		if license not in versionsHasLicenses:
+		licensesHasGroup = self.get("LicensesHasGroup")
+		if license in versionsHasLicenses:
+			licenseIndex = versionsHasLicenses.index(license)
+		else:
+			licenseIndex = len(versionsHasLicenses)
+			licensesHasGroup.append(None)
 			versionsHasLicenses.append(license)
+		return self.getLicenseByIndex(licenseIndex)
 
 	def setLicenses(self, licenses):
-		self.set("VersionsHasLicenses", licenses)
+		addedLicenses = []
+		for license in licenses:
+			addedLicenses.append(self.addLicense(license))
+		return addedLicenses
 
 	def getLicenses(self):
-		return self.get("VersionsHasLicenses")
+		licenses = []
+		versionsHasLicenses = self.get("VersionsHasLicenses")
+		for license in versionsHasLicenses:
+			licenses.append(self.getLicenseByIndex(len(licenses)))
+		return licenses
 
 	def addAuthor(self, email, name):
 		self.get("VersionsHasAuthors")[email] = name
+		return self
 
 	def setAuthors(self, authors):
 		self.set("VersionsHasAuthors", authors)
+		return self
 
 	def getAuthors(self):
 		return self.get("VersionsHasAuthors")
@@ -110,7 +138,7 @@ class Version(object):
 		dependencies = []
 		for dependency in indexes:
 			inVersion = Version(self.ecosystemDataManager, None, dependency)
-			dependencies.append(Dependency(self.ecosystemDataManager, self, inVersion, dependency))
+			dependencies.append(Dependency(self.ecosystemDataManager, self, inVersion, len(dependencies)))
 		return dependencies
 
 	def getOcurrences(self):

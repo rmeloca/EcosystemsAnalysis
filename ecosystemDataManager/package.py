@@ -28,15 +28,25 @@ class Package(object):
 
 	def setRepository(self, repository):
 		self.set("PackagesHasRepository", repository)
+		return self
 
 	def getRepository(self):
 		return self.get("PackagesHasRepository")
 
 	def setTags(self, tags):
 		self.set("PackagesHasTags", tags)
+		return self
 
 	def getTags(self):
 		return self.get("PackagesHasTags")
+
+	def getVersionByIndex(self, index):
+		if index < 0:
+			raise Exception
+		try:
+			return Version(self.ecosystemDataManager, self, index)
+		except Exception as e:
+			raise e
 
 	def addVersion(self, name):
 		packagesHasVersions = self.ecosystemDataManager.get("PackagesHasVersions")
@@ -85,14 +95,6 @@ class Package(object):
 			dependenciesHasRequirements.append([])
 		finally:
 			return self.getVersionByIndex(packagesHasVersions[self.index][name])
-
-	def getVersionByIndex(self, index):
-		if index < 0:
-			raise Exception
-		try:
-			return Version(self.ecosystemDataManager, self, index)
-		except Exception as e:
-			raise e
 
 	def getVersions(self):
 		packagesHasVersions = self.ecosystemDataManager.get("PackagesHasVersions")
@@ -182,6 +184,12 @@ class Package(object):
 
 	def getPackagesContext(self):
 		return self.getPackagesParents() + self.getPackagesDescendents()
+
+	def getLocalRegularityRate(self):
+		localRegularityRate = []
+		for version in self.getVersions():
+			localRegularityRate.append(version.getLocalRegularityRate())
+		return localRegularityRate
 
 	def equals(self, other):
 		if type(other) != type(self):

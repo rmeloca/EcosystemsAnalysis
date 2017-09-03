@@ -28,21 +28,24 @@ class Dependency(object):
 
 	def setDelimiter(self, delimiter):
 		self.set("DependenciesHasDelimiter", delimiter)
+		return self
 
 	def getDelimiter(self):
 		return self.get("DependenciesHasDelimiter")
 
-	def setIrregular(self, irregular):
-		self.set("DependenciesAreIrregular", irregular)
-
-	def isIrregular(self):
-		return self.get("DependenciesAreIrregular")
-
-	def setRequirements(self, delimiter):
-		self.set("DependenciesHasRequirements", delimiter)
+	def setRequirements(self, requirements):
+		self.set("DependenciesHasRequirements", requirements)
+		return self
 
 	def getRequirements(self):
 		return self.get("DependenciesHasRequirements")
+
+	def setIrregular(self, irregular):
+		self.set("DependenciesAreIrregular", irregular)
+		return self
+
+	def isIrregular(self):
+		return self.get("DependenciesAreIrregular")
 
 	def isRegular(self):
 		return not self.isIrregular()

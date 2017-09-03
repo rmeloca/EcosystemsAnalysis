@@ -85,24 +85,10 @@ class EcosystemDataManager(object):
 		except Exception as e:
 			raise e
 
-	def getPackage(self, name):
-		packagesHasMap = self.get("PackagesHasMap")
-		try:
-			return self.getPackageByIndex(packagesHasMap[name])
-		except Exception as e:
-			raise e
-
-	def getPackages(self):
-		packagesHasIndex = self.get("PackagesHasIndex")
-		packages = []
-		for package in packagesHasIndex:
-			packages.append(self.getPackage(package))
-		return packages
-
 	def addPackage(self, name):
 		packagesHasMap = self.get("PackagesHasMap")
 		try:
-			return self.getPackageByIndex(packagesHasMap[name])
+			packagesHasMap[name]
 		except Exception as e:
 			packagesHasIndex = self.get("PackagesHasIndex")
 			packagesHasVersions = self.get("PackagesHasVersions")
@@ -116,8 +102,28 @@ class EcosystemDataManager(object):
 			packagesHasOcurrences.append([])
 			packagesHasRepository.append(None)
 			packagesHasTags.append([])
-
+		finally:
 			return self.getPackageByIndex(packagesHasMap[name])
+
+	def getPackages(self):
+		packagesHasIndex = self.get("PackagesHasIndex")
+		packages = []
+		for package in packagesHasIndex:
+			packages.append(self.getPackage(package))
+		return packages
+
+	def getPackage(self, name):
+		packagesHasMap = self.get("PackagesHasMap")
+		try:
+			return self.getPackageByIndex(packagesHasMap[name])
+		except Exception as e:
+			raise e
+
+	def getPackageSizeDistribution(self):
+		packageSizeDistribution = []
+		for package in self.getPackages():
+			packageSizeDistribution.append(len(package.getVersions()))
+		return packageSizeDistribution
 
 if __name__ == '__main__':
 	if len(sys.argv) < 2:
