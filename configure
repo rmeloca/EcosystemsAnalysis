@@ -1,0 +1,10 @@
+#!/bin/bash
+
+if [ "$(whoami)" != 'root' ]; then
+    echo "You have no permission to run $0 as non-root user."
+    exit 1;
+fi
+
+apt install python3.5
+apt install python3-pip
+pip3 install -r requirements.txt
