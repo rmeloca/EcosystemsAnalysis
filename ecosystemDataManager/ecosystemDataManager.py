@@ -7,8 +7,7 @@ class EcosystemDataManager(object):
 	"""docstring for EcosystemDataManager"""
 	def __init__(self, ecosystem, home = ""):
 		super(EcosystemDataManager, self).__init__()
-		if home != "":
-			self.home = home
+		self.home = home
 		self.ecosystem = ecosystem
 		self.initialize()
 		self.reset()
@@ -131,8 +130,8 @@ if __name__ == '__main__':
 	if len(sys.argv) < 2:
 		print("Usage:", sys.argv[0], "<input> [<home>]")
 		sys.exit(1)
-    if len(sys.argv) > 2:
-        home = sys.argv[2]
-    else:
-        home = ""
+	if len(sys.argv) > 2:
+		home = sys.argv[2]
+	else:
+		home = ""
 	EcosystemDataManager(sys.argv[1], home)

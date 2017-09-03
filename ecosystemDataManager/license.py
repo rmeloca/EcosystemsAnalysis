@@ -1,3 +1,5 @@
+from .group import Group
+
 class License(object):
 	"""docstring for License"""
 	def __init__(self, ecosystemDataManager, version, index):

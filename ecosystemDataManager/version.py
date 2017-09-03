@@ -1,5 +1,6 @@
 from .dependency import Dependency
 from .ocurrence import Ocurrence
+from .license import License
 
 class Version(object):
 	"""docstring for Version"""

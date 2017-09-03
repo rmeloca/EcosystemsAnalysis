@@ -34,14 +34,14 @@ def fetchRubygems():
 	return packageNames
 
 def fetchCran():
-    registry = "https://cran.r-project.org/web/packages/available_packages_by_name.html"
-    packages = getContent(registry)
-    soup = BeautifulSoup(packages, "lxml")
-    packageNames = []
-    for link in soup.findAll('a'):
-        if ('../../web/packages' in link.get('href')):
-            packageNames.append(link.getText())
-    return packageNames
+	registry = "https://cran.r-project.org/web/packages/available_packages_by_name.html"
+	packages = getContent(registry)
+	soup = BeautifulSoup(packages, "lxml")
+	packageNames = []
+	for link in soup.findAll('a'):
+		if ('../../web/packages' in link.get('href')):
+			packageNames.append(link.getText())
+	return packageNames
 
 def fetch(ecossystem):
 	if ecossystem == "npm":
