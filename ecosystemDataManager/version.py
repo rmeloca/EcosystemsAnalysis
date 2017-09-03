@@ -90,7 +90,7 @@ class Version(object):
 			dependenciesHasDelimiter = self.ecosystemDataManager.get("DependenciesHasDelimiter")
 			dependenciesHasRequirements = self.ecosystemDataManager.get("DependenciesHasRequirements")
 			dependenciesAreIrregular = self.ecosystemDataManager.get("DependenciesAreIrregular")
-			
+
 			dependencyIndex = len(versionsHasDependencies[self.index])
 			versionsHasDependencies[self.index].append(version.getIndex())
 			versionsHasOcurrences[version.getIndex()].append(self.getIndex())
