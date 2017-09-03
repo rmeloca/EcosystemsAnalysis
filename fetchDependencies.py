@@ -179,14 +179,18 @@ def fetch(ecossystem, package):
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
-        print("Usage:", sys.argv[0], "<ecossystem> [<limit>]")
+        print("Usage:", sys.argv[0], "<ecossystem> [<limit> [<home>]]")
         sys.exit(1)
-    if len(sys.argv) == 3:
+    if len(sys.argv) > 2:
         limit = int(sys.argv[2])
     else:
         limit = -1
+    if len(sys.argv) > 3:
+        home = sys.argv[3]
+    else:
+        home = ""
     ecossystem = sys.argv[1]
-    ecosystemDataManager = EcosystemDataManager(ecossystem)
+    ecosystemDataManager = EcosystemDataManager(ecossystem, home)
     packages = ecosystemDataManager.getPackages()
     if ecossystem == "rubygems":
         fetchRubygemsPackages()

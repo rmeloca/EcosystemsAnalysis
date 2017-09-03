@@ -5,8 +5,10 @@ from .package import Package
 
 class EcosystemDataManager(object):
 	"""docstring for EcosystemDataManager"""
-	def __init__(self, ecosystem):
+	def __init__(self, ecosystem, home = ""):
 		super(EcosystemDataManager, self).__init__()
+		if home != "":
+			self.home = home
 		self.ecosystem = ecosystem
 		self.initialize()
 		self.reset()
@@ -38,7 +40,7 @@ class EcosystemDataManager(object):
 		self.attributes["VersionsHasDownloads"] = []
 		self.attributes["VersionsHasLinesOfCode"] = []
 		self.attributes["VersionsHasMaintainers"] = []
-		
+
 		self.attributes["VersionsHasLicenses"] = []
 		self.attributes["LicensesHasGroup"] = []
 
@@ -50,7 +52,7 @@ class EcosystemDataManager(object):
 	def getPath(self, filename = "", extension = ""):
 		if extension:
 			extension = "." + extension
-		return os.path.join(self.ecosystem, filename + extension)
+		return os.path.join(self.home, self.ecosystem, filename + extension)
 
 	def save(self, attribute = None):
 		if attribute:
@@ -127,6 +129,10 @@ class EcosystemDataManager(object):
 
 if __name__ == '__main__':
 	if len(sys.argv) < 2:
-		print("Usage:", sys.argv[0], "<input>")
+		print("Usage:", sys.argv[0], "<input> [<home>]")
 		sys.exit(1)
-	EcosystemDataManager(sys.argv[1])
+    if len(sys.argv) > 2:
+        home = sys.argv[2]
+    else:
+        home = ""
+	EcosystemDataManager(sys.argv[1], home)
