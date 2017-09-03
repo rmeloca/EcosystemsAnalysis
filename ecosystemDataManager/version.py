@@ -87,9 +87,16 @@ class Version(object):
 			dependencyIndex = versionsHasDependencies[self.index].index(version.getIndex())
 		else:
 			versionsHasOcurrences = self.ecosystemDataManager.get("VersionsHasOcurrences")
+			dependenciesHasDelimiter = self.ecosystemDataManager.get("DependenciesHasDelimiter")
+			dependenciesHasRequirements = self.ecosystemDataManager.get("DependenciesHasRequirements")
+			dependenciesAreIrregular = self.ecosystemDataManager.get("DependenciesAreIrregular")
+			
 			dependencyIndex = len(versionsHasDependencies[self.index])
 			versionsHasDependencies[self.index].append(version.getIndex())
 			versionsHasOcurrences[version.getIndex()].append(self.getIndex())
+			dependenciesHasDelimiter[self.index].append(None)
+			dependenciesHasRequirements[self.index].append(None)
+			dependenciesAreIrregular[self.index].append(None)
 		packagesHasOcurrences = self.ecosystemDataManager.get("PackagesHasOcurrences")
 		if self.package.getIndex() in packagesHasOcurrences[version.getPackage().getIndex()]:
 			pass
