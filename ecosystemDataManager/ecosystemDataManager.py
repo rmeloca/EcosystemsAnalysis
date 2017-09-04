@@ -146,7 +146,7 @@ class EcosystemDataManager(object):
 			popularity[package] = len(package.getOcurrences())
 		popularity = sorted(popularity.items(), key = lambda x: x[1], reverse = True)
 		if size:
-			mostPopularPackages = mostPopularPackages[:size]
+			popularity = popularity[:size]
 		for entry in popularity:
 			mostPopularPackages.append(entry[0])
 		return mostPopularPackages
