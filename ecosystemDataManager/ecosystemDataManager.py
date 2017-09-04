@@ -126,6 +126,31 @@ class EcosystemDataManager(object):
 			packageSizeDistribution.append(len(package.getVersions()))
 		return packageSizeDistribution
 
+	def getMostPopularVersions(self, size = None):
+		mostPopularVersions = []
+		popularity = {}
+		for package in self.getPackages():
+			for version in package.getVersions():
+				popularity[version] = len(version.getOcurrences())
+		popularity = sorted(popularity.items(), key = lambda x: x[1], reverse = True)
+		if size:
+			popularity = popularity[:size]
+		for entry in popularity:
+			mostPopularVersions.append(entry[0])
+		return mostPopularVersions
+
+	def getMostPopularPackages(self, size = None):
+		mostPopularPackages = []
+		popularity = {}
+		for package in self.getPackages():
+			popularity[package] = len(package.getOcurrences())
+		popularity = sorted(popularity.items(), key = lambda x: x[1], reverse = True)
+		if size:
+			mostPopularPackages = mostPopularPackages[:size]
+		for entry in popularity:
+			mostPopularPackages.append(entry[0])
+		return mostPopularPackages
+
 if __name__ == '__main__':
 	if len(sys.argv) < 2:
 		print("Usage:", sys.argv[0], "<input> [<home>]")
