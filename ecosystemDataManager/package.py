@@ -1,3 +1,4 @@
+from datetime import datetime
 from .version import Version
 
 class Package(object):
@@ -112,14 +113,36 @@ class Package(object):
 		except Exception as e:
 			raise e
 
+	def parseDate(self, strDate):
+		strDate = strDate.replace("-", " ")
+		strDate = strDate.replace(".", " ")
+		strDate = strDate.replace(":", " ")
+		strDate = strDate.replace("T", " ")
+		strDate = strDate.replace("Z", "")
+		split = strDate.split(" ")
+		split[0] = int(split[0])
+		split[1] = int(split[1])
+		split[2] = int(split[2])
+		if len(split) > 3:
+			split[3] = int(split[3])
+			split[4] = int(split[4])
+			split[5] = int(split[5])
+			date = datetime(split[0], split[1], split[2], split[3], split[4], split[5])
+		else:
+			date = datetime(split[0], split[1], split[2])
+		return date
+
 	def getLastestVersion(self):
 		versions = self.getVersions()
 		if len(versions) == 0:
 			raise Exception
 		latestVersion = versions[0]
+		latestDate = self.parseDate(latestVersion.getDatetime())
 		for version in versions:
-			if version.getDatetime() > latestVersion.getDatetime():
+			versionDate = self.parseDate(version.getDatetime())
+			if versionDate > latestDate:
 				latestVersion = version
+				latestDate = versionDate
 		return latestVersion
 
 	def getDependencies(self):
