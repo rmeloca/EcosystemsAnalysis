@@ -50,7 +50,10 @@ class Dependency(object):
 	def isRegular(self):
 		return not self.isIrregular()
 
-	def equals(self, other):
+	def __eq__(self, other):
 		if type(other) != type(self):
 			return False
 		return other.getIndex() == self.getIndex()
+
+	def __str__(self):
+		return self.outVersion.__str__() + " --> " + self.inVersion.__str__()

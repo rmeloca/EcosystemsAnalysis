@@ -20,3 +20,6 @@ class License(object):
 		licensesHasGroup = self.ecosystemDataManager.get("LicensesHasGroup")
 		licensesHasGroup[self.version.getIndex()][self.index] = group.value
 		return self
+
+	def __str__(self):
+		return self.getName()

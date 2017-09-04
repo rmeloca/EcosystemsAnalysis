@@ -127,6 +127,8 @@ class Package(object):
 		dependencies = []
 		for version in versions:
 			dependencies += version.getDependencies()
+		dependencies = set(dependencies)
+		dependencies = list(dependencies)
 		return dependencies
 	
 	def getOcurrences(self):
@@ -134,6 +136,8 @@ class Package(object):
 		ocurrences = []
 		for version in versions:
 			ocurrences += version.getOcurrences()
+		ocurrences = set(ocurrences)
+		ocurrences = list(ocurrences)
 		return ocurrences
 
 	def getDescendents(self):
@@ -141,6 +145,8 @@ class Package(object):
 		descendents = []
 		for version in versions:
 			descendents += version.getDescendents()
+		descendents = set(descendents)
+		descendents = list(descendents)
 		return descendents
 
 	def getParents(self):
@@ -148,16 +154,23 @@ class Package(object):
 		parents = []
 		for version in versions:
 			parents += version.getParents()
+		parents = set(parents)
+		parents = list(parents)
 		return parents
 
 	def getContext(self):
-		return self.getParents() + self.getDescendents()
+		context = self.getParents() + self.getDescendents()
+		context = set(context)
+		context = list(context)
+		return context
 
 	def getPackagesDependencies(self):
 		dependencies = self.getDependencies()
 		packages = []
 		for dependency in dependencies:
 			packages.append(dependency.getInVersion().getPackage())
+		packages = set(packages)
+		packages = list(packages)
 		return packages
 
 	def getPackagesOcurrences(self):
@@ -166,6 +179,8 @@ class Package(object):
 		ocurrences = []
 		for package in indexes:
 			ocurrences.append(self.ecosystemDataManager.getPackageByIndex(indexes[package]))
+		ocurrences = set(ocurrences)
+		ocurrences = list(ocurrences)
 		return ocurrences
 		
 	def getPackagesDescendents(self):
@@ -173,6 +188,8 @@ class Package(object):
 		packages = []
 		for descendent in descendents:
 			packages.append(descendent.getPackage())
+		descendents = set(descendents)
+		descendents = list(descendents)
 		return packages
 
 	def getPackagesParents(self):
@@ -180,10 +197,15 @@ class Package(object):
 		packages = []
 		for parent in parents:
 			packages.append(parent.getPackage())
+		parents = set(parents)
+		parents = list(parents)
 		return packages
 
 	def getPackagesContext(self):
-		return self.getPackagesParents() + self.getPackagesDescendents()
+		context = self.getPackagesParents() + self.getPackagesDescendents()
+		context = set(context)
+		context = list(context)
+		return context
 
 	def getLocalRegularityRate(self):
 		localRegularityRate = []
@@ -191,7 +213,10 @@ class Package(object):
 			localRegularityRate.append(version.getLocalRegularityRate())
 		return localRegularityRate
 
-	def equals(self, other):
+	def __eq__(self, other):
 		if type(other) != type(self):
 			return False
 		return other.getIndex() == self.getIndex()
+
+	def __str__(self):
+		return self.getName()
