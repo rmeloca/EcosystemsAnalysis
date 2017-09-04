@@ -50,6 +50,9 @@ class Dependency(object):
 	def isRegular(self):
 		return not self.isIrregular()
 
+	def __hash__(self):
+		return self.index
+
 	def __eq__(self, other):
 		if type(other) != type(self):
 			return False
