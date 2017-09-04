@@ -176,6 +176,9 @@ class Version(object):
 		context = list(context)
 		return context
 
+	def __hash__(self):
+		return self.index
+
 	def __eq__(self, other):
 		if type(other) != type(self):
 			return False
