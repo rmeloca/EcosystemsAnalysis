@@ -213,6 +213,18 @@ class Package(object):
 			localRegularityRate.append(version.getLocalRegularityRate())
 		return localRegularityRate
 
+	def getMostPopularVersions(self, size = None):
+		mostPopularVersions = []
+		popularity = {}
+		for version in self.getVersions():
+			popularity[version] = len(version.getOcurrences())
+		popularity = sorted(popularity.items(), key = lambda x: x[1], reverse = True)
+		if size:
+			popularity = popularity[:size]
+		for entry in popularity:
+			mostPopularVersions.append(entry[0])
+		return mostPopularVersions
+
 	def __hash__(self):
 		return self.index
 
