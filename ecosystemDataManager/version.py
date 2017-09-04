@@ -156,6 +156,8 @@ class Version(object):
 		for dependency in dependencies:
 			descendents.append(dependency.getInVersion())
 			descendents += dependency.getInVersion().getDescendents()
+		descendents = set(descendents)
+		descendents = list(descendents)
 		return descendents
 
 	def getParents(self):
@@ -164,12 +166,20 @@ class Version(object):
 		for ocurrence in ocurrences:
 			parents.append(ocurrence.getInVersion())
 			parents += ocurrence.getInVersion().getParents()
+		parents = set(parents)
+		parents = list(parents)
 		return parents
 
 	def getContext(self):
-		return self.getParents() + self.getDescendents()
+		context = self.getParents() + self.getDescendents()
+		context = set(context)
+		context = list(context)
+		return context
 
-	def equals(self, other):
+	def __eq__(self, other):
 		if type(other) != type(self):
 			return False
 		return other.getIndex() == self.getIndex()
+
+	def __str__(self):
+		return self.getPackage().getName() + "@" + self.getName()

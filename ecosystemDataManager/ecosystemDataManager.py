@@ -151,6 +151,9 @@ class EcosystemDataManager(object):
 			mostPopularPackages.append(entry[0])
 		return mostPopularPackages
 
+	def __str__(self):
+		return self.ecosystem + " at " + self.home
+
 if __name__ == '__main__':
 	if len(sys.argv) < 2:
 		print("Usage:", sys.argv[0], "<input> [<home>]")
