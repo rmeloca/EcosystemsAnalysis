@@ -18,7 +18,7 @@ def getTop10Packages(edm):
     versions = []
     i = 0
     for package_name in MOST_POPULARITY:
-        versions.append(edm.getPackage(package_name).getVersion('0'))
+        versions.append(edm.getPackage(package_name))
         i +=1
         if (i == 10):
             break
@@ -72,6 +72,7 @@ if __name__ == '__main__':
 
         #writer.writeheader()
         for vertice in VERTICES:
+            print (vertice)
             #print (vertice[0].getPackage().getName() + ','+ vertice[1].getPackage().getName())
-            writer.writerow({'v1': vertice[0].getPackage().getName(), 'v2': vertice[1].getPackage().getName()})
+            #writer.writerow({'v1': vertice[0].getName(), 'v2': vertice[1].getPackage().getName()})
     
