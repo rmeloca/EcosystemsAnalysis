@@ -14,11 +14,11 @@ VERSION_VISITED_DEPENDENCIES = []
 
 VERTICES = []
 
-def getTop10Packages(edm):
+def getTop10Packages(edm, packages):
     versions = []
     i = 0
-    for package_name in MOST_POPULARITY:
-        versions.append(edm.getPackage(package_name))
+    for package in packages:
+        versions.append(package)
         i +=1
         if (i == 10):
             break
@@ -62,8 +62,10 @@ def buildTree(versions):
             recursivaDependencies(d)
 
 if __name__ == '__main__':
-    ecosystemDataManager = EcosystemDataManager("cran")
-    versions = getTop10Packages(ecosystemDataManager)
+    ecosystemDataManager = EcosystemDataManager("rubygems")
+    packages = ecosystemDataManager.getMostPopularVersions(10)
+    print (packages)
+    versions = getTop10Packages(ecosystemDataManager, packages)
     buildTree(versions)
 
     with open('cranTop10_tree.csv', 'w') as csvfile:
@@ -72,7 +74,7 @@ if __name__ == '__main__':
 
         #writer.writeheader()
         for vertice in VERTICES:
-            print (vertice)
-            #print (vertice[0].getPackage().getName() + ','+ vertice[1].getPackage().getName())
-            #writer.writerow({'v1': vertice[0].getName(), 'v2': vertice[1].getPackage().getName()})
+            #print (vertice)
+            #print (vertice[0].getPackage().getName() + ','+vertice[0].getPackage().getName())
+            writer.writerow({'v1': vertice[0].getPackage().getName(), 'v2': vertice[1].getPackage().getName()})
     
