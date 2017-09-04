@@ -213,6 +213,9 @@ class Package(object):
 			localRegularityRate.append(version.getLocalRegularityRate())
 		return localRegularityRate
 
+	def __hash__(self):
+		return self.index
+
 	def __eq__(self, other):
 		if type(other) != type(self):
 			return False
