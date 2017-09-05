@@ -14,16 +14,31 @@ from ecosystemDataManager.ecosystemDataManager import EcosystemDataManager
 #    return localRegularityRate
 
 
-def plotBoxPlot(vector):
+def histogram(vector, name_histogram):
+    trace = go.Histogram(
+        name='Results',
+        x = vector,
+        xbins=dict(
+            start=1,
+            end=150,
+            size=0.5
+        )
+    )
+    data = [trace]
+    plotly.offline.plot(data, filename=name_histogram)
+    
+
+def plotBoxPlot(vector, name_boxplot):
     trace0 = go.Box(
         y=vector
     )
     data = [trace0]
-    plotly.offline.plot(data)
+    plotly.offline.plot(data, filename=name_boxplot)
 
 
 if __name__ == '__main__':
-    ecosystemDataManager = EcosystemDataManager("rubygems")
+    ecosystemDataManager = EcosystemDataManager("npm")
     packageSizeDistribution = ecosystemDataManager.getPackageSizeDistribution()
     print (packageSizeDistribution)
-    plotBoxPlot(packageSizeDistribution)
+    plotBoxPlot(packageSizeDistribution, 'boxplot_packageSizeDistribution')
+    histogram(packageSizeDistribution, 'histogram_packageSizeDistribution')
