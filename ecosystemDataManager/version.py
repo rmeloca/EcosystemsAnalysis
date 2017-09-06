@@ -99,16 +99,19 @@ class Version(object):
 			licenses.append(self.getLicenseByIndex(len(licenses)))
 		return licenses
 
-	def addAuthor(self, email, name):
-		self.get("VersionsHasAuthors")[email] = name
+	def setAuthor(self, author):
+		self.set("VersionsHasAuthor", author)
 		return self
 
-	def setAuthors(self, authors):
-		self.set("VersionsHasAuthors", authors)
+	def getAuthor(self):
+		return self.get("VersionsHasAuthor")
+
+	def setEmail(self, email):
+		self.set("VersionsHasEmail", email)
 		return self
 
-	def getAuthors(self):
-		return self.get("VersionsHasAuthors")
+	def getEmail(self):
+		return self.get("VersionsHasEmail")
 
 	def addDependency(self, version):
 		versionsHasDependencies = self.ecosystemDataManager.get("VersionsHasDependencies")
