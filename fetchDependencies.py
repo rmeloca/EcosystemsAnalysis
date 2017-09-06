@@ -41,7 +41,8 @@ def fetchNpm(package):
 		version.setLicenses(licenses)
 		version.setDatetime(metadata["time"][metadataVersion])
 		try:
-			version.setAuthors({metadata["versions"][metadataVersion]["author"]["email"]: metadata["versions"][metadataVersion]["author"]["name"]})
+			version.setAuthor(metadata["versions"][metadataVersion]["author"]["name"])
+			version.setEmail(metadata["versions"][metadataVersion]["author"]["email"])
 		except Exception as e:
 			print(package.getName() + "@" + metadataVersion, "no author")
 		try:
@@ -103,7 +104,8 @@ def fetchRubygems(package):
 			except Exception as e:
 				print(package.getName() + "@" + metadataVersion, "no license")
 			version.setDatetime(metadata["created_at"])
-			version.setAuthors({metadata["authors"]: metadata["mailing_list_uri"]})
+			version.setAuthor(metadata["authors"])
+			version.setEmail(metadata["mailing_list_uri"])
 			version.setDownloads(metadata["version_downloads"])
 			try:
 				for metadataDependency in metadata["dependencies"]["runtime"]:
@@ -144,11 +146,13 @@ def fetchCran(package):
 			datetime = td[1].getText().replace("\n", "")
 		elif (td[0].getText() == "Maintainer:"):
 			split = td[1].getText().replace("\n", "").replace(">", "").split("<")
-			authors = {split[1].strip(): split[0].strip()}
+			author = split[0].strip()
+			email = split[1].strip()
 	version = package.addVersion(metadataVersion)
 	version.setLicenses(licenses)
 	version.setDatetime(datetime)
-	version.setAuthors(authors)
+	version.setAuthor(author)
+	version.setEmail(email)
 	for metadataDependency in dependencies:
 		split = metadataDependency.replace("(", "").replace(")", "").split(" ")
 		value = None
