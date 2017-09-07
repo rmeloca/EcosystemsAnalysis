@@ -151,6 +151,21 @@ class EcosystemDataManager(object):
 			mostPopularPackages.append(entry[0])
 		return mostPopularPackages
 
+	def calculateIrregularEdges(self):
+		pass
+
+	def calculateGlobalRegularityRate(self):
+		pass
+
+	def calculateLocalRegularityRate(self):
+		pass
+
+	def getIrregularPackages(self):
+		pass
+
+	def getAffectedPackages(self):
+		pass
+
 	def __str__(self):
 		return self.ecosystem + " at " + self.home
 
