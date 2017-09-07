@@ -161,7 +161,17 @@ class EcosystemDataManager(object):
 		pass
 
 	def getIrregularPackages(self):
-		pass
+		packages = self.getPackages()
+		irregularPackages = []
+		for package in packages:
+			if package.isIrregular():
+				irregularPackages.append(package)
+		return irregularPackages
+
+	def getRegularPackages(self):
+		packages = self.getPackages()
+		irregularPackages = self.getIrregularPackages()
+		return packages - irregularPackages
 
 	def getAffectedPackages(self):
 		pass
