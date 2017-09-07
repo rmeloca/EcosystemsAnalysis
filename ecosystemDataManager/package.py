@@ -114,6 +114,8 @@ class Package(object):
 			raise e
 
 	def parseDate(self, strDate):
+		if not strDate:
+			return datetime(1,1,1)
 		strDate = strDate.replace("-", " ")
 		strDate = strDate.replace(".", " ")
 		strDate = strDate.replace(":", " ")
@@ -144,6 +146,9 @@ class Package(object):
 				latestVersion = version
 				latestDate = versionDate
 		return latestVersion
+
+	def getHistory(self):
+		pass
 
 	def getDependencies(self):
 		versions = self.getVersions()
@@ -247,6 +252,9 @@ class Package(object):
 		for entry in popularity:
 			mostPopularVersions.append(entry[0])
 		return mostPopularVersions
+
+	def getIrregularVersions(self):
+		pass
 
 	def __hash__(self):
 		return self.index
