@@ -148,7 +148,15 @@ class Package(object):
 		return latestVersion
 
 	def getHistory(self):
-		pass
+		versions = self.getVersions()
+		history = {}
+		for version in versions:
+			history[version] = self.parseDate(version.getDatetime())
+		history = sorted(history.items(), key = lambda x: x[1])
+		orderedHistory = []
+		for entry in history:
+			orderedHistory.append(entry[0])
+		return orderedHistory
 
 	def getDependencies(self):
 		versions = self.getVersions()
