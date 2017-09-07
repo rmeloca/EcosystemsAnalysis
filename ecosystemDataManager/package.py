@@ -158,13 +158,14 @@ class Package(object):
 			orderedHistory.append(entry[0])
 		return orderedHistory
 
-	def getDependencies(self):
+	def getDependencies(self, distinct = True):
 		versions = self.getVersions()
 		dependencies = []
 		for version in versions:
 			dependencies += version.getDependencies()
-		dependencies = set(dependencies)
-		dependencies = list(dependencies)
+		if distinct:
+			dependencies = set(dependencies)
+			dependencies = list(dependencies)
 		return dependencies
 	
 	def getOcurrences(self):
@@ -261,8 +262,32 @@ class Package(object):
 			mostPopularVersions.append(entry[0])
 		return mostPopularVersions
 
+	def isIrregular(self):
+		versions = self.getVersions()
+		for version in versions:
+			if version.isIrregular():
+				return True
+		return False
+
+	def isRegular(self):
+		versions = self.getVersions()
+		for version in versions:
+			if version.isIrregular():
+				return False
+		return True
+
 	def getIrregularVersions(self):
-		pass
+		versions = self.getVersions()
+		irregularVersions = []
+		for version in versions:
+			if version.isIrregular():
+				irregularVersions.append(version)
+		return irregularVersions
+
+	def getRegularVersions(self):
+		versions = self.getVersions()
+		irregularVersions = self.getIrregularVersions()
+		return versions - irregularVersions
 
 	def __hash__(self):
 		return self.index

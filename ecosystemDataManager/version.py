@@ -179,6 +179,33 @@ class Version(object):
 		context = list(context)
 		return context
 
+	def isIrregular(self):
+		dependencies = self.getDependencies()
+		for dependency in dependencies:
+			if dependency.isIrregular:
+				return True
+		return False
+
+	def isRegular(self):
+		dependencies = self.getDependencies()
+		for dependency in dependencies:
+			if dependency.isIrregular:
+				return False
+		return True
+
+	def getIrregularDependencies(self):
+		dependencies = self.getDependencies()
+		irregularDependencies = []
+		for dependency in dependencies:
+			if dependency.isIrregular():
+				irregularDependencies.append(dependency)
+		return irregularDependencies
+
+	def getRegularDependencies(self):
+		dependencies = self.getDependencies()
+		irregularDependencies = self.getIrregularDependencies()
+		return dependencies - irregularDependencies
+
 	def __hash__(self):
 		return self.index
 
