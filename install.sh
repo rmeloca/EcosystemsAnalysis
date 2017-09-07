@@ -13,5 +13,7 @@ echo "python3.5 $(pwd)/fetchDependencies.py cran -1 $(pwd)" >> "fetchAll.sh"
 echo "python3.5 $(pwd)/fetchDependencies.py rubygems -1 $(pwd)" >> "fetchAll.sh"
 echo "python3.5 $(pwd)/fetchDependencies.py npm -1 $(pwd)" >> "fetchAll.sh"
 
+chmod +x "fetchAll.sh"
+
 echo "$(date -d "+5 minutes" +"%M %H %d %m") * $(pwd)/fetchAll.sh >> $(pwd)/log.log 2>&1" > "schedule.cron"
 crontab "schedule.cron"

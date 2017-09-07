@@ -33,12 +33,12 @@ class EcosystemDataManager(object):
 		self.attributes["VersionsHasOcurrences"] = []
 		self.attributes["VersionsHasGlobalRegularityRate"] = []
 		self.attributes["VersionsHasLocalRegularityRate"] = []
-		self.attributes["VersionsHasAuthors"] = []
+		self.attributes["VersionsHasAuthor"] = []
+		self.attributes["VersionsHasEmail"] = []
 		self.attributes["VersionsHasContextSize"] = []
 		self.attributes["VersionsHasDatetime"] = []
 		self.attributes["VersionsHasDownloads"] = []
 		self.attributes["VersionsHasLinesOfCode"] = []
-		self.attributes["VersionsHasMaintainers"] = []
 
 		self.attributes["VersionsHasLicenses"] = []
 		self.attributes["LicensesHasGroup"] = []
@@ -125,6 +125,49 @@ class EcosystemDataManager(object):
 		for package in self.getPackages():
 			packageSizeDistribution.append(len(package.getVersions()))
 		return packageSizeDistribution
+
+	def getMostPopularVersions(self, size = None):
+		mostPopularVersions = []
+		popularity = {}
+		for package in self.getPackages():
+			for version in package.getVersions():
+				popularity[version] = len(version.getOcurrences())
+		popularity = sorted(popularity.items(), key = lambda x: x[1], reverse = True)
+		if size:
+			popularity = popularity[:size]
+		for entry in popularity:
+			mostPopularVersions.append(entry[0])
+		return mostPopularVersions
+
+	def getMostPopularPackages(self, size = None):
+		mostPopularPackages = []
+		popularity = {}
+		for package in self.getPackages():
+			popularity[package] = len(package.getOcurrences())
+		popularity = sorted(popularity.items(), key = lambda x: x[1], reverse = True)
+		if size:
+			popularity = popularity[:size]
+		for entry in popularity:
+			mostPopularPackages.append(entry[0])
+		return mostPopularPackages
+
+	def calculateIrregularEdges(self):
+		pass
+
+	def calculateGlobalRegularityRate(self):
+		pass
+
+	def calculateLocalRegularityRate(self):
+		pass
+
+	def getIrregularPackages(self):
+		pass
+
+	def getAffectedPackages(self):
+		pass
+
+	def __str__(self):
+		return self.ecosystem + " at " + self.home
 
 if __name__ == '__main__':
 	if len(sys.argv) < 2:

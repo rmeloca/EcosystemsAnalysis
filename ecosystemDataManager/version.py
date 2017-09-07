@@ -99,16 +99,19 @@ class Version(object):
 			licenses.append(self.getLicenseByIndex(len(licenses)))
 		return licenses
 
-	def addAuthor(self, email, name):
-		self.get("VersionsHasAuthors")[email] = name
+	def setAuthor(self, author):
+		self.set("VersionsHasAuthor", author)
 		return self
 
-	def setAuthors(self, authors):
-		self.set("VersionsHasAuthors", authors)
+	def getAuthor(self):
+		return self.get("VersionsHasAuthor")
+
+	def setEmail(self, email):
+		self.set("VersionsHasEmail", email)
 		return self
 
-	def getAuthors(self):
-		return self.get("VersionsHasAuthors")
+	def getEmail(self):
+		return self.get("VersionsHasEmail")
 
 	def addDependency(self, version):
 		versionsHasDependencies = self.ecosystemDataManager.get("VersionsHasDependencies")
@@ -156,6 +159,8 @@ class Version(object):
 		for dependency in dependencies:
 			descendents.append(dependency.getInVersion())
 			descendents += dependency.getInVersion().getDescendents()
+		descendents = set(descendents)
+		descendents = list(descendents)
 		return descendents
 
 	def getParents(self):
@@ -164,12 +169,23 @@ class Version(object):
 		for ocurrence in ocurrences:
 			parents.append(ocurrence.getInVersion())
 			parents += ocurrence.getInVersion().getParents()
+		parents = set(parents)
+		parents = list(parents)
 		return parents
 
 	def getContext(self):
-		return self.getParents() + self.getDescendents()
+		context = self.getParents() + self.getDescendents()
+		context = set(context)
+		context = list(context)
+		return context
 
-	def equals(self, other):
+	def __hash__(self):
+		return self.index
+
+	def __eq__(self, other):
 		if type(other) != type(self):
 			return False
 		return other.getIndex() == self.getIndex()
+
+	def __str__(self):
+		return self.getPackage().getName() + "@" + self.getName()

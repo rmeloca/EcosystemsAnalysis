@@ -12,3 +12,6 @@ class Ocurrence(object):
 
 	def getInVersion(self):
 		return self.inVersion
+
+	def __str__(self):
+		return self.outVersion.__str__() + " --> " + self.inVersion.__str__()

@@ -5,6 +5,9 @@ import json
 from bs4 import BeautifulSoup
 from ecosystemDataManager.ecosystemDataManager import EcosystemDataManager
 
+RUBYGEMS_PACKAGES_HAS_VERSIONS = {}
+NPM_VISITED_PACKAGES = []
+
 def getContent(url):
 	request = requests.get(url)
 	if request.status_code != 200:
@@ -14,18 +17,36 @@ def getContent(url):
 def getJson(url):
 	return json.loads(getContent(url))
 
+def versionSatisfies(strVersion1, strVersion2):
+	for i in range(len(strVersion1)):
+		if strVersion2[i] == "x":
+			return True
+		elif strVersion2[i] != strVersion1[i]:
+			return False
+	return True
+
+def resolveVersion(package, strVersion):
+	versions = package.getVersions()
+	for version in versions:
+		if versionSatisfies(version.getName(), strVersion):
+			return version.getName()
+	return strVersion.replace("x", "0")
+
 def fetchNpm(package):
+	if package in NPM_VISITED_PACKAGES:
+		return
+	NPM_VISITED_PACKAGES.append(package)
 	ecosystemDataManager = package.getEcosystemDataManager()
 	registry = 'https://registry.npmjs.org'
 	metadata = getJson(os.path.join(registry, package.getName()))
 	try:
 		package.setTags(metadata["keywords"])
 	except Exception as e:
-		print(package.getName(), "no keyworks")
+		print(package.getName(), "no keyworks", e)
 	try:
 		package.setRepository(metadata["repository"]["url"])
 	except Exception as e:
-		print(package.getName(), "no repository")
+		print(package.getName(), "no repository", e)
 	for metadataVersion in metadata["versions"]:
 		version = package.addVersion(metadataVersion)
 		licenses = []
@@ -33,46 +54,59 @@ def fetchNpm(package):
 			for license in metadata["versions"][metadataVersion]["licenses"]:
 				licenses.append(license["type"])
 		except Exception as e:
-			print(package.getName() + "@" + metadataVersion, "no licenses")
+			print(package.getName() + "@" + metadataVersion, "no licenses", e)
 		try:
 			licenses.append(metadata["versions"][metadataVersion]["license"])
 		except Exception as e:
-			print(package.getName() + "@" + metadataVersion, "no license")
+			print(package.getName() + "@" + metadataVersion, "no license", e)
 		version.setLicenses(licenses)
 		version.setDatetime(metadata["time"][metadataVersion])
 		try:
-			version.setAuthors({metadata["versions"][metadataVersion]["author"]["email"]: metadata["versions"][metadataVersion]["author"]["name"]})
+			version.setAuthor(metadata["versions"][metadataVersion]["author"]["name"])
 		except Exception as e:
-			print(package.getName() + "@" + metadataVersion, "no author")
+			print(package.getName() + "@" + metadataVersion, "no author", e)
+		try:
+			version.setEmail(metadata["versions"][metadataVersion]["author"]["email"])
+		except Exception as e:
+			print(package.getName() + "@" + metadataVersion, "no email", e)
 		try:
 			for metadataDependency in metadata["versions"][metadataVersion]["dependencies"]:
-				key = metadataDependency
-				value = metadata["versions"][metadataVersion]["dependencies"][metadataDependency]
-				requirements = value
-				value = value.split(" ")[0]
-				value = value.replace("x", "0")
-				if value[1] == "=":
-					delimiter = value[0:2]
-					value = value[2:]
-				elif value[0] == ">" or value[0] == "<" or value[0] == "~" or value[0] == "^":
-					delimiter = value[0]
-					value = value[1:]
-				elif value[0] == "*" or value == "latest":
-					delimiter = value
-					try:
-						value = ecosystemDataManager.getPackage(key).getLastestVersion().getName()
-					except Exception as e:
-						fetchNpm(ecosystemDataManager.getPackage(key))
-						value = ecosystemDataManager.getPackage(key).getLastestVersion().getName()
-				dependencyPackage = ecosystemDataManager.addPackage(key)
-				dependencyVersion = dependencyPackage.addVersion(value)
-				dependency = version.addDependency(dependencyVersion)
-				dependency.setDelimiter(delimiter)
-				dependency.setRequirements(requirements)
+				try:
+					key = metadataDependency
+					value = metadata["versions"][metadataVersion]["dependencies"][metadataDependency]
+					requirements = value
+					value = value.split(" ")[0]
+					delimiter = None
+					if value[0] == ">" or value[0] == "<" or value[0] == "~" or value[0] == "^":
+						delimiter = value[0]
+						value = value[1:]
+					elif value[0] == "*" or value == "latest":
+						delimiter = value
+						try:
+							value = ecosystemDataManager.getPackage(key).getLastestVersion().getName()
+						except Exception as e:
+							print(package.getName() + "@" + metadataVersion, "fetching", key + "@" + value, e)
+							fetchNpm(ecosystemDataManager.addPackage(key))
+							value = ecosystemDataManager.getPackage(key).getLastestVersion().getName()
+					elif len(value) > 1 and value[1] == "=":
+						delimiter = value[0:2]
+						value = value[2:]
+					if "x" in value:
+						try:
+							resolveVersion(ecosystemDataManager.getPackage(key), value)
+						except Exception as e:
+							print(package.getName() + "@" + metadataVersion, "resolving", key + "@" + value, e)
+							fetchNpm(ecosystemDataManager.addPackage(key))
+							resolveVersion(ecosystemDataManager.getPackage(key), value)
+					dependencyPackage = ecosystemDataManager.addPackage(key)
+					dependencyVersion = dependencyPackage.addVersion(value)
+					dependency = version.addDependency(dependencyVersion)
+					dependency.setDelimiter(delimiter)
+					dependency.setRequirements(requirements)
+				except Exception as e:
+					print(package.getName() + "@" + metadataVersion, "resolve dependency failure", e)
 		except Exception as e:
-			print(package.getName() + "@" + metadataVersion, "no dependencies")
-
-RUBYGEMS_PACKAGES_HAS_VERSIONS = {}
+			print(package.getName() + "@" + metadataVersion, "no dependencies", e)
 
 def fetchRubygemsPackages():
 	registry = 'https://rubygems.org/'
@@ -103,7 +137,8 @@ def fetchRubygems(package):
 			except Exception as e:
 				print(package.getName() + "@" + metadataVersion, "no license")
 			version.setDatetime(metadata["created_at"])
-			version.setAuthors({metadata["authors"]: metadata["mailing_list_uri"]})
+			version.setAuthor(metadata["authors"])
+			version.setEmail(metadata["mailing_list_uri"])
 			version.setDownloads(metadata["version_downloads"])
 			try:
 				for metadataDependency in metadata["dependencies"]["runtime"]:
@@ -144,11 +179,13 @@ def fetchCran(package):
 			datetime = td[1].getText().replace("\n", "")
 		elif (td[0].getText() == "Maintainer:"):
 			split = td[1].getText().replace("\n", "").replace(">", "").split("<")
-			authors = {split[1].strip(): split[0].strip()}
+			author = split[0].strip()
+			email = split[1].strip()
 	version = package.addVersion(metadataVersion)
 	version.setLicenses(licenses)
 	version.setDatetime(datetime)
-	version.setAuthors(authors)
+	version.setAuthor(author)
+	version.setEmail(email)
 	for metadataDependency in dependencies:
 		split = metadataDependency.replace("(", "").replace(")", "").split(" ")
 		value = None
