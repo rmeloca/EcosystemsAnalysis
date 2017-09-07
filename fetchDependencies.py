@@ -60,7 +60,10 @@ def fetchNpm(package):
 		except Exception as e:
 			print(package.getName() + "@" + metadataVersion, "no license", e)
 		version.setLicenses(licenses)
-		version.setDatetime(metadata["time"][metadataVersion])
+		try:
+			version.setDatetime(metadata["time"][metadataVersion])
+		except Exception as e:
+			print(package.getName() + "@" + metadataVersion, "no datetime", e)
 		try:
 			version.setAuthor(metadata["versions"][metadataVersion]["author"]["name"])
 		except Exception as e:
@@ -77,7 +80,14 @@ def fetchNpm(package):
 					requirements = value
 					value = value.split(" ")[0]
 					delimiter = None
+<<<<<<< HEAD
 					if value[0] == ">" or value[0] == "<" or value[0] == "~" or value[0] == "^":
+=======
+					if len(value) > 1 and value[1] == "=":
+						delimiter = value[0:2]
+						value = value[2:]
+					elif value[0] == ">" or value[0] == "<" or value[0] == "~" or value[0] == "^":
+>>>>>>> master
 						delimiter = value[0]
 						value = value[1:]
 					elif value[0] == "*" or value == "latest":
@@ -88,9 +98,12 @@ def fetchNpm(package):
 							print(package.getName() + "@" + metadataVersion, "fetching", key + "@" + value, e)
 							fetchNpm(ecosystemDataManager.addPackage(key))
 							value = ecosystemDataManager.getPackage(key).getLastestVersion().getName()
+<<<<<<< HEAD
 					elif len(value) > 1 and value[1] == "=":
 						delimiter = value[0:2]
 						value = value[2:]
+=======
+>>>>>>> master
 					if "x" in value:
 						try:
 							resolveVersion(ecosystemDataManager.getPackage(key), value)
