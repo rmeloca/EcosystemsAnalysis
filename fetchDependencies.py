@@ -5,6 +5,9 @@ import json
 from bs4 import BeautifulSoup
 from ecosystemDataManager.ecosystemDataManager import EcosystemDataManager
 
+RUBYGEMS_PACKAGES_HAS_VERSIONS = {}
+NPM_VISITED_PACKAGES = []
+
 def getContent(url):
 	request = requests.get(url)
 	if request.status_code != 200:
@@ -15,17 +18,20 @@ def getJson(url):
 	return json.loads(getContent(url))
 
 def fetchNpm(package):
+	if package in NPM_VISITED_PACKAGES:
+		return
+	NPM_VISITED_PACKAGES.append(package)
 	ecosystemDataManager = package.getEcosystemDataManager()
 	registry = 'https://registry.npmjs.org'
 	metadata = getJson(os.path.join(registry, package.getName()))
 	try:
 		package.setTags(metadata["keywords"])
 	except Exception as e:
-		print(package.getName(), "no keyworks")
+		print(package.getName(), "no keyworks", e)
 	try:
 		package.setRepository(metadata["repository"]["url"])
 	except Exception as e:
-		print(package.getName(), "no repository")
+		print(package.getName(), "no repository", e)
 	for metadataVersion in metadata["versions"]:
 		version = package.addVersion(metadataVersion)
 		licenses = []
@@ -33,25 +39,29 @@ def fetchNpm(package):
 			for license in metadata["versions"][metadataVersion]["licenses"]:
 				licenses.append(license["type"])
 		except Exception as e:
-			print(package.getName() + "@" + metadataVersion, "no licenses")
+			print(package.getName() + "@" + metadataVersion, "no licenses", e)
 		try:
 			licenses.append(metadata["versions"][metadataVersion]["license"])
 		except Exception as e:
-			print(package.getName() + "@" + metadataVersion, "no license")
+			print(package.getName() + "@" + metadataVersion, "no license", e)
 		version.setLicenses(licenses)
 		version.setDatetime(metadata["time"][metadataVersion])
 		try:
 			version.setAuthor(metadata["versions"][metadataVersion]["author"]["name"])
+		except Exception as e:
+			print(package.getName() + "@" + metadataVersion, "no author", e)
+		try:
 			version.setEmail(metadata["versions"][metadataVersion]["author"]["email"])
 		except Exception as e:
-			print(package.getName() + "@" + metadataVersion, "no author")
-		try:
-			for metadataDependency in metadata["versions"][metadataVersion]["dependencies"]:
+			print(package.getName() + "@" + metadataVersion, "no email", e)
+		for metadataDependency in metadata["versions"][metadataVersion]["dependencies"]:
+			try:
 				key = metadataDependency
 				value = metadata["versions"][metadataVersion]["dependencies"][metadataDependency]
 				requirements = value
 				value = value.split(" ")[0]
 				value = value.replace("x", "0")
+				delimiter = None
 				if value[1] == "=":
 					delimiter = value[0:2]
 					value = value[2:]
@@ -63,6 +73,7 @@ def fetchNpm(package):
 					try:
 						value = ecosystemDataManager.getPackage(key).getLastestVersion().getName()
 					except Exception as e:
+						print(package.getName() + "@" + metadataVersion, "FETCHING", key, e)
 						fetchNpm(ecosystemDataManager.getPackage(key))
 						value = ecosystemDataManager.getPackage(key).getLastestVersion().getName()
 				dependencyPackage = ecosystemDataManager.addPackage(key)
@@ -70,10 +81,8 @@ def fetchNpm(package):
 				dependency = version.addDependency(dependencyVersion)
 				dependency.setDelimiter(delimiter)
 				dependency.setRequirements(requirements)
-		except Exception as e:
-			print(package.getName() + "@" + metadataVersion, "no dependencies")
-
-RUBYGEMS_PACKAGES_HAS_VERSIONS = {}
+			except Exception as e:
+				print(package.getName() + "@" + metadataVersion, "no dependencies", e)
 
 def fetchRubygemsPackages():
 	registry = 'https://rubygems.org/'
