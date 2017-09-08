@@ -40,15 +40,21 @@ class Dependency(object):
 	def getRequirements(self):
 		return self.get("DependenciesHasRequirements")
 
-	def setIrregular(self, irregular):
-		self.set("DependenciesAreIrregular", irregular)
-		return self
-
 	def isIrregular(self):
 		return self.get("DependenciesAreIrregular")
 
 	def isRegular(self):
 		return not self.isIrregular()
+
+	def evaluate(self):
+		outLicenses = self.outVersion.getLicenses()
+		irregular = False
+		for outLicense in outLicenses:
+			if outLicense == "copyright" or outLicense == "none" or outLicense == None:
+				irregular = True
+				break
+		self.set("DependenciesAreIrregular", irregular)
+		return self
 
 	def __hash__(self):
 		return self.index
