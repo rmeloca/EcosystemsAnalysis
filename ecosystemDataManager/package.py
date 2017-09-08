@@ -49,6 +49,13 @@ class Package(object):
 		except Exception as e:
 			raise e
 
+	def resolve(self, strVersion):
+		versions = self.getVersions()
+		for version in versions:
+			if version.satisfies(strVersion):
+				return version
+		raise Exception
+
 	def addVersion(self, name):
 		packagesHasVersions = self.ecosystemDataManager.get("PackagesHasVersions")
 		try:
@@ -288,6 +295,12 @@ class Package(object):
 		versions = self.getVersions()
 		irregularVersions = self.getIrregularVersions()
 		return versions - irregularVersions
+
+	def isAffected(self):
+		versions = self.getVersions()
+		for version in versions:
+			if version.getGlobalRegularityRate() < 1:
+				return True
 
 	def __hash__(self):
 		return self.index
