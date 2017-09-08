@@ -158,17 +158,31 @@ class Version(object):
 			ocurrences.append(Ocurrence(self, Version(self.ecosystemDataManager, None, ocurrence)))
 		return ocurrences
 
-	def getDescendents(self):
+	def getDescendents(self, start = True):
+		if start:
+			self.ecosystemDataManager.visited = []
+		elif self in self.ecosystemDataManager.visited:
+			return []
+		else:
+			self.ecosystemDataManager.visited.append(self)
 		dependencies = self.getDependencies()
 		descendents = []
 		for dependency in dependencies:
 			descendents.append(dependency.getInVersion())
-			descendents += dependency.getInVersion().getDescendents()
+			if self.ecosystemDataManager.visited:
+				pass
+			descendents += dependency.getInVersion().getDescendents(False)
 		descendents = set(descendents)
 		descendents = list(descendents)
 		return descendents
 
-	def getParents(self):
+	def getParents(self, start = True):
+		if start:
+			self.ecosystemDataManager.visited = []
+		elif self in self.ecosystemDataManager.visited:
+			return []
+		else:
+			self.ecosystemDataManager.visited.append(self)
 		ocurrences = self.getOcurrences()
 		parents = []
 		for ocurrence in ocurrences:
