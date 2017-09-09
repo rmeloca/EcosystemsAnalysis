@@ -294,7 +294,7 @@ class Package(object):
 	def getRegularVersions(self):
 		versions = self.getVersions()
 		irregularVersions = self.getIrregularVersions()
-		return versions - irregularVersions
+		return list(set(versions) - set(irregularVersions))
 
 	def isAffected(self):
 		versions = self.getVersions()

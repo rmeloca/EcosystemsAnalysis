@@ -174,7 +174,7 @@ class EcosystemDataManager(object):
 	def getRegularPackages(self):
 		packages = self.getPackages()
 		irregularPackages = self.getIrregularPackages()
-		return packages - irregularPackages
+		return list(set(packages) - set(irregularPackages))
 
 	def getAffectedPackages(self):
 		affectedPackages = []
