@@ -223,7 +223,7 @@ class Version(object):
 	def getRegularDependencies(self):
 		dependencies = self.getDependencies()
 		irregularDependencies = self.getIrregularDependencies()
-		return dependencies - irregularDependencies
+		return list(set(dependencies) - set(irregularDependencies))
 
 	def calculateLocalRegularityRate(self):
 		localRegularityRate = len(self.getRegularDependencies()) / len(self.getDependencies())
