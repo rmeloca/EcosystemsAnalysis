@@ -53,19 +53,15 @@ class Version(object):
 	def getLinesOfCode(self):
 		return self.get("VersionsHasLinesOfCode")
 
-	def setLocalRegularityRate(self, localRegularityRate):
-		self.set("VersionsHasLocalRegularityRate", localRegularityRate)
-		return self
-
 	def getLocalRegularityRate(self):
 		return self.get("VersionsHasLocalRegularityRate")
 
-	def setGlobalRegularityRate(self, globalRegularityRate):
-		self.set("VersionsHasGlobalRegularityRate", globalRegularityRate)
-		return self
-
 	def getGlobalRegularityRate(self):
-		return self.get("VersionsHasGlobalRegularityRate")
+		globalRegularityRate = self.get("VersionsHasGlobalRegularityRate")
+		if not globalRegularityRate:
+			globalRegularityRate = self.calculateGlobalRegularityRate()
+			self.set("VersionsHasGlobalRegularityRate", globalRegularityRate)
+		return globalRegularityRate
 
 	def getLicenseByIndex(self, index):
 		if index < 0:
@@ -113,6 +109,15 @@ class Version(object):
 	def getEmail(self):
 		return self.get("VersionsHasEmail")
 
+	def satisfies(self, strVersion):
+		name = self.getName()
+		for i in range(len(name)):
+			if strVersion[i] == "x":
+				return True
+			elif strVersion[i] != name[i]:
+				return False
+		return True
+
 	def addDependency(self, version):
 		versionsHasDependencies = self.ecosystemDataManager.get("VersionsHasDependencies")
 		if version.getIndex() in versionsHasDependencies[self.index]:
@@ -153,17 +158,31 @@ class Version(object):
 			ocurrences.append(Ocurrence(self, Version(self.ecosystemDataManager, None, ocurrence)))
 		return ocurrences
 
-	def getDescendents(self):
+	def getDescendents(self, start = True):
+		if start:
+			self.ecosystemDataManager.visited = []
+		elif self in self.ecosystemDataManager.visited:
+			return []
+		else:
+			self.ecosystemDataManager.visited.append(self)
 		dependencies = self.getDependencies()
 		descendents = []
 		for dependency in dependencies:
 			descendents.append(dependency.getInVersion())
-			descendents += dependency.getInVersion().getDescendents()
+			if self.ecosystemDataManager.visited:
+				pass
+			descendents += dependency.getInVersion().getDescendents(False)
 		descendents = set(descendents)
 		descendents = list(descendents)
 		return descendents
 
-	def getParents(self):
+	def getParents(self, start = True):
+		if start:
+			self.ecosystemDataManager.visited = []
+		elif self in self.ecosystemDataManager.visited:
+			return []
+		else:
+			self.ecosystemDataManager.visited.append(self)
 		ocurrences = self.getOcurrences()
 		parents = []
 		for ocurrence in ocurrences:
@@ -178,6 +197,46 @@ class Version(object):
 		context = set(context)
 		context = list(context)
 		return context
+
+	def isIrregular(self):
+		dependencies = self.getDependencies()
+		for dependency in dependencies:
+			if dependency.isIrregular:
+				return True
+		return False
+
+	def isRegular(self):
+		dependencies = self.getDependencies()
+		for dependency in dependencies:
+			if dependency.isIrregular:
+				return False
+		return True
+
+	def getIrregularDependencies(self):
+		dependencies = self.getDependencies()
+		irregularDependencies = []
+		for dependency in dependencies:
+			if dependency.isIrregular():
+				irregularDependencies.append(dependency)
+		return irregularDependencies
+
+	def getRegularDependencies(self):
+		dependencies = self.getDependencies()
+		irregularDependencies = self.getIrregularDependencies()
+		return list(set(dependencies) - set(irregularDependencies))
+
+	def calculateLocalRegularityRate(self):
+		localRegularityRate = len(self.getRegularDependencies()) / len(self.getDependencies())
+		self.set("VersionsHasLocalRegularityRate")
+		return self
+
+	def calculateGlobalRegularityRate(self):
+		globalRegularityRate = self.getLocalRegularityRate()
+		dependencies = self.getDependencies()
+		for dependency in dependencies:
+			globalRegularityRate *= dependency.getInVersion().getGlobalRegularityRate()
+		self.set("VersionsHasGlobalRegularityRate", globalRegularityRate)
+		return globalRegularityRate
 
 	def __hash__(self):
 		return self.index

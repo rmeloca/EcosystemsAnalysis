@@ -151,20 +151,38 @@ class EcosystemDataManager(object):
 			mostPopularPackages.append(entry[0])
 		return mostPopularPackages
 
-	def calculateIrregularEdges(self):
-		pass
+	def evaluateEdges(self):
+		for package in self.getPackages():
+			for version in package.getVersions():
+				for dependency in version.getDependencies():
+					dependency.evaluate()
+				version.calculateLocalRegularityRate()
 
 	def calculateGlobalRegularityRate(self):
-		pass
-
-	def calculateLocalRegularityRate(self):
-		pass
+		for package in self.getPackages():
+			for version in package.getVersions():
+				version.calculateGlobalRegularityRate()
 
 	def getIrregularPackages(self):
-		pass
+		packages = self.getPackages()
+		irregularPackages = []
+		for package in packages:
+			if package.isIrregular():
+				irregularPackages.append(package)
+		return irregularPackages
+
+	def getRegularPackages(self):
+		packages = self.getPackages()
+		irregularPackages = self.getIrregularPackages()
+		return list(set(packages) - set(irregularPackages))
 
 	def getAffectedPackages(self):
-		pass
+		affectedPackages = []
+		packages = self.getPackages()
+		for package in packages:
+			if package.isAffected():
+				affectedPackages.append(package)
+		return affectedPackages
 
 	def __str__(self):
 		return self.ecosystem + " at " + self.home

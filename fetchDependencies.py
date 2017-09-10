@@ -17,21 +17,6 @@ def getContent(url):
 def getJson(url):
 	return json.loads(getContent(url))
 
-def versionSatisfies(strVersion1, strVersion2):
-	for i in range(len(strVersion1)):
-		if strVersion2[i] == "x":
-			return True
-		elif strVersion2[i] != strVersion1[i]:
-			return False
-	return True
-
-def resolveVersion(package, strVersion):
-	versions = package.getVersions()
-	for version in versions:
-		if versionSatisfies(version.getName(), strVersion):
-			return version.getName()
-	return strVersion.replace("x", "0")
-
 def fetchNpm(package):
 	if package in NPM_VISITED_PACKAGES:
 		return
@@ -96,11 +81,14 @@ def fetchNpm(package):
 							value = ecosystemDataManager.getPackage(key).getLastestVersion().getName()
 					if "x" in value:
 						try:
-							resolveVersion(ecosystemDataManager.getPackage(key), value)
+							ecosystemDataManager.getPackage(key).resolve(value)
 						except Exception as e:
 							print(package.getName() + "@" + metadataVersion, "resolving", key + "@" + value, e)
 							fetchNpm(ecosystemDataManager.addPackage(key))
-							resolveVersion(ecosystemDataManager.getPackage(key), value)
+							try:
+								value = ecosystemDataManager.getPackage(key).resolve(value).getName()
+							except Exception as e:
+								value = value.replace("x", "0")
 					dependencyPackage = ecosystemDataManager.addPackage(key)
 					dependencyVersion = dependencyPackage.addVersion(value)
 					dependency = version.addDependency(dependencyVersion)

@@ -49,6 +49,13 @@ class Package(object):
 		except Exception as e:
 			raise e
 
+	def resolve(self, strVersion):
+		versions = self.getVersions()
+		for version in versions:
+			if version.satisfies(strVersion):
+				return version
+		raise Exception
+
 	def addVersion(self, name):
 		packagesHasVersions = self.ecosystemDataManager.get("PackagesHasVersions")
 		try:
@@ -148,15 +155,24 @@ class Package(object):
 		return latestVersion
 
 	def getHistory(self):
-		pass
+		versions = self.getVersions()
+		history = {}
+		for version in versions:
+			history[version] = self.parseDate(version.getDatetime())
+		history = sorted(history.items(), key = lambda x: x[1])
+		orderedHistory = []
+		for entry in history:
+			orderedHistory.append(entry[0])
+		return orderedHistory
 
-	def getDependencies(self):
+	def getDependencies(self, distinct = True):
 		versions = self.getVersions()
 		dependencies = []
 		for version in versions:
 			dependencies += version.getDependencies()
-		dependencies = set(dependencies)
-		dependencies = list(dependencies)
+		if distinct:
+			dependencies = set(dependencies)
+			dependencies = list(dependencies)
 		return dependencies
 	
 	def getOcurrences(self):
@@ -253,8 +269,38 @@ class Package(object):
 			mostPopularVersions.append(entry[0])
 		return mostPopularVersions
 
+	def isIrregular(self):
+		versions = self.getVersions()
+		for version in versions:
+			if version.isIrregular():
+				return True
+		return False
+
+	def isRegular(self):
+		versions = self.getVersions()
+		for version in versions:
+			if version.isIrregular():
+				return False
+		return True
+
 	def getIrregularVersions(self):
-		pass
+		versions = self.getVersions()
+		irregularVersions = []
+		for version in versions:
+			if version.isIrregular():
+				irregularVersions.append(version)
+		return irregularVersions
+
+	def getRegularVersions(self):
+		versions = self.getVersions()
+		irregularVersions = self.getIrregularVersions()
+		return list(set(versions) - set(irregularVersions))
+
+	def isAffected(self):
+		versions = self.getVersions()
+		for version in versions:
+			if version.getGlobalRegularityRate() < 1:
+				return True
 
 	def __hash__(self):
 		return self.index
