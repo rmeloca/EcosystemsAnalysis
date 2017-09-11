@@ -141,7 +141,7 @@ class Package(object):
 			date = datetime(split[0], split[1], split[2])
 		return date
 
-	def getLastestVersion(self):
+	def getLatestVersion(self):
 		versions = self.getVersions()
 		if len(versions) == 0:
 			raise Exception
