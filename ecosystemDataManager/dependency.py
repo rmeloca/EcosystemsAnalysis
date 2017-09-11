@@ -47,14 +47,17 @@ class Dependency(object):
 		return not self.isIrregular()
 
 	def evaluate(self):
-		outLicenses = self.outVersion.getLicenses()
-		irregular = False
-		for outLicense in outLicenses:
-			if outLicense == "copyright" or outLicense == "none" or outLicense == None:
+		inLicenses = self.inVersion.getLicenses()
+		if inLicenses:
+			irregular = False
+		else:
+			irregular = True
+		for inLicense in inLicenses:
+			if inLicense == "copyright" or inLicense == "none" or inLicense == None:
 				irregular = True
 				break
 		self.set("DependenciesAreIrregular", irregular)
-		return self
+		return irregular
 
 	def __hash__(self):
 		return self.index

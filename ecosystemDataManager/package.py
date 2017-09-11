@@ -120,9 +120,11 @@ class Package(object):
 		except Exception as e:
 			raise e
 
-	def parseDate(self, strDate):
+	def parseDate(self, strDate, convert = True):
 		if not strDate:
-			return datetime(1,1,1)
+			if convert:
+				return datetime(1,1,1)
+			raise Exception
 		strDate = strDate.replace("-", " ")
 		strDate = strDate.replace(".", " ")
 		strDate = strDate.replace(":", " ")
@@ -141,7 +143,7 @@ class Package(object):
 			date = datetime(split[0], split[1], split[2])
 		return date
 
-	def getLastestVersion(self):
+	def getLatestVersion(self):
 		versions = self.getVersions()
 		if len(versions) == 0:
 			raise Exception
@@ -153,6 +155,29 @@ class Package(object):
 				latestVersion = version
 				latestDate = versionDate
 		return latestVersion
+
+	def getFirstVersion(self):
+		versions = self.getVersions()
+		if len(versions) == 0:
+			raise Exception
+		firstVersion = None
+		firstDate = None
+		for version in versions:
+			try:
+				firstDate = self.parseDate(version.getDatetime(), False)
+				firstVersion = version
+				break
+			except Exception as e:
+				pass
+		for version in versions:
+			try:
+				versionDate = self.parseDate(version.getDatetime(), False)
+				if versionDate < firstDate:
+					firstVersion = version
+					firstDate = versionDate
+			except Exception as e:
+				pass
+		return firstVersion
 
 	def getHistory(self):
 		versions = self.getVersions()
@@ -268,6 +293,9 @@ class Package(object):
 		for entry in popularity:
 			mostPopularVersions.append(entry[0])
 		return mostPopularVersions
+
+	def getFirstInsertion(self):
+		return self.getFirstVersion().getDatetime()
 
 	def isIrregular(self):
 		versions = self.getVersions()

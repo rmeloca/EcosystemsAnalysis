@@ -152,16 +152,30 @@ class EcosystemDataManager(object):
 		return mostPopularPackages
 
 	def evaluateEdges(self):
-		for package in self.getPackages():
+		packages = self.getPackages()
+		size = len(packages)
+		evaluated = 0
+		for package in packages:
 			for version in package.getVersions():
 				for dependency in version.getDependencies():
-					dependency.evaluate()
-				version.calculateLocalRegularityRate()
+					irregular = dependency.evaluate()
+					if irregular:
+						print("[" + str(evaluated) + "/" + str(size) + "]", dependency)
+				localRegularityRate = version.calculateLocalRegularityRate()
+				if localRegularityRate < 1:
+					print("[" + str(evaluated) + "/" + str(size) + "]", localRegularityRate, version)
+			evaluated += 1
 
 	def calculateGlobalRegularityRate(self):
-		for package in self.getPackages():
+		packages = self.getPackages()
+		evaluated = 0
+		size = len(packages)
+		for package in packages:
 			for version in package.getVersions():
-				version.calculateGlobalRegularityRate()
+				localRegularityRate = version.getLocalRegularityRate()
+				globalRegularityRate = version.calculateGlobalRegularityRate()
+				print("[" + str(evaluated) + "/" + str(size) + "]", package, "\t", "{" + str(len(package.getDependencies())) + "}", "\t", localRegularityRate, "->", globalRegularityRate)
+			evaluated += 1
 
 	def getIrregularPackages(self):
 		packages = self.getPackages()
@@ -183,6 +197,16 @@ class EcosystemDataManager(object):
 			if package.isAffected():
 				affectedPackages.append(package)
 		return affectedPackages
+
+	def getLicenses(self):
+		licenses = []
+		for package in self.getPackages():
+			for version in package.getVersions():
+				for license in version.getLicenses():
+					licenses.append(license.getName())
+		licenses = set(licenses)
+		licenses = list(licenses)
+		return licenses
 
 	def __str__(self):
 		return self.ecosystem + " at " + self.home
