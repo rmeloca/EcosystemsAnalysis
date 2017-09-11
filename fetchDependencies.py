@@ -74,11 +74,11 @@ def fetchNpm(package):
 					elif value[0] == "*" or value == "latest":
 						delimiter = value
 						try:
-							value = ecosystemDataManager.getPackage(key).getLastestVersion().getName()
+							value = ecosystemDataManager.getPackage(key).getLatestVersion().getName()
 						except Exception as e:
 							print(package.getName() + "@" + metadataVersion, "fetching", key + "@" + value, e)
 							fetchNpm(ecosystemDataManager.addPackage(key))
-							value = ecosystemDataManager.getPackage(key).getLastestVersion().getName()
+							value = ecosystemDataManager.getPackage(key).getLatestVersion().getName()
 					if "x" in value:
 						try:
 							ecosystemDataManager.getPackage(key).resolve(value)
