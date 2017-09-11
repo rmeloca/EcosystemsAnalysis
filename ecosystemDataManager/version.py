@@ -226,9 +226,12 @@ class Version(object):
 		return list(set(dependencies) - set(irregularDependencies))
 
 	def calculateLocalRegularityRate(self):
-		localRegularityRate = len(self.getRegularDependencies()) / len(self.getDependencies())
-		self.set("VersionsHasLocalRegularityRate")
-		return self
+		try:
+			localRegularityRate = len(self.getRegularDependencies()) / len(self.getDependencies())
+		except Exception as e:
+			localRegularityRate = 1
+		self.set("VersionsHasLocalRegularityRate", localRegularityRate)
+		return localRegularityRate
 
 	def calculateGlobalRegularityRate(self):
 		globalRegularityRate = self.getLocalRegularityRate()
@@ -247,4 +250,4 @@ class Version(object):
 		return other.getIndex() == self.getIndex()
 
 	def __str__(self):
-		return self.getPackage().getName() + "@" + self.getName()
+		return self.getPackage().getName() + "@" + str(self.getName())
