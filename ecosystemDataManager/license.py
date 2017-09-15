@@ -21,6 +21,9 @@ class License(object):
 		licensesHasGroup[self.version.getIndex()][self.index] = group.value
 		return self
 
+	def __hash__(self):
+		return self.index
+
 	def __eq__(self, other):
 		if type(other) == str:
 			return self.getName() == other

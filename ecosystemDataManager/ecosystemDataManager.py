@@ -106,6 +106,13 @@ class EcosystemDataManager(object):
 		finally:
 			return self.getPackageByIndex(packagesHasMap[name])
 
+	def getPackage(self, name):
+		packagesHasMap = self.get("PackagesHasMap")
+		try:
+			return self.getPackageByIndex(packagesHasMap[name])
+		except Exception as e:
+			raise e
+
 	def getPackages(self):
 		packagesHasIndex = self.get("PackagesHasIndex")
 		packages = []
@@ -113,12 +120,17 @@ class EcosystemDataManager(object):
 			packages.append(self.getPackage(package))
 		return packages
 
-	def getPackage(self, name):
-		packagesHasMap = self.get("PackagesHasMap")
-		try:
-			return self.getPackageByIndex(packagesHasMap[name])
-		except Exception as e:
-			raise e
+	def getVersions(self):
+		versions = []
+		for package in self.getPackages():
+			versions += package.getVersions()
+		return versions
+
+	def getDependencies(self):
+		dependencies = []
+		for version in self.getVersions():
+			dependencies += version.getDependencies()
+		return dependencies
 
 	def getPackageSizeDistribution(self):
 		packageSizeDistribution = []
@@ -158,13 +170,32 @@ class EcosystemDataManager(object):
 		for package in packages:
 			for version in package.getVersions():
 				for dependency in version.getDependencies():
-					irregular = dependency.evaluate()
-					if irregular:
-						print("[" + str(evaluated) + "/" + str(size) + "]", dependency)
+					try:
+						irregular = dependency.evaluate()
+						if irregular:
+							print("[" + str(evaluated) + "/" + str(size) + "]", dependency)
+					except Exception as e:
+						pass
 				localRegularityRate = version.calculateLocalRegularityRate()
 				if localRegularityRate < 1:
 					print("[" + str(evaluated) + "/" + str(size) + "]", localRegularityRate, version)
 			evaluated += 1
+
+	def evaluatePackages(self):
+		packages = self.getPackages()
+		size = len(packages)
+		evaluated = 0
+		irregularPackages = []
+		for package in packages:
+			for packageDependency in package.getPackagesDependencies():
+				if packageDependency.getLatestVersion().getDatetime():
+					irregular = package.evaluate(packageDependency)
+					if irregular:
+						irregularPackages.append(package)
+						print("[" + str(evaluated) + "/" + str(size) + "]", package, "-->", packageDependency)
+						break
+			evaluated += 1
+		return irregularPackages
 
 	def calculateGlobalRegularityRate(self):
 		packages = self.getPackages()
@@ -190,6 +221,30 @@ class EcosystemDataManager(object):
 		irregularPackages = self.getIrregularPackages()
 		return list(set(packages) - set(irregularPackages))
 
+	def getIrregularVersions(self):
+		packages = self.getIrregularPackages()
+		irregularVersions = []
+		for package in packages:
+			irregularVersions += package.getIrregularVersions()
+		return irregularVersions
+
+	def getRegularVersions(self):
+		versions = self.getVersions()
+		irregularVersions = self.getIrregularVersions()
+		return list(set(versions) - set(irregularVersions))
+
+	def getIrregularDependencies(self):
+		versions = self.getVersions()
+		irregularDependencies = []
+		for version in versions:
+			irregularDependencies += version.getIrregularDependencies()
+		return irregularDependencies
+
+	def getRegularDependencies(self):
+		dependencies = self.getDependencies()
+		irregularDependencies = self.getIrregularDependencies()
+		return list(set(dependencies) - set(irregularDependencies))
+
 	def getAffectedPackages(self):
 		affectedPackages = []
 		packages = self.getPackages()
@@ -207,6 +262,41 @@ class EcosystemDataManager(object):
 		licenses = set(licenses)
 		licenses = list(licenses)
 		return licenses
+
+	def average(self):
+		irregularPackages = 0
+		irregularVersions = 0
+		irregularDependencies = 0
+		packages = self.getPackages()
+		packagesSize = len(packages)
+		versionsSize = 0
+		dependenciesSize = 0
+		for package in packages:
+			versions = package.getVersions()
+			versionsSize += len(versions)
+			for version in versions:
+				dependencies = version.getDependencies()
+				dependenciesSize += len(dependencies)
+				for dependency in dependencies:
+					if dependency.isIrregular():
+						irregularDependencies += 1
+				if version.isIrregular():
+					irregularVersions += 1
+			if package.isIrregular():
+				irregularPackages += 1
+		print(self)
+		print()
+		print("irregularPackages", irregularPackages)
+		print("packages", packagesSize)
+		print("average", irregularPackages / packagesSize)
+		print()
+		print("irregularVersions", irregularVersions)
+		print("versions", versionsSize)
+		print("average", irregularVersions / versionsSize)
+		print()
+		print("irregularDependencies", irregularDependencies)
+		print("dependencies", dependenciesSize)
+		print("average", irregularDependencies / dependenciesSize)
 
 	def __str__(self):
 		return self.ecosystem + " at " + self.home
