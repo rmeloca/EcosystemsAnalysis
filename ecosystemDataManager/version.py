@@ -201,14 +201,14 @@ class Version(object):
 	def isIrregular(self):
 		dependencies = self.getDependencies()
 		for dependency in dependencies:
-			if dependency.isIrregular:
+			if dependency.isIrregular():
 				return True
 		return False
 
 	def isRegular(self):
 		dependencies = self.getDependencies()
 		for dependency in dependencies:
-			if dependency.isIrregular:
+			if dependency.isIrregular():
 				return False
 		return True
 
