@@ -41,12 +41,16 @@ class Dependency(object):
 		return self.get("DependenciesHasRequirements")
 
 	def isIrregular(self):
-		return self.get("DependenciesAreIrregular")
+		return self.get("DependenciesAreIrregular") == True
 
 	def isRegular(self):
-		return not self.isIrregular()
+		return self.get("DependenciesAreIrregular") == False
 
 	def evaluate(self):
+		if not self.inVersion.getDatetime():
+			irregular = None
+			self.set("DependenciesAreIrregular", irregular)
+			raise Exception
 		inLicenses = self.inVersion.getLicenses()
 		if inLicenses:
 			irregular = False
