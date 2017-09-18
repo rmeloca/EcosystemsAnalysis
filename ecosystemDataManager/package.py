@@ -49,6 +49,13 @@ class Package(object):
 		except Exception as e:
 			raise e
 
+	def resolve(self, strVersion):
+		versions = self.getVersions()
+		for version in versions:
+			if version.satisfies(strVersion):
+				return version
+		raise Exception
+
 	def addVersion(self, name):
 		packagesHasVersions = self.ecosystemDataManager.get("PackagesHasVersions")
 		try:
@@ -97,14 +104,6 @@ class Package(object):
 		finally:
 			return self.getVersionByIndex(packagesHasVersions[self.index][name])
 
-	def getVersions(self):
-		packagesHasVersions = self.ecosystemDataManager.get("PackagesHasVersions")
-		versionsHasIndex = packagesHasVersions[self.index]
-		versions = []
-		for version in versionsHasIndex:
-			versions.append(self.getVersionByIndex(versionsHasIndex[version]))
-		return versions
-
 	def getVersion(self, name):
 		packagesHasVersions = self.ecosystemDataManager.get("PackagesHasVersions")
 		try:
@@ -113,9 +112,19 @@ class Package(object):
 		except Exception as e:
 			raise e
 
-	def parseDate(self, strDate):
+	def getVersions(self):
+		packagesHasVersions = self.ecosystemDataManager.get("PackagesHasVersions")
+		versionsHasIndex = packagesHasVersions[self.index]
+		versions = []
+		for version in versionsHasIndex:
+			versions.append(self.getVersionByIndex(versionsHasIndex[version]))
+		return versions
+
+	def parseDate(self, strDate, convert = True):
 		if not strDate:
-			return datetime(1,1,1)
+			if convert:
+				return datetime(1,1,1)
+			raise Exception
 		strDate = strDate.replace("-", " ")
 		strDate = strDate.replace(".", " ")
 		strDate = strDate.replace(":", " ")
@@ -134,7 +143,7 @@ class Package(object):
 			date = datetime(split[0], split[1], split[2])
 		return date
 
-	def getLastestVersion(self):
+	def getLatestVersion(self):
 		versions = self.getVersions()
 		if len(versions) == 0:
 			raise Exception
@@ -147,16 +156,48 @@ class Package(object):
 				latestDate = versionDate
 		return latestVersion
 
-	def getHistory(self):
-		pass
+	def getFirstVersion(self):
+		versions = self.getVersions()
+		if len(versions) == 0:
+			raise Exception
+		firstVersion = None
+		firstDate = None
+		for version in versions:
+			try:
+				firstDate = self.parseDate(version.getDatetime(), False)
+				firstVersion = version
+				break
+			except Exception as e:
+				pass
+		for version in versions:
+			try:
+				versionDate = self.parseDate(version.getDatetime(), False)
+				if versionDate < firstDate:
+					firstVersion = version
+					firstDate = versionDate
+			except Exception as e:
+				pass
+		return firstVersion
 
-	def getDependencies(self):
+	def getHistory(self):
+		versions = self.getVersions()
+		history = {}
+		for version in versions:
+			history[version] = self.parseDate(version.getDatetime())
+		history = sorted(history.items(), key = lambda x: x[1])
+		orderedHistory = []
+		for entry in history:
+			orderedHistory.append(entry[0])
+		return orderedHistory
+
+	def getDependencies(self, distinct = True):
 		versions = self.getVersions()
 		dependencies = []
 		for version in versions:
 			dependencies += version.getDependencies()
-		dependencies = set(dependencies)
-		dependencies = list(dependencies)
+		if distinct:
+			dependencies = set(dependencies)
+			dependencies = list(dependencies)
 		return dependencies
 	
 	def getOcurrences(self):
@@ -235,6 +276,15 @@ class Package(object):
 		context = list(context)
 		return context
 
+	def getLicenses(self):
+		versions = self.getVersions()
+		licenses = []
+		for version in versions:
+			licenses += version.getLicenses()
+		licenses = set(licenses)
+		licenses = list(licenses)
+		return licenses
+
 	def getLocalRegularityRate(self):
 		localRegularityRate = []
 		for version in self.getVersions():
@@ -253,8 +303,53 @@ class Package(object):
 			mostPopularVersions.append(entry[0])
 		return mostPopularVersions
 
+	def getFirstInsertion(self):
+		return self.getFirstVersion().getDatetime()
+
+	def evaluate(self, dependency):
+		inLicenses = dependency.getLicenses()
+		if inLicenses:
+			irregular = False
+		else:
+			irregular = True
+		for inLicense in inLicenses:
+			if inLicense == "copyright" or inLicense == "none" or inLicense == None:
+				irregular = True
+				break
+		return irregular
+
+	def isIrregular(self):
+		versions = self.getVersions()
+		for version in versions:
+			if version.isIrregular():
+				return True
+		return False
+
+	def isRegular(self):
+		versions = self.getVersions()
+		for version in versions:
+			if version.isIrregular():
+				return False
+		return True
+
 	def getIrregularVersions(self):
-		pass
+		versions = self.getVersions()
+		irregularVersions = []
+		for version in versions:
+			if version.isIrregular():
+				irregularVersions.append(version)
+		return irregularVersions
+
+	def getRegularVersions(self):
+		versions = self.getVersions()
+		irregularVersions = self.getIrregularVersions()
+		return list(set(versions) - set(irregularVersions))
+
+	def isAffected(self):
+		versions = self.getVersions()
+		for version in versions:
+			if version.getGlobalRegularityRate() < 1:
+				return True
 
 	def __hash__(self):
 		return self.index
