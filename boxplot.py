@@ -1,18 +1,7 @@
-import json
 import sys
-import os
-import csv
 import plotly
 import plotly.graph_objs as go
-import numpy as np
 from ecosystemDataManager.ecosystemDataManager import EcosystemDataManager
-
-#def getLocalRegularityRate(self):
-#    localRegularityRate = []
-#    for version in self.getVersions():
-#        localRegularityRate.append(version.getLocalRegularityRate())
-#    return localRegularityRate
-
 
 def plotBoxPlot(vector):
     trace0 = go.Box(
@@ -21,9 +10,11 @@ def plotBoxPlot(vector):
     data = [trace0]
     plotly.offline.plot(data)
 
-
 if __name__ == '__main__':
-    ecosystemDataManager = EcosystemDataManager("rubygems")
+    if len(sys.argv) < 2:
+        print("Usage:", sys.argv[0], "<ecossystem>")
+        sys.exit(1)
+    ecossystem = sys.argv[1]
+    ecosystemDataManager = EcosystemDataManager(ecossystem)
     packageSizeDistribution = ecosystemDataManager.getPackageSizeDistribution()
-    print (packageSizeDistribution)
     plotBoxPlot(packageSizeDistribution)
