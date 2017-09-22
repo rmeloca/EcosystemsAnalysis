@@ -11,23 +11,26 @@ from ecosystemDataManager.ecosystemDataManager import EcosystemDataManager
 #t = ['json@0', 'activesupport@0', 'nokogiri@0', 'thor@0', 'rake@0', 'httparty@0', 'rest-client@0', 'rack@0', 'jquery-rails@0', 'faraday@0', 'sinatra@0', 'i18n@0', 'multi_json@0', 'highline@0', 'rails@0', 'haml@0', 'activesupport@3.0.0', 'thor@0.19', 'hashie@0', 'colorize@0', 'nokogiri@1.6', 'activerecord@0', 'redis@0', 'json@1.8', 'thor@0.19.1', 'rails@3.0.0', 'activesupport@3.0', 'builder@0']
 VERSION_VISITED = []
 
-EDGES = []
-VERTICES = []
+EDGES_OCURRENCES = []
+EDGES_DEPENDENCIES = []
+VERTICES_OCURRENCES = []
+VERTICES_DEPENDENCIES = []
+FIRST_VERTICE = ''
 
 
 def buildTreePackageDependencies(version):
     for dependency in version.getDependencies():
         if (str(dependency.getInVersion().getName()) not in VERSION_VISITED):
-            EDGES.append([version.getPackage().getName()+'@'+ version.getName(), dependency.getInVersion().getPackage().getName()+'@'+ dependency.getInVersion().getName()])
-            VERTICES.append(dependency.getInVersion().getPackage().getName()+'@'+ dependency.getInVersion().getName())
+            EDGES_DEPENDENCIES.append([version.getPackage().getName()+'@'+ version.getName(), dependency.getInVersion().getPackage().getName()+'@'+ dependency.getInVersion().getName()])
+            VERTICES_DEPENDENCIES.append(dependency.getInVersion().getPackage().getName()+'@'+ dependency.getInVersion().getName())
             VERSION_VISITED.append(str(dependency.getInVersion().getName()))
         buildTreePackageDependencies(dependency.getInVersion())
 
 def buildTreePackageOcurrences(version):
     for ocurrence in version.getOcurrences():
         if (str(ocurrence.getInVersion().getName()) not in VERSION_VISITED):
-            EDGES.append([ocurrence.getInVersion().getPackage().getName()+'@'+ ocurrence.getInVersion().getName(), version.getPackage().getName()+'@'+ version.getName()])
-            VERTICES.append(ocurrence.getInVersion().getPackage().getName()+'@'+ ocurrence.getInVersion().getName())
+            EDGES_OCURRENCES.append([ocurrence.getInVersion().getPackage().getName()+'@'+ ocurrence.getInVersion().getName(), version.getPackage().getName()+'@'+ version.getName()])
+            VERTICES_OCURRENCES.append(ocurrence.getInVersion().getPackage().getName()+'@'+ ocurrence.getInVersion().getName())
             VERSION_VISITED.append(str(ocurrence.getInVersion().getName()))
         buildTreePackageOcurrences(ocurrence.getInVersion())
     
@@ -43,14 +46,24 @@ def generateXmlGraph():
     treePackage.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
     treePackage.append("<gexf xmlns=\"http://www.gexf.net/1.2draft\" xmlns:viz=\"http://www.gexf.net/1.1draft/viz\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.gexf.net/1.2draft http://www.gexf.net/1.2draft/gexf.xsd\" version=\"1.2\"> \n")
     treePackage.append("<graph> \n <nodes>")
-    for vertex in VERTICES:
-        treePackage.append("<node id=\""+vertex+"\" label=\""+vertex+"\"> <viz:color r=\"113\" g=\"203\" b=\"157\" a=\"0.6\"/> <viz:size value=\"3\"/> <viz:shape value=\"disc\"/></node>")
+    treePackage.append("<node id=\""+FIRST_VERTICE+"\" label=\""+FIRST_VERTICE+"\"> <viz:color r=\"22\" g=\"66\" b=\"186\" a=\"0.5\"/> <viz:size value=\"3\"/> <viz:shape value=\"disc\"/></node>")
+    for vertex in VERTICES_OCURRENCES:
+        treePackage.append("<node id=\""+vertex+"\" label=\""+vertex+"\"> <viz:color r=\"113\" g=\"203\" b=\"157\" a=\"0.5\"/> <viz:size value=\"3\"/> <viz:shape value=\"disc\"/></node>")
+
+    for vertex in VERTICES_DEPENDENCIES:
+        treePackage.append("<node id=\""+vertex+"\" label=\""+vertex+"\"> <viz:color r=\"113\" g=\"203\" b=\"157\" a=\"1\"/> <viz:size value=\"3\"/> <viz:shape value=\"disc\"/></node>")
 
     treePackage.append("</nodes> \n <edges>")
     i = 0
-    for edge in EDGES:
-        treePackage.append("<edge id=\""+str(i)+"\" source=\""+edge[0]+"\" target=\""+edge[1]+"\"><viz:color r=\"0\" g=\"0\" b=\"0\" a=\"0.6\"/></edge>")
+
+    for edge in EDGES_OCURRENCES:
+        treePackage.append("<edge id=\""+str(i)+"\" source=\""+edge[0]+"\" target=\""+edge[1]+"\"><viz:color r=\"0\" g=\"0\" b=\"0\" a=\"0.5\"/></edge>")
         i += 1
+
+    for edge in EDGES_DEPENDENCIES:
+        treePackage.append("<edge id=\""+str(i)+"\" source=\""+edge[0]+"\" target=\""+edge[1]+"\"><viz:color r=\"0\" g=\"0\" b=\"0\" a=\"1\"/></edge>")
+        i += 1
+
     treePackage.append("</edges> \n </graph> \n </gexf>")
 
     f = open('teste2.gexf', 'w')
@@ -62,12 +75,12 @@ def generateXmlGraph():
 if __name__ == '__main__':
     ecosystemDataManager = EcosystemDataManager("rubygems")
 
-    package = ecosystemDataManager.getPackage('faraday')
+    package = ecosystemDataManager.getPackage('rails')
     print(package.getName())
     #most_popular_version = package.getMostPopularVersions(1)[0]
-    most_popular_version = package.getVersion("1")
+    most_popular_version = package.getVersion("4.0.0")
     print(most_popular_version.getName())
-    VERTICES.append(package.getName()+'@'+ most_popular_version.getName())
+    FIRST_VERTICE = package.getName()+'@'+ most_popular_version.getName()
     buildTreePackageOcurrences(most_popular_version)
     buildTreePackageDependencies(most_popular_version)
   

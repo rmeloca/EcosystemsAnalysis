@@ -14,7 +14,7 @@ from ecosystemDataManager.ecosystemDataManager import EcosystemDataManager
 #    return localRegularityRate
 
 
-def histogram(vector, name_histogram):
+def plotHistogram(vector, name_histogram):
     trace = go.Histogram(
         name='Results',
         x = vector,
@@ -26,6 +26,20 @@ def histogram(vector, name_histogram):
     )
     data = [trace]
     plotly.offline.plot(data, filename=name_histogram)
+
+def plotHistograms(vectors, name_histogram):
+    data = []
+    for vector in vectors:
+        trace = go.Histogram(
+            x = vector,
+            xbins=dict(
+                start=0,
+                end=2,
+                size=0.1
+            )
+        )
+        data.append(trace)
+    plotly.offline.plot(data, filename=name_histogram)
     
 
 def plotBoxPlot(vector, name_boxplot):
@@ -35,6 +49,29 @@ def plotBoxPlot(vector, name_boxplot):
     data = [trace0]
     plotly.offline.plot(data, filename=name_boxplot)
 
+def plotMultBoxPlot(vectors, name_boxplot):
+    data = []
+    for vector in vectors:
+        trace = go.Box(
+            y=vector,
+            boxpoints='all',
+        )
+        data.append(trace)
+    plotly.offline.plot(data, filename=name_boxplot)
+
+def getTop10RegularityRateVersions(edm):
+    regularityRatePackages = []
+    packages = edm.getMostPopularPackages()
+    for package in packages:
+        if package.isIrregular():
+            regularityRateVersions = []
+            for version in package.getVersions():
+                regularityRateVersions.append(version.getLocalRegularityRate())
+            regularityRatePackages.append(regularityRateVersions)
+        if len(regularityRatePackages) == 10:
+            break
+    return regularityRatePackages
+
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
@@ -43,7 +80,9 @@ if __name__ == '__main__':
 
     ecossystem = sys.argv[1]
     ecosystemDataManager = EcosystemDataManager(ecossystem)
-    packageSizeDistribution = ecosystemDataManager.getPackageSizeDistribution()
-    print (packageSizeDistribution)
-    plotBoxPlot(packageSizeDistribution, ecossystem + '_boxplot_packageSizeDistribution')
-    histogram(packageSizeDistribution, ecossystem + '_histogram_packageSizeDistribution')
+    #packageSizeDistribution = ecosystemDataManager.getPackageSizeDistribution()
+    #plotBoxPlot(packageSizeDistribution, ecossystem + '_boxplot_packageSizeDistribution')
+    #histogram(packageSizeDistribution, ecossystem + '_histogram_packageSizeDistribution')
+    regularityRatePackages = getTop10RegularityRateVersions(ecosystemDataManager)
+    print (regularityRatePackages)
+    plotHistograms(regularityRatePackages, ecossystem + '_boxplot_regularityRateVersions')
