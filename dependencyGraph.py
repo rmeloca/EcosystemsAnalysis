@@ -4,154 +4,85 @@ import os
 import csv
 from ecosystemDataManager.ecosystemDataManager import EcosystemDataManager
 
-<<<<<<< HEAD
-=======
 #MOST_POPULARITY = ["R", "methods", "stats", "MASS", "graphics", "ggplot2", "utils", "Matrix", "survival", "mvtnorm", "lattice", "parallel", "Rcpp", "sp", "grDevices", "igraph", "ape", "grid", "tcltk", "splines", "coda", "nlme", "foreach", "rgl", "zoo", "raster", "boot", "plyr", "rJava", "data.table", "XML", "RCurl", "glmnet", "lme4", "stringr", "mgcv", "numDeriv", "gtools", "car", "Hmisc"]
 #MOST_POPULARITY = ["commander@2.9.0", "mkdirp@0.5.1", "debug@2.2.0", "underscore@1.8.3", "lodash@2.4.1", "chalk@1.1.3", "lodash@3.10.1", "colors@1.1.2", "async@0.9.0", "minimist@1.2.0", "q@1.4.1", "lodash@4.17.4", "chalk@1.1.1", "chalk@1.0.0", "mkdirp@0.5.0", "express@4.14.0", "classnames@2.2.5", "lodash@4.13.1", "co@4.6.0", "async@1.5.2", "express@4.13.4", "express@4.13.3", "extend@3.0.0", "gulp@3.9.1", "fs-extra@0.30.0", "colors@0.6.2", "async@0.2.9", "optimist@0.6.1", "commander@2.8.1", "gulp-util@3.0.7", "underscore@1.7.0", "underscore@1.6.0", "node-uuid@1.4.7", "moment@2.10.6", "lodash@4.15.0", "open@0.0.5", "through2@2.0.0", "body-parser@1.15.2", "path@0.12.7", "gulp-rename@1.2.2"]
-MOST_POPULARITY = ["json", "activesupport", "nokogiri", "thor", "rake", "httparty", "rest-client", "rack", "jquery-rails", "faraday"]
+#MOST_POPULARITY = ["json", "activesupport", "nokogiri", "thor", "rake", "httparty", "rest-client", "rack", "jquery-rails", "faraday"]
 #, "sinatra@0", "i18n@0", "multi_json@0", "highline@0", "rails@0", "haml@0", "activesupport@3.0.0", "thor@0.19", "hashie@0", "colorize@0", "nokogiri@1.6", "activerecord@0", "redis@0", "json@1.8", "thor@0.19.1", "rails@3.0.0", "activesupport@3.0", "builder@0", "rspec@0", "trollop@0", "rest-client@1.6.7", "net-ssh@0", "faraday@0.9", "addressable@0", "activemodel@0", "rails@4.0", "rails@4.0.0", "rails@3.2", "sass-rails@0", "awesome_print@"]
 #t = ['json@0', 'activesupport@0', 'nokogiri@0', 'thor@0', 'rake@0', 'httparty@0', 'rest-client@0', 'rack@0', 'jquery-rails@0', 'faraday@0', 'sinatra@0', 'i18n@0', 'multi_json@0', 'highline@0', 'rails@0', 'haml@0', 'activesupport@3.0.0', 'thor@0.19', 'hashie@0', 'colorize@0', 'nokogiri@1.6', 'activerecord@0', 'redis@0', 'json@1.8', 'thor@0.19.1', 'rails@3.0.0', 'activesupport@3.0', 'builder@0']
->>>>>>> master
-VERSION_VISITED_OCURRENCES = []
-VERSION_VISITED_DEPENDENCIES = []
+VERSION_VISITED = []
 
-VERTICES = []
-
-<<<<<<< HEAD
-=======
-def teste(edm):
-    versions = (edm.getPackage('activesupport').getVersions())
-    for version in versions:
-        print (version.getName())
+EDGES_OCURRENCES = []
+EDGES_DEPENDENCIES = []
+VERTICES_OCURRENCES = []
+VERTICES_DEPENDENCIES = []
+FIRST_VERTICE = ''
 
 
-
-def getTop10Packages(edm, packages):
-    versions = []
-    i = 0
-    for package in packages:
-        versions.append(package)
-        i +=1
-        if (i == 10):
-            break
-    return versions
-    
-
-#ocurrence.getVersion().getGlobalRegularityRate()
-#dependencie.getVersion.getGlobalRegularityRate()
-
->>>>>>> master
-def recursivaOcurrences(ocurrence):
-    global VERTICES
-    global VERSION_VISITED_OCURRENCES
-    version = ocurrence.getOutVersion()
-    if (version in VERSION_VISITED_OCURRENCES):
-        return
-    VERSION_VISITED_OCURRENCES.append(version)
-    ocurrences = version.getOcurrences()
-    for o in ocurrences:
-        VERTICES.append([version, o.getOutVersion()])
-        recursivaOcurrences(o)
-
-def recursivaDependencies(dependencie):
-    global VERTICES
-    global VERSION_VISITED_DEPENDENCIES
-    version = dependencie.getInVersion()
-    if (version in VERSION_VISITED_DEPENDENCIES):
-        return
-    VERSION_VISITED_DEPENDENCIES.append(version)
-    dependencies = version.getDependencies()
-    for d in dependencies:
-        VERTICES.append([version, o.getInVersion()])
-        recursivaDependencies(d)
-
-def buildTree(versions):
-    global VERTICES
-    for version in versions:
-        ocurrences = version.getOcurrences()
-        #print (ocurrences)
-        for o in ocurrences:
-<<<<<<< HEAD
-            VERTICES.append([version, o.getInVersion()])
-=======
-            #print (version.get, o.getOutVersion())
-            VERTICES.append([version, o.getOutVersion()])
->>>>>>> master
-            recursivaOcurrences(o)
-        #dependencies = version.getDependencies()
-        #for d in dependencies:
-        #    recursivaDependencies(d)
-<<<<<<< HEAD
-
-def recursivaOcurrences2(ocurrence):
-    global VERTICES
-    global VERSION_VISITED_OCURRENCES
-    version = ocurrence.getOutVersion()
-    ocurrences = version.getOcurrences()
-    for o in ocurrences:
-        if (o.getInVersion().getPackage().getName() not in VERSION_VISITED_OCURRENCES):
-            VERSION_VISITED_OCURRENCES.append(o.getInVersion().getPackage().getName())
-            VERTICES.append([version.getPackage().getName(), o.getInVersion().getPackage().getName()])
-            recursivaOcurrences2(o)
-
-def buildTreePackage(version):
-    for o in version.getOcurrences():
-        if (o.getInVersion() not in VERSION_VISITED_OCURRENCES):
-            VERTICES.append([version.getPackage().getName()+'@'+ version.getName(), o.getInVersion().getPackage().getName()+'@'+ o.getInVersion().getName()])
-        VERSION_VISITED_OCURRENCES.append(o.getInVersion())
-        buildTreePackage(o.getInVersion())
+def buildTreePackageDependencies(version):
     for dependency in version.getDependencies():
-        if (dependency.getInVersion() not in VERSION_VISITED_OCURRENCES):
-            VERTICES.append([version.getPackage().getName()+'@'+ version.getName(), dependency.getInVersion().getPackage().getName()+'@'+ dependency.getInVersion().getName()])
-        VERSION_VISITED_OCURRENCES.append(dependency.getInVersion())
-        buildTreePackage(dependency.getInVersion())
+        if (str(dependency.getInVersion().getName()) not in VERSION_VISITED):
+            EDGES_DEPENDENCIES.append([version.getPackage().getName()+'@'+ version.getName(), dependency.getInVersion().getPackage().getName()+'@'+ dependency.getInVersion().getName()])
+            VERTICES_DEPENDENCIES.append(dependency.getInVersion().getPackage().getName()+'@'+ dependency.getInVersion().getName())
+            VERSION_VISITED.append(str(dependency.getInVersion().getName()))
+        buildTreePackageDependencies(dependency.getInVersion())
+
+def buildTreePackageOcurrences(version):
+    for ocurrence in version.getOcurrences():
+        if (str(ocurrence.getInVersion().getName()) not in VERSION_VISITED):
+            EDGES_OCURRENCES.append([ocurrence.getInVersion().getPackage().getName()+'@'+ ocurrence.getInVersion().getName(), version.getPackage().getName()+'@'+ version.getName()])
+            VERTICES_OCURRENCES.append(ocurrence.getInVersion().getPackage().getName()+'@'+ ocurrence.getInVersion().getName())
+            VERSION_VISITED.append(str(ocurrence.getInVersion().getName()))
+        buildTreePackageOcurrences(ocurrence.getInVersion())
+    
+def generateXmlGraph():
+    treePackage = []
+
+    edges = []
+    edges.append(["a","b"])
+    edges.append(["a","c"])
+    edges.append(["b","c"])
+
+
+    treePackage.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
+    treePackage.append("<gexf xmlns=\"http://www.gexf.net/1.2draft\" xmlns:viz=\"http://www.gexf.net/1.1draft/viz\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.gexf.net/1.2draft http://www.gexf.net/1.2draft/gexf.xsd\" version=\"1.2\"> \n")
+    treePackage.append("<graph> \n <nodes>")
+    treePackage.append("<node id=\""+FIRST_VERTICE+"\" label=\""+FIRST_VERTICE+"\"> <viz:color r=\"22\" g=\"66\" b=\"186\" a=\"0.5\"/> <viz:size value=\"3\"/> <viz:shape value=\"disc\"/></node>")
+    for vertex in VERTICES_OCURRENCES:
+        treePackage.append("<node id=\""+vertex+"\" label=\""+vertex+"\"> <viz:color r=\"113\" g=\"203\" b=\"157\" a=\"0.5\"/> <viz:size value=\"3\"/> <viz:shape value=\"disc\"/></node>")
+
+    for vertex in VERTICES_DEPENDENCIES:
+        treePackage.append("<node id=\""+vertex+"\" label=\""+vertex+"\"> <viz:color r=\"113\" g=\"203\" b=\"157\" a=\"1\"/> <viz:size value=\"3\"/> <viz:shape value=\"disc\"/></node>")
+
+    treePackage.append("</nodes> \n <edges>")
+    i = 0
+
+    for edge in EDGES_OCURRENCES:
+        treePackage.append("<edge id=\""+str(i)+"\" source=\""+edge[0]+"\" target=\""+edge[1]+"\"><viz:color r=\"0\" g=\"0\" b=\"0\" a=\"0.5\"/></edge>")
+        i += 1
+
+    for edge in EDGES_DEPENDENCIES:
+        treePackage.append("<edge id=\""+str(i)+"\" source=\""+edge[0]+"\" target=\""+edge[1]+"\"><viz:color r=\"0\" g=\"0\" b=\"0\" a=\"1\"/></edge>")
+        i += 1
+
+    treePackage.append("</edges> \n </graph> \n </gexf>")
+
+    f = open('teste2.gexf', 'w')
+    for line in treePackage:
+        f.write(str(line+"\n"))
+
+    f.close()
 
 if __name__ == '__main__':
     ecosystemDataManager = EcosystemDataManager("rubygems")
-    #packages = ecosystemDataManager.getMostPopularPackages(1)
-    version = ecosystemDataManager.getMostPopularVersions()[0]
 
-    package = ecosystemDataManager.getPackage('Capcode')
+    package = ecosystemDataManager.getPackage('rails')
     print(package.getName())
-    print(package.getMostPopularVersions(1)[0].getName())
-    #print (version.getOcurrences())
-    buildTreePackage(package.getMostPopularVersions(1)[0])
-    #print (VERSION_VISITED_OCURRENCES)
-    #print (VERTICES)
-    #buildTree(version)
-=======
+    #most_popular_version = package.getMostPopularVersions(1)[0]
+    most_popular_version = package.getVersion("4.0.0")
+    print(most_popular_version.getName())
+    FIRST_VERTICE = package.getName()+'@'+ most_popular_version.getName()
+    buildTreePackageOcurrences(most_popular_version)
+    buildTreePackageDependencies(most_popular_version)
+  
 
-if __name__ == '__main__':
-    ecosystemDataManager = EcosystemDataManager("rubygems")
-
-    teste(ecosystemDataManager)
-    #versions = getTop10Packages(ecosystemDataManager)
-    versions = []
-    versions.append(ecosystemDataManager.getPackage('json').getVersion('0'))
-
-    packages = ecosystemDataManager.getMostPopularVersions(10)
-    print (packages)
-    versions = getTop10Packages(ecosystemDataManager, packages)
-    buildTree(versions)
->>>>>>> master
-
-    with open('Capcode.csv', 'w') as csvfile:
-        fieldnames = ['v1', 'v2']
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-
-        for vertice in VERTICES:
-<<<<<<< HEAD
-            #print (vertice[0] + ", " + vertice[1])
-            writer.writerow({'v1': vertice[0], 'v2': vertice[1]})
-    
-=======
-            #print (vertice)
-
-            print (vertice[0].getPackage().getName() + ','+ vertice[1].getPackage().getName())
-            #writer.writerow({'v1': vertice[0].getName(), 'v2': vertice[1].getPackage().getName()})
-
-            #print (vertice[0].getPackage().getName() + ','+vertice[0].getPackage().getName())
-            writer.writerow({'v1': vertice[0].getPackage().getName(), 'v2': vertice[1].getPackage().getName()})
-
-    
->>>>>>> master
+    generateXmlGraph()
