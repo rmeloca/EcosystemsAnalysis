@@ -83,6 +83,8 @@ class Version(object):
 		return self.getLicenseByIndex(licenseIndex)
 
 	def setLicenses(self, licenses):
+		self.set("VersionsHasLicenses", [])
+		self.set("LicensesHasGroup", [])
 		addedLicenses = []
 		for license in licenses:
 			addedLicenses.append(self.addLicense(license))
