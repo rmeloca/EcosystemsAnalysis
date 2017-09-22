@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 from ecosystemDataManager.ecosystemDataManager import EcosystemDataManager
 
 RUBYGEMS_PACKAGES_HAS_VERSIONS = {}
-NPM_VISITED_PACKAGES = []
+VISITED_PACKAGES = []
 
 def getContent(url):
 	request = requests.get(url)
@@ -18,9 +18,9 @@ def getJson(url):
 	return json.loads(getContent(url))
 
 def fetchNpm(package):
-	if package in NPM_VISITED_PACKAGES:
+	if package in VISITED_PACKAGES:
 		return
-	NPM_VISITED_PACKAGES.append(package)
+	VISITED_PACKAGES.append(package)
 	ecosystemDataManager = package.getEcosystemDataManager()
 	registry = 'https://registry.npmjs.org'
 	metadata = getJson(os.path.join(registry, package.getName()))
@@ -37,11 +37,11 @@ def fetchNpm(package):
 		licenses = []
 		try:
 			for license in metadata["versions"][metadataVersion]["licenses"]:
-				licenses.append(license["type"])
+				licenses.append(str(license["type"]))
 		except Exception as e:
 			print(package.getName() + "@" + metadataVersion, "no licenses", e)
 		try:
-			licenses.append(metadata["versions"][metadataVersion]["license"])
+			licenses.append(str(metadata["versions"][metadataVersion]["license"]))
 		except Exception as e:
 			print(package.getName() + "@" + metadataVersion, "no license", e)
 		version.setLicenses(licenses)
@@ -108,10 +108,18 @@ def fetchRubygemsPackages():
 	del packages[len(packages) - 1]
 	for package in packages:
 		split = package.split(" ")
-		RUBYGEMS_PACKAGES_HAS_VERSIONS[split[0]] = split[1].split(",")
+		try:
+			RUBYGEMS_PACKAGES_HAS_VERSIONS[split[0]]
+		except Exception as e:
+			RUBYGEMS_PACKAGES_HAS_VERSIONS[split[0]] = []
+		finally:
+			RUBYGEMS_PACKAGES_HAS_VERSIONS[split[0]] += split[1].split(",")
 	return RUBYGEMS_PACKAGES_HAS_VERSIONS
 
 def fetchRubygems(package):
+	if package in VISITED_PACKAGES:
+		return
+	VISITED_PACKAGES.append(package)
 	ecosystemDataManager = package.getEcosystemDataManager()
 	registry = 'https://rubygems.org/api/v2/rubygems/'
 	versions = RUBYGEMS_PACKAGES_HAS_VERSIONS[package.getName()]
@@ -136,9 +144,19 @@ def fetchRubygems(package):
 					key = metadataDependency["name"]
 					value = metadataDependency["requirements"]
 					requirements = value
-					split = value.replace("x", "0").split(" ")
+					split = value.split(" ")
 					delimiter = split[0]
 					value = split[1]
+					if "x" in value:
+						try:
+							ecosystemDataManager.getPackage(key).resolve(value)
+						except Exception as e:
+							print(package.getName() + "@" + metadataVersion, "resolving", key + "@" + value, e)
+							fetchRubygems(ecosystemDataManager.addPackage(key))
+							try:
+								value = ecosystemDataManager.getPackage(key).resolve(value).getName()
+							except Exception as e:
+								value = value.replace("x", "0")
 					dependencyPackage = ecosystemDataManager.addPackage(key)
 					dependencyVersion = dependencyPackage.addVersion(value)
 					dependency = version.addDependency(dependencyVersion)

@@ -104,14 +104,6 @@ class Package(object):
 		finally:
 			return self.getVersionByIndex(packagesHasVersions[self.index][name])
 
-	def getVersions(self):
-		packagesHasVersions = self.ecosystemDataManager.get("PackagesHasVersions")
-		versionsHasIndex = packagesHasVersions[self.index]
-		versions = []
-		for version in versionsHasIndex:
-			versions.append(self.getVersionByIndex(versionsHasIndex[version]))
-		return versions
-
 	def getVersion(self, name):
 		packagesHasVersions = self.ecosystemDataManager.get("PackagesHasVersions")
 		try:
@@ -119,6 +111,14 @@ class Package(object):
 			return self.getVersionByIndex(versionIndex)
 		except Exception as e:
 			raise e
+
+	def getVersions(self):
+		packagesHasVersions = self.ecosystemDataManager.get("PackagesHasVersions")
+		versionsHasIndex = packagesHasVersions[self.index]
+		versions = []
+		for version in versionsHasIndex:
+			versions.append(self.getVersionByIndex(versionsHasIndex[version]))
+		return versions
 
 	def parseDate(self, strDate, convert = True):
 		if not strDate:
@@ -276,6 +276,15 @@ class Package(object):
 		context = list(context)
 		return context
 
+	def getLicenses(self):
+		versions = self.getVersions()
+		licenses = []
+		for version in versions:
+			licenses += version.getLicenses()
+		licenses = set(licenses)
+		licenses = list(licenses)
+		return licenses
+
 	def getLocalRegularityRate(self):
 		localRegularityRate = []
 		for version in self.getVersions():
@@ -296,6 +305,18 @@ class Package(object):
 
 	def getFirstInsertion(self):
 		return self.getFirstVersion().getDatetime()
+
+	def evaluate(self, dependency):
+		inLicenses = dependency.getLicenses()
+		if inLicenses:
+			irregular = False
+		else:
+			irregular = True
+		for inLicense in inLicenses:
+			if inLicense == "copyright" or inLicense == "none" or inLicense == None:
+				irregular = True
+				break
+		return irregular
 
 	def isIrregular(self):
 		versions = self.getVersions()
