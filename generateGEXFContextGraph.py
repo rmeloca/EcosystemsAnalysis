@@ -1,50 +1,48 @@
 import sys
 from ecosystemDataManager.ecosystemDataManager import EcosystemDataManager
 
-VISITED = []
 EDGES_OCURRENCES = []
-EDGES_DEPENDENCIES = []
 VERTICES_OCURRENCES = []
+EDGES_DEPENDENCIES = []
 VERTICES_DEPENDENCIES = []
-ROOT = ''
 
 def buildTreePackageDependencies(version):
+	if version in VERTICES_DEPENDENCIES:
+		return
+	VERTICES_DEPENDENCIES.append(version)
 	for dependency in version.getDependencies():
-		if (str(dependency.getInVersion().getName()) not in VISITED):
-			EDGES_DEPENDENCIES.append([version.getPackage().getName()+'@'+ version.getName(), dependency.getInVersion().getPackage().getName()+'@'+ dependency.getInVersion().getName()])
-			VERTICES_DEPENDENCIES.append(dependency.getInVersion().getPackage().getName()+'@'+ dependency.getInVersion().getName())
-			VISITED.append(str(dependency.getInVersion().getName()))
+		EDGES_DEPENDENCIES.append((version, dependency.getInVersion()))
 		buildTreePackageDependencies(dependency.getInVersion())
 
 def buildTreePackageOcurrences(version):
+	if version in VERTICES_OCURRENCES:
+		return
+	VERTICES_OCURRENCES.append(version)
 	for ocurrence in version.getOcurrences():
-		if (str(ocurrence.getInVersion().getName()) not in VISITED):
-			EDGES_OCURRENCES.append([ocurrence.getInVersion().getPackage().getName()+'@'+ ocurrence.getInVersion().getName(), version.getPackage().getName()+'@'+ version.getName()])
-			VERTICES_OCURRENCES.append(ocurrence.getInVersion().getPackage().getName()+'@'+ ocurrence.getInVersion().getName())
-			VISITED.append(str(ocurrence.getInVersion().getName()))
+		EDGES_OCURRENCES.append((ocurrence.getInVersion(), version))
 		buildTreePackageOcurrences(ocurrence.getInVersion())
 
-def generateXmlGraph():
+def generateXmlGraph(version):
 	treePackage = []
 	treePackage.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
 	treePackage.append("<gexf xmlns=\"http://www.gexf.net/1.2draft\" xmlns:viz=\"http://www.gexf.net/1.1draft/viz\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.gexf.net/1.2draft http://www.gexf.net/1.2draft/gexf.xsd\" version=\"1.2\"> \n")
 	treePackage.append("<graph> \n <nodes>")
-	treePackage.append("<node id=\"" + ROOT + "\" label=\"" + ROOT + "\"> <viz:color r=\"22\" g=\"66\" b=\"186\" a=\"0.5\"/> <viz:size value=\"3\"/> <viz:shape value=\"disc\"/></node>")
+	treePackage.append("<node id=\"" + str(version) + "\" label=\"" + str(version) + "\"> <viz:color r=\"22\" g=\"66\" b=\"186\" a=\"0.5\"/> <viz:size value=\"3\"/> <viz:shape value=\"disc\"/></node>")
 	for vertex in VERTICES_OCURRENCES:
-		treePackage.append("<node id=\"" + vertex + "\" label=\"" + vertex + "\"> <viz:color r=\"113\" g=\"203\" b=\"157\" a=\"0.5\"/> <viz:size value=\"3\"/> <viz:shape value=\"disc\"/></node>")
+		treePackage.append("<node id=\"" + str(vertex) + "\" label=\"" + str(vertex) + "\"> <viz:color r=\"113\" g=\"203\" b=\"157\" a=\"0.5\"/> <viz:size value=\"3\"/> <viz:shape value=\"disc\"/></node>")
 
 	for vertex in VERTICES_DEPENDENCIES:
-		treePackage.append("<node id=\"" + vertex + "\" label=\"" + vertex + "\"> <viz:color r=\"113\" g=\"203\" b=\"157\" a=\"1\"/> <viz:size value=\"3\"/> <viz:shape value=\"disc\"/></node>")
+		treePackage.append("<node id=\"" + str(vertex) + "\" label=\"" + str(vertex) + "\"> <viz:color r=\"113\" g=\"203\" b=\"157\" a=\"1\"/> <viz:size value=\"3\"/> <viz:shape value=\"disc\"/></node>")
 
 	treePackage.append("</nodes> \n <edges>")
 	
 	i = 0
 	for edge in EDGES_OCURRENCES:
-		treePackage.append("<edge id=\"" + str(i) + "\" source=\"" + edge[0] + "\" target=\"" + edge[1] + "\"><viz:color r=\"0\" g=\"0\" b=\"0\" a=\"0.5\"/></edge>")
+		treePackage.append("<edge id=\"" + str(i) + "\" source=\"" + str(edge[0]) + "\" target=\"" + str(edge[1]) + "\"><viz:color r=\"0\" g=\"0\" b=\"0\" a=\"0.5\"/></edge>")
 		i += 1
 
 	for edge in EDGES_DEPENDENCIES:
-		treePackage.append("<edge id=\"" + str(i) + "\" source=\"" + edge[0] + "\" target=\"" + edge[1] + "\"><viz:color r=\"100\" g=\"100\" b=\"100\" a=\"1\"/></edge>")
+		treePackage.append("<edge id=\"" + str(i) + "\" source=\"" + str(edge[0]) + "\" target=\"" + str(edge[1]) + "\"><viz:color r=\"100\" g=\"100\" b=\"100\" a=\"1\"/></edge>")
 		i += 1
 
 	treePackage.append("</edges> \n </graph> \n </gexf>")
@@ -66,7 +64,7 @@ if __name__ == '__main__':
 		graphType = sys.argv[2]
 		if len(sys.argv) > 3:
 			package = sys.argv[3]
-		elif len(sys.argv) > 4:
+		if len(sys.argv) > 4:
 			version = sys.argv[4]
 	else:
 		graphType = "version"
@@ -84,10 +82,9 @@ if __name__ == '__main__':
 			print("no version provided. Retrieving Most Popular")
 			version = package.getMostPopularVersions(1)[0]
 		print("generating GEXF to", version)
-		ROOT = package.getName() + '@' + version.getName()
 		buildTreePackageOcurrences(version)
 		buildTreePackageDependencies(version)
-		generateXmlGraph()
+		generateXmlGraph(version)
 		print("done")
 	else:
 		print("notImplementedYet")
