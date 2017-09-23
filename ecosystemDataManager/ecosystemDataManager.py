@@ -188,7 +188,7 @@ class EcosystemDataManager(object):
 			evaluated += 1
 
 	def getIrregularPackages(self):
-		return [package if package.isIrregular() for package in self.getPackages()]
+		return [package for package in self.getPackages() if package.isIrregular()]
 
 	def getRegularPackages(self):
 		packages = self.getPackages()
@@ -219,7 +219,7 @@ class EcosystemDataManager(object):
 		return list(set(dependencies) - set(irregularDependencies))
 
 	def getAffectedPackages(self):
-		return [package if package.isAffected() for package in self.getPackages()]
+		return [package for package in self.getPackages() if package.isAffected()]
 
 	def getLicenses(self):
 		licenses = []
@@ -267,10 +267,10 @@ class EcosystemDataManager(object):
 		print("average", irregularDependencies / dependenciesSize)
 
 	def getMostPopularIrregularPackages(self, size = None):
-		irregularPackages = [package if package.isIrregular() for package in self.getMostPopularPackages()]
+		irregularPackages = [package for package in self.getMostPopularPackages() if package.isIrregular()]
 		if size:
-			regularityRatePackages = regularityRatePackages[:size]
-		return regularityRatePackages
+			irregularPackages = irregularPackages[:size]
+		return irregularPackages
 
 	def __str__(self):
 		return self.ecosystem + " at " + self.home

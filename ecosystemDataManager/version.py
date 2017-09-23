@@ -207,7 +207,7 @@ class Version(object):
 		return True
 
 	def getIrregularDependencies(self):
-		return [dependency if dependency.isIrregular() for dependency in self.getDependencies()]
+		return [dependency for dependency in self.getDependencies() if dependency.isIrregular()]
 
 	def getRegularDependencies(self):
 		dependencies = self.getDependencies()

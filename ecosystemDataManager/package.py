@@ -105,17 +105,16 @@ class Package(object):
 			return self.getVersionByIndex(packagesHasVersions[self.index][name])
 
 	def getVersion(self, name):
-		packagesHasVersions = self.ecosystemDataManager.get("PackagesHasVersions")
+		versionsHasIndex = self.get("PackagesHasVersions")
 		try:
-			versionIndex = packagesHasVersions[self.index][name]
+			versionIndex = versionsHasIndex[name]
 			return self.getVersionByIndex(versionIndex)
 		except Exception as e:
 			raise e
 
 	def getVersions(self):
-		packagesHasVersions = self.ecosystemDataManager.get("PackagesHasVersions")
-		versionsHasIndex = packagesHasVersions[self.index]
-		return [self.getVersionByIndex(versionsHasIndex[version]) for version in versionsHasIndex]
+		versionsHasIndex = self.get("PackagesHasVersions")
+		return [self.getVersion(version) for version in versionsHasIndex]
 
 	def parseDate(self, strDate, convert = True):
 		if not strDate:
@@ -261,7 +260,7 @@ class Package(object):
 		return licenses
 
 	def getLocalRegularityRates(self):
-		return [version.getLocalRegularityRate() version in self.getVersions()]
+		return [version.getLocalRegularityRate() for version in self.getVersions()]
 
 	def getMostPopularVersions(self, size = None):
 		popularity = {version: len(version.getOcurrences()) for version in self.getVersions()}
@@ -298,7 +297,7 @@ class Package(object):
 		return True
 
 	def getIrregularVersions(self):
-		return [version if version.isIrregular() for version in self.getVersions()]
+		return [version for version in self.getVersions() if version.isIrregular()]
 
 	def getRegularVersions(self):
 		versions = self.getVersions()
@@ -314,7 +313,7 @@ class Package(object):
 		return self.index
 
 	def __len__(self):
-		return len(self.getVersions())
+		return len(self.get("PackagesHasVersions"))
 
 	def __eq__(self, other):
 		if type(other) != type(self):
