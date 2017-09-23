@@ -1,55 +1,89 @@
 import sys
 from ecosystemDataManager.ecosystemDataManager import EcosystemDataManager
+from ecosystemDataManager.package import Package
+from ecosystemDataManager.version import Version
+from ecosystemDataManager.dependency import Dependency
+from ecosystemDataManager.ocurrence import Ocurrence
 
-EDGES_OCURRENCES = []
-VERTICES_OCURRENCES = []
-EDGES_DEPENDENCIES = []
-VERTICES_DEPENDENCIES = []
+PARENT_VERTICES = []
+OCURRENCE_EDGES = []
+DESCENDENT_VERTICES = []
+DEPENDENCY_EDGES = []
+FILE = None
 
-def buildTreePackageDependencies(version):
-	if version in VERTICES_DEPENDENCIES:
+def getOcurrences(entity):
+	if type(entity) == Version:
+		return entity.getOcurrences()
+	elif type(entity) == Package:
+		return entity.getPackageOcurrences()
+	else:
+		raise Exception
+
+def getDependencies(entity):
+	if type(entity) == Version:
+		return entity.getDependencies()
+	elif type(entity) == Package:
+		return entity.getPackageDependencies()
+	else:
+		raise Exception
+
+def getInVersion(entity):
+	if type(entity) == Dependency or type(entity) == Ocurrence:
+		return entity.getInVersion()
+	elif type(entity) == Package:
+		return entity
+	else:
+		raise Exception
+
+def generateOcurrences(entity):
+	if entity in PARENT_VERTICES:
 		return
-	VERTICES_DEPENDENCIES.append(version)
-	for dependency in version.getDependencies():
-		EDGES_DEPENDENCIES.append((version, dependency.getInVersion()))
-		buildTreePackageDependencies(dependency.getInVersion())
+	PARENT_VERTICES.append(entity)
+	for ocurrence in getOcurrences(entity):
+		OCURRENCE_EDGES.append((getInVersion(ocurrence), entity))
+		generateOcurrences(ocurrence.getInVersion())
 
-def buildTreePackageOcurrences(version):
-	if version in VERTICES_OCURRENCES:
+def generateDependencies(entity):
+	if entity in DESCENDENT_VERTICES:
 		return
-	VERTICES_OCURRENCES.append(version)
-	for ocurrence in version.getOcurrences():
-		EDGES_OCURRENCES.append((ocurrence.getInVersion(), version))
-		buildTreePackageOcurrences(ocurrence.getInVersion())
+	DESCENDENT_VERTICES.append(entity)
+	for dependency in getDependencies(entity):
+		DEPENDENCY_EDGES.append((entity, getInVersion(dependency)))
+		generateDependencies(getInVersion(dependency))
 
-def generateXmlGraph(version):
-	treePackage = []
-	treePackage.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
-	treePackage.append("<gexf xmlns=\"http://www.gexf.net/1.2draft\" xmlns:viz=\"http://www.gexf.net/1.1draft/viz\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.gexf.net/1.2draft http://www.gexf.net/1.2draft/gexf.xsd\" version=\"1.2\"> \n")
-	treePackage.append("<graph> \n <nodes>")
-	treePackage.append("<node id=\"" + str(version) + "\" label=\"" + str(version) + "\"> <viz:color r=\"22\" g=\"66\" b=\"186\" a=\"0.5\"/> <viz:size value=\"3\"/> <viz:shape value=\"disc\"/></node>")
-	for vertex in VERTICES_OCURRENCES:
-		treePackage.append("<node id=\"" + str(vertex) + "\" label=\"" + str(vertex) + "\"> <viz:color r=\"113\" g=\"203\" b=\"157\" a=\"0.5\"/> <viz:size value=\"3\"/> <viz:shape value=\"disc\"/></node>")
+def getAttributes(entity):
+	attributes = {}
+	attributes["red"] = 22
+	attributes["green"] = 66
+	attributes["blue"] = 186
+	attributes["alpha"] = 0.5
+	attributes["size"] = 3
+	attributes["shape"] = "disc"
 
-	for vertex in VERTICES_DEPENDENCIES:
-		treePackage.append("<node id=\"" + str(vertex) + "\" label=\"" + str(vertex) + "\"> <viz:color r=\"113\" g=\"203\" b=\"157\" a=\"1\"/> <viz:size value=\"3\"/> <viz:shape value=\"disc\"/></node>")
-
-	treePackage.append("</nodes> \n <edges>")
-	
+def generateGraph(entity):
+	generateDependencies(entity)
+	generateOcurrences(entity)
+	FILE.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
+	FILE.write("<gexf xmlns=\"http://www.gexf.net/1.2draft\" xmlns:viz=\"http://www.gexf.net/1.1draft/viz\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.gexf.net/1.2draft http://www.gexf.net/1.2draft/gexf.xsd\" version=\"1.2\">")
+	FILE.write("<graph>")
+	FILE.write("<nodes>")
+	FILE.write("<node id=\"" + str(entity) + "\" label=\"" + str(entity) + "\"> <viz:color r=\"22\" g=\"66\" b=\"186\" a=\"0.5\"/> <viz:size value=\"3\"/> <viz:shape value=\"disc\"/></node>")
+	for vertex in PARENT_VERTICES:
+		FILE.write("<node id=\"" + str(vertex) + "\" label=\"" + str(vertex) + "\"> <viz:color r=\"113\" g=\"203\" b=\"157\" a=\"0.5\"/> <viz:size value=\"3\"/> <viz:shape value=\"disc\"/></node>")
+	for vertex in DESCENDENT_VERTICES:
+		FILE.write("<node id=\"" + str(vertex) + "\" label=\"" + str(vertex) + "\"> <viz:color r=\"113\" g=\"203\" b=\"157\" a=\"1\"/> <viz:size value=\"3\"/> <viz:shape value=\"disc\"/></node>")
+	FILE.write("</nodes>")
+	FILE.write("<edges>")
 	i = 0
-	for edge in EDGES_OCURRENCES:
-		treePackage.append("<edge id=\"" + str(i) + "\" source=\"" + str(edge[0]) + "\" target=\"" + str(edge[1]) + "\"><viz:color r=\"0\" g=\"0\" b=\"0\" a=\"0.5\"/></edge>")
+	for edge in OCURRENCE_EDGES:
+		FILE.write("<edge id=\"" + str(i) + "\" source=\"" + str(edge[0]) + "\" target=\"" + str(edge[1]) + "\"><viz:color r=\"0\" g=\"0\" b=\"0\" a=\"0.5\"/></edge>")
 		i += 1
-
-	for edge in EDGES_DEPENDENCIES:
-		treePackage.append("<edge id=\"" + str(i) + "\" source=\"" + str(edge[0]) + "\" target=\"" + str(edge[1]) + "\"><viz:color r=\"100\" g=\"100\" b=\"100\" a=\"1\"/></edge>")
+	for edge in DEPENDENCY_EDGES:
+		FILE.write("<edge id=\"" + str(i) + "\" source=\"" + str(edge[0]) + "\" target=\"" + str(edge[1]) + "\"><viz:color r=\"100\" g=\"100\" b=\"100\" a=\"1\"/></edge>")
 		i += 1
-
-	treePackage.append("</edges> \n </graph> \n </gexf>")
-
-	with open('ecosystem_package_version.gexf', 'w') as file:
-		for line in treePackage:
-			file.write(str(line + "\n"))
+	FILE.write("</edges>")
+	FILE.write("</graph>")
+	FILE.write("</gexf>")
 
 if __name__ == '__main__':
 	package = None
@@ -82,9 +116,8 @@ if __name__ == '__main__':
 			print("no version provided. Retrieving Most Popular")
 			version = package.getMostPopularVersions(1)[0]
 		print("generating GEXF to", version)
-		buildTreePackageOcurrences(version)
-		buildTreePackageDependencies(version)
-		generateXmlGraph(version)
+		with open(ecossystem + "_" + package.getName() + "_" + version.getName() + ".gexf", "w") as FILE:
+			generateGraph(version)
 		print("done")
 	else:
 		print("notImplementedYet")
