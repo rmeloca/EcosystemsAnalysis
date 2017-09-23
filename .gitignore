@@ -4,3 +4,4 @@ schedule.cron
 /npm
 *.csv
 *.json
+*.html
