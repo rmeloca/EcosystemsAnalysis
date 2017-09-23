@@ -115,10 +115,7 @@ class Package(object):
 	def getVersions(self):
 		packagesHasVersions = self.ecosystemDataManager.get("PackagesHasVersions")
 		versionsHasIndex = packagesHasVersions[self.index]
-		versions = []
-		for version in versionsHasIndex:
-			versions.append(self.getVersionByIndex(versionsHasIndex[version]))
-		return versions
+		return [self.getVersionByIndex(versionsHasIndex[version]) for version in versionsHasIndex]
 
 	def parseDate(self, strDate, convert = True):
 		if not strDate:
@@ -180,20 +177,13 @@ class Package(object):
 		return firstVersion
 
 	def getHistory(self):
-		versions = self.getVersions()
-		history = {}
-		for version in versions:
-			history[version] = self.parseDate(version.getDatetime())
+		history = {version: self.parseDate(version.getDatetime()) for version in self.getVersions()}
 		history = sorted(history.items(), key = lambda x: x[1])
-		orderedHistory = []
-		for entry in history:
-			orderedHistory.append(entry[0])
-		return orderedHistory
+		return [entry[0] for entry in history]
 
 	def getDependencies(self, distinct = True):
-		versions = self.getVersions()
 		dependencies = []
-		for version in versions:
+		for version in self.getVersions():
 			dependencies += version.getDependencies()
 		if distinct:
 			dependencies = set(dependencies)
@@ -201,27 +191,24 @@ class Package(object):
 		return dependencies
 	
 	def getOcurrences(self):
-		versions = self.getVersions()
 		ocurrences = []
-		for version in versions:
+		for version in self.getVersions():
 			ocurrences += version.getOcurrences()
 		ocurrences = set(ocurrences)
 		ocurrences = list(ocurrences)
 		return ocurrences
 
 	def getDescendents(self):
-		versions = self.getVersions()
 		descendents = []
-		for version in versions:
+		for version in self.getVersions():
 			descendents += version.getDescendents()
 		descendents = set(descendents)
 		descendents = list(descendents)
 		return descendents
 
 	def getParents(self):
-		versions = self.getVersions()
 		parents = []
-		for version in versions:
+		for version in self.getVersions():
 			parents += version.getParents()
 		parents = set(parents)
 		parents = list(parents)
@@ -234,10 +221,7 @@ class Package(object):
 		return context
 
 	def getPackagesDependencies(self):
-		dependencies = self.getDependencies()
-		packages = []
-		for dependency in dependencies:
-			packages.append(dependency.getInVersion().getPackage())
+		packages = [dependency.getInVersion().getPackage() for dependency in self.getDependencies()]
 		packages = set(packages)
 		packages = list(packages)
 		return packages
@@ -245,27 +229,19 @@ class Package(object):
 	def getPackagesOcurrences(self):
 		packagesHasOcurrences = self.ecosystemDataManager.get("PackagesHasOcurrences")
 		indexes = packagesHasOcurrences[self.index]
-		ocurrences = []
-		for package in indexes:
-			ocurrences.append(self.ecosystemDataManager.getPackageByIndex(indexes[package]))
+		ocurrences = [self.ecosystemDataManager.getPackageByIndex(indexes[package]) for package in indexes]
 		ocurrences = set(ocurrences)
 		ocurrences = list(ocurrences)
 		return ocurrences
 		
 	def getPackagesDescendents(self):
-		descendents = self.getDescendents()
-		packages = []
-		for descendent in descendents:
-			packages.append(descendent.getPackage())
-		descendents = set(descendents)
-		descendents = list(descendents)
+		packages = [descendent.getPackage() for descendent in self.getDescendents()]
+		packages = set(packages)
+		packages = list(packages)
 		return packages
 
 	def getPackagesParents(self):
-		parents = self.getParents()
-		packages = []
-		for parent in parents:
-			packages.append(parent.getPackage())
+		packages = [parent.getPackage() for parent in self.getParents()]
 		parents = set(parents)
 		parents = list(parents)
 		return packages
@@ -277,31 +253,22 @@ class Package(object):
 		return context
 
 	def getLicenses(self):
-		versions = self.getVersions()
 		licenses = []
-		for version in versions:
+		for version in self.getVersions():
 			licenses += version.getLicenses()
 		licenses = set(licenses)
 		licenses = list(licenses)
 		return licenses
 
-	def getLocalRegularityRate(self):
-		localRegularityRate = []
-		for version in self.getVersions():
-			localRegularityRate.append(version.getLocalRegularityRate())
-		return localRegularityRate
+	def getLocalRegularityRates(self):
+		return [version.getLocalRegularityRate() version in self.getVersions()]
 
 	def getMostPopularVersions(self, size = None):
-		mostPopularVersions = []
-		popularity = {}
-		for version in self.getVersions():
-			popularity[version] = len(version.getOcurrences())
+		popularity = {version: len(version.getOcurrences()) for version in self.getVersions()}
 		popularity = sorted(popularity.items(), key = lambda x: x[1], reverse = True)
 		if size:
 			popularity = popularity[:size]
-		for entry in popularity:
-			mostPopularVersions.append(entry[0])
-		return mostPopularVersions
+		return [entry[0] for entry in popularity]
 
 	def getFirstInsertion(self):
 		return self.getFirstVersion().getDatetime()
@@ -319,26 +286,19 @@ class Package(object):
 		return irregular
 
 	def isIrregular(self):
-		versions = self.getVersions()
-		for version in versions:
+		for version in self.getVersions():
 			if version.isIrregular():
 				return True
 		return False
 
 	def isRegular(self):
-		versions = self.getVersions()
-		for version in versions:
+		for version in self.getVersions():
 			if version.isIrregular():
 				return False
 		return True
 
 	def getIrregularVersions(self):
-		versions = self.getVersions()
-		irregularVersions = []
-		for version in versions:
-			if version.isIrregular():
-				irregularVersions.append(version)
-		return irregularVersions
+		return [version if version.isIrregular() for version in self.getVersions()]
 
 	def getRegularVersions(self):
 		versions = self.getVersions()
@@ -346,13 +306,15 @@ class Package(object):
 		return list(set(versions) - set(irregularVersions))
 
 	def isAffected(self):
-		versions = self.getVersions()
-		for version in versions:
+		for version in self.getVersions():
 			if version.getGlobalRegularityRate() < 1:
 				return True
 
 	def __hash__(self):
 		return self.index
+
+	def __len__(self):
+		return len(self.getVersions())
 
 	def __eq__(self, other):
 		if type(other) != type(self):

@@ -85,14 +85,11 @@ class Version(object):
 	def setLicenses(self, licenses):
 		self.set("VersionsHasLicenses", [])
 		self.set("LicensesHasGroup", [])
-		addedLicenses = []
-		for license in licenses:
-			addedLicenses.append(self.addLicense(license))
-		return addedLicenses
+		return [self.addLicense(license) for license in licenses]
 
 	def getLicenses(self):
-		licenses = []
 		versionsHasLicenses = self.get("VersionsHasLicenses")
+		licenses = []
 		for license in versionsHasLicenses:
 			licenses.append(self.getLicenseByIndex(len(licenses)))
 		return licenses
@@ -155,10 +152,7 @@ class Version(object):
 	def getOcurrences(self):
 		versionsHasOcurrences =  self.ecosystemDataManager.get("VersionsHasOcurrences")
 		indexes = versionsHasOcurrences[self.index]
-		ocurrences = []
-		for ocurrence in indexes:
-			ocurrences.append(Ocurrence(self, Version(self.ecosystemDataManager, None, ocurrence)))
-		return ocurrences
+		return [Ocurrence(self, Version(self.ecosystemDataManager, None, ocurrence)) for ocurrence in indexes]
 
 	def getDescendents(self, start = True):
 		if start:
@@ -171,8 +165,6 @@ class Version(object):
 		descendents = []
 		for dependency in dependencies:
 			descendents.append(dependency.getInVersion())
-			if self.ecosystemDataManager.visited:
-				pass
 			descendents += dependency.getInVersion().getDescendents(False)
 		descendents = set(descendents)
 		descendents = list(descendents)
@@ -189,7 +181,7 @@ class Version(object):
 		parents = []
 		for ocurrence in ocurrences:
 			parents.append(ocurrence.getInVersion())
-			parents += ocurrence.getInVersion().getParents()
+			parents += ocurrence.getInVersion().getParents(False)
 		parents = set(parents)
 		parents = list(parents)
 		return parents
@@ -215,12 +207,7 @@ class Version(object):
 		return True
 
 	def getIrregularDependencies(self):
-		dependencies = self.getDependencies()
-		irregularDependencies = []
-		for dependency in dependencies:
-			if dependency.isIrregular():
-				irregularDependencies.append(dependency)
-		return irregularDependencies
+		return [dependency if dependency.isIrregular() for dependency in self.getDependencies()]
 
 	def getRegularDependencies(self):
 		dependencies = self.getDependencies()

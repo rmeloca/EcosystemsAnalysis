@@ -114,11 +114,7 @@ class EcosystemDataManager(object):
 			raise e
 
 	def getPackages(self):
-		packagesHasIndex = self.get("PackagesHasIndex")
-		packages = []
-		for package in packagesHasIndex:
-			packages.append(self.getPackage(package))
-		return packages
+		return [self.getPackage(package) for package in self.get("PackagesHasIndex")]
 
 	def getVersions(self):
 		versions = []
@@ -132,36 +128,19 @@ class EcosystemDataManager(object):
 			dependencies += version.getDependencies()
 		return dependencies
 
-	def getPackageSizeDistribution(self):
-		packageSizeDistribution = []
-		for package in self.getPackages():
-			packageSizeDistribution.append(len(package.getVersions()))
-		return packageSizeDistribution
-
 	def getMostPopularVersions(self, size = None):
-		mostPopularVersions = []
-		popularity = {}
-		for package in self.getPackages():
-			for version in package.getVersions():
-				popularity[version] = len(version.getOcurrences())
+		popularity = {version: len(version.getOcurrences()) for version in self.getVersions()}
 		popularity = sorted(popularity.items(), key = lambda x: x[1], reverse = True)
 		if size:
 			popularity = popularity[:size]
-		for entry in popularity:
-			mostPopularVersions.append(entry[0])
-		return mostPopularVersions
+		return [entry[0] for entry in popularity]
 
 	def getMostPopularPackages(self, size = None):
-		mostPopularPackages = []
-		popularity = {}
-		for package in self.getPackages():
-			popularity[package] = len(package.getOcurrences())
+		popularity = {package: len(package.getOcurrences()) for package in self.getPackages()}
 		popularity = sorted(popularity.items(), key = lambda x: x[1], reverse = True)
 		if size:
 			popularity = popularity[:size]
-		for entry in popularity:
-			mostPopularPackages.append(entry[0])
-		return mostPopularPackages
+		return [entry[0] for entry in popularity]
 
 	def evaluateEdges(self):
 		packages = self.getPackages()
@@ -209,12 +188,7 @@ class EcosystemDataManager(object):
 			evaluated += 1
 
 	def getIrregularPackages(self):
-		packages = self.getPackages()
-		irregularPackages = []
-		for package in packages:
-			if package.isIrregular():
-				irregularPackages.append(package)
-		return irregularPackages
+		return [package if package.isIrregular() for package in self.getPackages()]
 
 	def getRegularPackages(self):
 		packages = self.getPackages()
@@ -234,9 +208,8 @@ class EcosystemDataManager(object):
 		return list(set(versions) - set(irregularVersions))
 
 	def getIrregularDependencies(self):
-		versions = self.getVersions()
 		irregularDependencies = []
-		for version in versions:
+		for version in self.getVersions():
 			irregularDependencies += version.getIrregularDependencies()
 		return irregularDependencies
 
@@ -246,12 +219,7 @@ class EcosystemDataManager(object):
 		return list(set(dependencies) - set(irregularDependencies))
 
 	def getAffectedPackages(self):
-		affectedPackages = []
-		packages = self.getPackages()
-		for package in packages:
-			if package.isAffected():
-				affectedPackages.append(package)
-		return affectedPackages
+		return [package if package.isAffected() for package in self.getPackages()]
 
 	def getLicenses(self):
 		licenses = []
@@ -297,6 +265,12 @@ class EcosystemDataManager(object):
 		print("irregularDependencies", irregularDependencies)
 		print("dependencies", dependenciesSize)
 		print("average", irregularDependencies / dependenciesSize)
+
+	def getMostPopularIrregularPackages(self, size = None):
+		irregularPackages = [package if package.isIrregular() for package in self.getMostPopularPackages()]
+		if size:
+			regularityRatePackages = regularityRatePackages[:size]
+		return regularityRatePackages
 
 	def __str__(self):
 		return self.ecosystem + " at " + self.home
