@@ -140,27 +140,45 @@ class Version(object):
 			packagesHasOcurrences[version.getPackage().getIndex()].append(self.package.getIndex())
 		return Dependency(self.ecosystemDataManager, self, version, dependencyIndex)
 
-	def getDependencies(self):
-		versionsHasDependencies =  self.ecosystemDataManager.get("VersionsHasDependencies")
-		indexes = versionsHasDependencies[self.index]
-		dependencies = []
-		for dependency in indexes:
-			inVersion = Version(self.ecosystemDataManager, None, dependency)
-			dependencies.append(Dependency(self.ecosystemDataManager, self, inVersion, len(dependencies)))
-		return dependencies
-
-	def getOcurrences(self):
-		versionsHasOcurrences =  self.ecosystemDataManager.get("VersionsHasOcurrences")
-		indexes = versionsHasOcurrences[self.index]
-		return [Ocurrence(self, Version(self.ecosystemDataManager, None, ocurrence)) for ocurrence in indexes]
-
-	def getDescendents(self, start = True):
+	def manageRecursion(self, start):
 		if start:
 			self.ecosystemDataManager.visited = []
 		elif self in self.ecosystemDataManager.visited:
 			return []
 		else:
 			self.ecosystemDataManager.visited.append(self)
+
+	def getDependencies(self, recursive = False, start = True):
+		self.manageRecursion(start)
+		versionsHasDependencies =  self.ecosystemDataManager.get("VersionsHasDependencies")
+		indexes = versionsHasDependencies[self.index]
+		dependencies = []
+		for dependency in indexes:
+			inVersion = Version(self.ecosystemDataManager, None, dependency)
+			dependencies.append(Dependency(self.ecosystemDataManager, self, inVersion, len(dependencies)))
+		if recursive:
+			descendents = []
+			descendents += dependencies
+			for dependency in dependencies:
+				descendents += dependency.getInVersion().getDependencies(True, False)
+			return descendents
+		return dependencies
+
+	def getOcurrences(self, recursive = False, start = True):
+		self.manageRecursion(start)
+		versionsHasOcurrences =  self.ecosystemDataManager.get("VersionsHasOcurrences")
+		indexes = versionsHasOcurrences[self.index]
+		ocurrences =  [Ocurrence(self, Version(self.ecosystemDataManager, None, ocurrence)) for ocurrence in indexes]
+		if recursive:
+			parents = []
+			parents += ocurrences
+			for ocurrence in ocurrences:
+				parents += ocurrence.getInVersion().getOcurrences(True, False)
+			return parents
+		return ocurrences
+
+	def getDescendents(self, start = True):
+		self.manageRecursion(start)
 		dependencies = self.getDependencies()
 		descendents = []
 		for dependency in dependencies:
@@ -171,12 +189,7 @@ class Version(object):
 		return descendents
 
 	def getParents(self, start = True):
-		if start:
-			self.ecosystemDataManager.visited = []
-		elif self in self.ecosystemDataManager.visited:
-			return []
-		else:
-			self.ecosystemDataManager.visited.append(self)
+		self.manageRecursion(start)
 		ocurrences = self.getOcurrences()
 		parents = []
 		for ocurrence in ocurrences:
