@@ -52,14 +52,14 @@ def plotMultBoxPlot(vectors, name_boxplot):
 
 if __name__ == '__main__':
 	if len(sys.argv) < 2:
-		print("Usage:", sys.argv[0], "<ecossystem>")
+		print("Usage:", sys.argv[0], "<ecosystem>")
 		sys.exit(1)
-	ecossystem = sys.argv[1]
-	ecosystemDataManager = EcosystemDataManager(ecossystem)
+	ecosystem = sys.argv[1]
+	ecosystemDataManager = EcosystemDataManager(ecosystem)
 	packageSizeDistribution = [len(package) for package in ecosystemDataManager.getPackages()]
-	plotBoxPlot(packageSizeDistribution, ecossystem + '_boxplot_packageSizeDistribution.html')
-	plotHistogram(packageSizeDistribution, ecossystem + '_histogram_packageSizeDistribution.html')
+	plotBoxPlot(packageSizeDistribution, ecosystem + '_boxplot_packageSizeDistribution.html')
+	plotHistogram(packageSizeDistribution, ecosystem + '_histogram_packageSizeDistribution.html')
 	irregularPackages = ecosystemDataManager.getMostPopularIrregularPackages(10)
 	irregularPackagesHasLocalRegularityRates = {irregularPackage.getName(): irregularPackage.getLocalRegularityRates() for irregularPackage in irregularPackages}
-	plotMultBoxPlot(irregularPackagesHasLocalRegularityRates, ecossystem + '_boxplot_regularityRateVersions.html')
-	plotHistograms(irregularPackagesHasLocalRegularityRates, ecossystem + '_histogram_regularityRateVersions.html')
+	plotMultBoxPlot(irregularPackagesHasLocalRegularityRates, ecosystem + '_boxplot_regularityRateVersions.html')
+	plotHistograms(irregularPackagesHasLocalRegularityRates, ecosystem + '_histogram_regularityRateVersions.html')

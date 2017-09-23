@@ -4,18 +4,18 @@ import sys
 
 if __name__ == '__main__':
 	if len(sys.argv) < 2:
-		print("Usage:", sys.argv[0], "<ecossystem> [<home>]")
+		print("Usage:", sys.argv[0], "<ecosystem> [<home>]")
 		sys.exit(1)
 	if len(sys.argv) > 2:
 		home = sys.argv[2]
 	else:
 		home = ""
 
-	ecossystem = sys.argv[1]
-	ecosystemDataManager = EcosystemDataManager(ecossystem, home)
+	ecosystem = sys.argv[1]
+	ecosystemDataManager = EcosystemDataManager(ecosystem, home)
 	irregularPackages = ecosystemDataManager.getIrregularPackages()
 
-	with open(ecossystem + "Emails.csv", 'w', newline = '') as csvfile:
+	with open(ecosystem + "Emails.csv", 'w', newline = '') as csvfile:
 		file = csv.writer(csvfile, delimiter = ';')
 
 		email = "E-mail"

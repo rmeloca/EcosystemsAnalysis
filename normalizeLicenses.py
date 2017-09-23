@@ -4,12 +4,12 @@ from ecosystemDataManager.ecosystemDataManager import EcosystemDataManager
 
 if __name__ == '__main__':
 	if len(sys.argv) < 2:
-		print("Usage:", sys.argv[0], "<ecossystem> [<licenses> <normalized>]")
+		print("Usage:", sys.argv[0], "<ecosystem> [<licenses> <normalized>]")
 		sys.exit(1)
 	if len(sys.argv) == 3:
-		print("Usage:", sys.argv[0], "<ecossystem> [<licenses> <normalized>]")
+		print("Usage:", sys.argv[0], "<ecosystem> [<licenses> <normalized>]")
 		sys.exit(1)
-	ecossystem = sys.argv[1]
+	ecosystem = sys.argv[1]
 	if len(sys.argv) > 3:
 		licenses = sys.argv[2]
 		normalized = sys.argv[3]
@@ -18,7 +18,7 @@ if __name__ == '__main__':
 		normalized = "normalized.json"
 	licenses = json.load(open(licenses))
 	normalized = json.load(open(normalized))
-	ecosystemDataManager = EcosystemDataManager(ecossystem)
+	ecosystemDataManager = EcosystemDataManager(ecosystem)
 	packages = ecosystemDataManager.getPackages()
 	for package in packages:
 		for version in package.getVersions():

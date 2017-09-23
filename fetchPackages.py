@@ -43,17 +43,17 @@ def fetchCran():
 			packageNames.append(link.getText())
 	return packageNames
 
-def fetch(ecossystem):
-	if ecossystem == "npm":
+def fetch(ecosystem):
+	if ecosystem == "npm":
 		return fetchNpm()
-	elif ecossystem == "rubygems":
+	elif ecosystem == "rubygems":
 		return fetchRubygems()
-	elif ecossystem == "cran":
+	elif ecosystem == "cran":
 		return fetchCran()
 
 if __name__ == '__main__':
 	if len(sys.argv) < 2:
-		print("Usage:", sys.argv[0], "<ecossystem> [<limit> [<home>]]")
+		print("Usage:", sys.argv[0], "<ecosystem> [<limit> [<home>]]")
 		sys.exit(1)
 	if len(sys.argv) > 2:
 		limit = int(sys.argv[2])
@@ -63,9 +63,9 @@ if __name__ == '__main__':
 		home = sys.argv[3]
 	else:
 		home = ""
-	ecossystem = sys.argv[1]
-	ecosystemDataManager = EcosystemDataManager(ecossystem, home)
-	packages = fetch(ecossystem)
+	ecosystem = sys.argv[1]
+	ecosystemDataManager = EcosystemDataManager(ecosystem, home)
+	packages = fetch(ecosystem)
 	index = 0
 	for package in packages:
 		ecosystemDataManager.addPackage(package)

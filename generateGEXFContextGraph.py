@@ -89,11 +89,11 @@ if __name__ == '__main__':
 	package = None
 	version = None
 	if len(sys.argv) < 2:
-		print("Usage:", sys.argv[0], "<ecossystem> [[package|version] [<package> [<version>]]]")
+		print("Usage:", sys.argv[0], "<ecosystem> [[package|version] [<package> [<version>]]]")
 		sys.exit(1)
 	elif len(sys.argv) > 2:
 		if sys.argv[2] != "package" and sys.argv[2] != "version":
-			print("Usage:", sys.argv[0], "<ecossystem> [[package|version] [<package> [<version>]]]")
+			print("Usage:", sys.argv[0], "<ecosystem> [[package|version] [<package> [<version>]]]")
 			sys.exit(1)
 		graphType = sys.argv[2]
 		if len(sys.argv) > 3:
@@ -102,8 +102,8 @@ if __name__ == '__main__':
 			version = sys.argv[4]
 	else:
 		graphType = "version"
-	ecossystem = sys.argv[1]
-	ecosystemDataManager = EcosystemDataManager(ecossystem)
+	ecosystem = sys.argv[1]
+	ecosystemDataManager = EcosystemDataManager(ecosystem)
 	if package:
 		package = ecosystemDataManager.getPackage(package)
 	else:
@@ -116,7 +116,7 @@ if __name__ == '__main__':
 			print("no version provided. Retrieving Most Popular")
 			version = package.getMostPopularVersions(1)[0]
 		print("generating GEXF to", version)
-		with open(ecossystem + "_" + package.getName() + "_" + version.getName() + ".gexf", "w") as FILE:
+		with open(ecosystem + "_" + package.getName() + "_" + version.getName() + ".gexf", "w") as FILE:
 			generateGraph(version)
 		print("done")
 	else:

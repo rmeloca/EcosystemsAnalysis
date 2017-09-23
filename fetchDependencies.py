@@ -212,20 +212,20 @@ def fetchCran(package):
 		dependency.setDelimiter(delimiter)
 		dependency.setRequirements(requirements)
 
-def fetch(ecossystem, package):
+def fetch(ecosystem, package):
 	try:
-		if ecossystem == "npm":
+		if ecosystem == "npm":
 			fetchNpm(package)
-		elif ecossystem == "rubygems":
+		elif ecosystem == "rubygems":
 			fetchRubygems(package)
-		elif ecossystem == "cran":
+		elif ecosystem == "cran":
 			fetchCran(package)
 	except Exception as e:
 		print(package.getName(), "NO NETWORK CONNECTION. FETCH FAIL", e)
 
 if __name__ == '__main__':
 	if len(sys.argv) < 2:
-		print("Usage:", sys.argv[0], "<ecossystem> [<limit> [<home>]]")
+		print("Usage:", sys.argv[0], "<ecosystem> [<limit> [<home>]]")
 		sys.exit(1)
 	if len(sys.argv) > 2:
 		limit = int(sys.argv[2])
@@ -235,16 +235,16 @@ if __name__ == '__main__':
 		home = sys.argv[3]
 	else:
 		home = ""
-	ecossystem = sys.argv[1]
-	ecosystemDataManager = EcosystemDataManager(ecossystem, home)
+	ecosystem = sys.argv[1]
+	ecosystemDataManager = EcosystemDataManager(ecosystem, home)
 	packages = ecosystemDataManager.getPackages()
-	if ecossystem == "rubygems":
+	if ecosystem == "rubygems":
 		fetchRubygemsPackages()
 	index = 0
 	size = len(packages)
 	for package in packages:
 		print(index, "/", limit, "/", size)
-		fetch(ecossystem, package)
+		fetch(ecosystem, package)
 		index += 1
 		if index == limit:
 			break
