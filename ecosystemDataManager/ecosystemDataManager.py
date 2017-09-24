@@ -185,7 +185,8 @@ class EcosystemDataManager(object):
 			for version in package.getVersions():
 				localRegularityRate = version.getLocalRegularityRate()
 				globalRegularityRate = version.calculateGlobalRegularityRate()
-				print("[" + str(evaluated) + "/" + str(size) + "]", package, "\t", "{" + str(len(package.getDependencies())) + "}", "\t", localRegularityRate, "->", globalRegularityRate)
+				if globalRegularityRate < 1:
+					print("[" + str(evaluated) + "/" + str(size) + "]", version, "\t", "{" + str(len(version)) + "}", "\t", localRegularityRate, "->", globalRegularityRate)
 			evaluated += 1
 
 	def calculateGlobalRegularityMean(self):
@@ -196,7 +197,8 @@ class EcosystemDataManager(object):
 			for version in package.getVersions():
 				localRegularityRate = version.getLocalRegularityRate()
 				globalRegularityMean = version.calculateGlobalRegularityMean()
-				print("[" + str(evaluated) + "/" + str(size) + "]", package, "\t", "{" + str(len(package.getDependencies())) + "}", "\t", localRegularityRate, "->", globalRegularityMean)
+				if globalRegularityMean < 1:
+					print("[" + str(evaluated) + "/" + str(size) + "]", version, "\t", "{" + str(len(version)) + "}", "\t", localRegularityRate, "->", globalRegularityMean)
 			evaluated += 1
 
 	def calculateGlobalRegularityMetrics(self):
@@ -208,7 +210,8 @@ class EcosystemDataManager(object):
 				localRegularityRate = version.getLocalRegularityRate()
 				globalRegularityRate = version.calculateGlobalRegularityRate()
 				globalRegularityMean = version.calculateGlobalRegularityMean()
-				print("[" + str(evaluated) + "/" + str(size) + "]", package, "\t", "{" + str(len(package.getDependencies())) + "}", "\t", localRegularityRate, "->", globalRegularityRate, "<-", globalRegularityMean)
+				if globalRegularityRate < 1:
+					print("[" + str(evaluated) + "/" + str(size) + "]", version, "\t", "{" + str(len(version)) + "}", "\t", localRegularityRate, "->", globalRegularityRate, "<-", globalRegularityMean)
 			evaluated += 1
 
 	def getIrregularPackages(self):
