@@ -50,11 +50,51 @@ def plotMultBoxPlot(vectors, name_boxplot):
 		data.append(trace)
 	plotly.offline.plot(data, filename=name_boxplot)
 
+def plorBarChart(vector_x, vector_y, nameBarChart):
+	data = [go.Bar(
+	        x=vector_x,
+	        y=vector_y
+	)]	
+	plotly.offline.plot(data, filename=nameBarChart)
+
+
+def plotMultBarsChart(setName, vector_x, vectors_y, nameBarChart):
+	data = []
+	i = 0
+	for vector in vectors_y:
+		trace = go.Bar(
+			x=vector_x,
+			y=vector,
+			name=setName[i]
+		)
+		i += 1
+		data.append(trace)
+	layout = go.Layout(
+    	barmode='group'
+	)
+	fig = go.Figure(data=data, layout=layout)
+	plotly.offline.plot(fig, filename=nameBarChart)
+
+def packageHistory(ecosystemDataManager, packageName):
+	package = ecosystemDataManager.getPackage(packageName)
+	historyVersions = package.getHistory()
+	listLocalRegularityRate = []
+	listGlobalRegularityRate = []
+	versionsName = []
+	for version in historyVersions:
+		versionsName.append(version.getName())
+		listLocalRegularityRate.append((version.calculateLocalRegularityRate()))
+		listGlobalRegularityRate.append((version.calculateGlobalRegularityRate()))
+	setName = ["Local Regularity Rate", "Global Regularity Rate"]
+	plotMultBarsChart(setName ,versionsName, [listLocalRegularityRate, listGlobalRegularityRate], packageName+'_regularity_rate_bars')
+
 if __name__ == '__main__':
-	if len(sys.argv) < 2:
-		print("Usage:", sys.argv[0], "<ecosystem>")
+	if len(sys.argv) < 3:
+		print("Usage:", sys.argv[0], "<ecosystem> <package>")
+		print("<package> to use in function 'packageHistory'")
 		sys.exit(1)
 	ecosystem = sys.argv[1]
+	packageName = sys.argv[2]
 	ecosystemDataManager = EcosystemDataManager(ecosystem)
 	packageSizeDistribution = [len(package) for package in ecosystemDataManager.getPackages()]
 	plotBoxPlot(packageSizeDistribution, ecosystem + '_boxplot_packageSizeDistribution.html')
@@ -63,3 +103,4 @@ if __name__ == '__main__':
 	irregularPackagesHasLocalRegularityRates = {irregularPackage.getName(): irregularPackage.getLocalRegularityRates() for irregularPackage in irregularPackages}
 	plotMultBoxPlot(irregularPackagesHasLocalRegularityRates, ecosystem + '_boxplot_regularityRateVersions.html')
 	plotHistograms(irregularPackagesHasLocalRegularityRates, ecosystem + '_histogram_regularityRateVersions.html')
+	packageHistory(ecosystemDataManager, packageName)
