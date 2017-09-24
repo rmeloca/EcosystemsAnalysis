@@ -186,7 +186,7 @@ class EcosystemDataManager(object):
 				localRegularityRate = version.getLocalRegularityRate()
 				globalRegularityRate = version.calculateGlobalRegularityRate()
 				if globalRegularityRate < 1:
-					print("[" + str(evaluated) + "/" + str(size) + "]", version, "\t", "{" + str(len(version)) + "}", "\t", localRegularityRate, "->", globalRegularityRate)
+					print("[" + str(evaluated) + "/" + str(size) + "]", version, "\t", "{" + str(len(version.getDependencies())) + "}", "\t", localRegularityRate, "->", globalRegularityRate)
 			evaluated += 1
 
 	def calculateGlobalRegularityMean(self):
@@ -198,7 +198,7 @@ class EcosystemDataManager(object):
 				localRegularityRate = version.getLocalRegularityRate()
 				globalRegularityMean = version.calculateGlobalRegularityMean()
 				if globalRegularityMean < 1:
-					print("[" + str(evaluated) + "/" + str(size) + "]", version, "\t", "{" + str(len(version)) + "}", "\t", localRegularityRate, "->", globalRegularityMean)
+					print("[" + str(evaluated) + "/" + str(size) + "]", version, "\t", "{" + str(len(version.getDependencies())) + "}", "\t", localRegularityRate, "->", globalRegularityMean)
 			evaluated += 1
 
 	def calculateGlobalRegularityMetrics(self):
@@ -211,7 +211,7 @@ class EcosystemDataManager(object):
 				globalRegularityRate = version.calculateGlobalRegularityRate()
 				globalRegularityMean = version.calculateGlobalRegularityMean()
 				if globalRegularityRate < 1:
-					print("[" + str(evaluated) + "/" + str(size) + "]", version, "\t", "{" + str(len(version)) + "}", "\t", localRegularityRate, "->", globalRegularityRate, "<-", globalRegularityMean)
+					print("[" + str(evaluated) + "/" + str(size) + "]", version, "\t", "{" + str(len(version.getDependencies())) + "}", "\t", localRegularityRate, "->", globalRegularityRate, "<-", globalRegularityMean)
 			evaluated += 1
 
 	def getIrregularPackages(self):
