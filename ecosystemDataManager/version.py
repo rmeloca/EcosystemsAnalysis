@@ -155,7 +155,8 @@ class Version(object):
 			self.ecosystemDataManager.visited.append(self)
 
 	def getDependencies(self, recursive = False, start = True):
-		self.manageRecursion(start)
+		if recursive:
+			self.manageRecursion(start)
 		versionsHasDependencies =  self.ecosystemDataManager.get("VersionsHasDependencies")
 		indexes = versionsHasDependencies[self.index]
 		dependencies = []
@@ -171,7 +172,8 @@ class Version(object):
 		return dependencies
 
 	def getOcurrences(self, recursive = False, start = True):
-		self.manageRecursion(start)
+		if recursive:
+			self.manageRecursion(start)
 		versionsHasOcurrences =  self.ecosystemDataManager.get("VersionsHasOcurrences")
 		indexes = versionsHasOcurrences[self.index]
 		ocurrences =  [Ocurrence(self, Version(self.ecosystemDataManager, None, ocurrence)) for ocurrence in indexes]
