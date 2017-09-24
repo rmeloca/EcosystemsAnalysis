@@ -254,15 +254,7 @@ class Package(object):
 
 	def evaluate(self, dependency):
 		inLicenses = dependency.getLicenses()
-		if inLicenses:
-			irregular = False
-		else:
-			irregular = True
-		for inLicense in inLicenses:
-			if inLicense == "copyright" or inLicense == "none" or inLicense == None:
-				irregular = True
-				break
-		return irregular
+		return self.ecosystemDataManager.evaluateInLicenses(inLicenses)
 
 	def isIrregular(self):
 		for version in self.getVersions():

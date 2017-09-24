@@ -20,10 +20,7 @@ if __name__ == '__main__':
 			extracted = []
 	ecosystem = sys.argv[1]
 	ecosystemDataManager = EcosystemDataManager(ecosystem)
-	for package in ecosystemDataManager.getPackages():
-		for version in package.getVersions():
-			for license in version.getLicenses():
-				extracted.append(license.getName())
+	extracted += ecosystemDataManager.getLicenses()
 	extracted = set(extracted)
 	extracted = list(extracted)
 	with open(licenses, "w") as file:

@@ -310,6 +310,14 @@ class EcosystemDataManager(object):
 		self.attributes["VersionsHasOriginalLicenses"] = self.get("VersionsHasLicenses")
 		self.save("VersionsHasOriginalLicenses")
 
+	def evaluateInLicenses(self, inLicenses):
+		if not inLicenses:
+			return True
+		for inLicense in inLicenses:
+			if inLicense == "copyright" or inLicense == "none" or inLicense == None:
+				return True
+		return False
+
 	def __str__(self):
 		return self.ecosystem + " at " + self.home
 

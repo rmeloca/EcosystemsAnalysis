@@ -52,14 +52,7 @@ class Dependency(object):
 			self.set("DependenciesAreIrregular", irregular)
 			raise Exception
 		inLicenses = self.inVersion.getLicenses()
-		if inLicenses:
-			irregular = False
-		else:
-			irregular = True
-		for inLicense in inLicenses:
-			if inLicense == "copyright" or inLicense == "none" or inLicense == None:
-				irregular = True
-				break
+		irregular = self.ecosystemDataManager.evaluateInLicenses(inLicenses)
 		self.set("DependenciesAreIrregular", irregular)
 		return irregular
 

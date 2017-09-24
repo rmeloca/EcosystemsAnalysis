@@ -12,14 +12,14 @@ if __name__ == '__main__':
 	if len(sys.argv) < 2:
 		print("Usage:", sys.argv[0], "<ecosystem> [<evaluate>] [<globalrate>] [<globalmean>] [<average>]")
 		sys.exit(1)
-	if not isValidArguments(argv[2:]):
+	if not isValidArguments(sys.argv[2:]):
 		print("Usage:", sys.argv[0], "<ecosystem> [<evaluate>] [<globalrate>] [<globalmean>] [<average>]")
 		sys.exit(1)
 	if len(sys.argv) == 2:
 		print("no options provided. calculating all metrics")
-		options = [argument for argument in argv[2:]]
-	else:
 		options = ["evaluate", "globalrate", "globalmean", "average"]
+	else:
+		options = [argument for argument in sys.argv[2:]]
 	ecosystem = sys.argv[1]
 	ecosystemDataManager = EcosystemDataManager(ecosystem)
 	if "evaluate" in options:
