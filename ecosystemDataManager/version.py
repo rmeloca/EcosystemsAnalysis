@@ -52,15 +52,21 @@ class Version(object):
 	def getGlobalRegularityRate(self):
 		globalRegularityRate = self.get("VersionsHasGlobalRegularityRate")
 		if not globalRegularityRate:
-			globalRegularityRate = self.calculateGlobalRegularityRate()
-			self.set("VersionsHasGlobalRegularityRate", globalRegularityRate)
+			if self in self.ecosystemDataManager.visited:
+				return 1
+			else:
+				globalRegularityRate = self.calculateGlobalRegularityRate(False)
+				self.set("VersionsHasGlobalRegularityRate", globalRegularityRate)
 		return globalRegularityRate
 
 	def getGlobalRegularityMean(self):
 		globalRegularityMean = self.get("VersionsHasGlobalRegularityMean")
 		if not globalRegularityMean:
-			globalRegularityMean = self.calculateGlobalRegularityMean()
-			self.set("VersionsHasGlobalRegularityMean", globalRegularityMean)
+			if self in self.ecosystemDataManager.visited:
+				return 1
+			else:
+				globalRegularityMean = self.calculateGlobalRegularityMean(False)
+				self.set("VersionsHasGlobalRegularityMean", globalRegularityMean)
 		return globalRegularityMean
 
 	def getLicenseByIndex(self, index):
@@ -240,7 +246,10 @@ class Version(object):
 		self.set("VersionsHasLocalRegularityRate", localRegularityRate)
 		return localRegularityRate
 
-	def calculateGlobalRegularityRate(self):
+	def calculateGlobalRegularityRate(self, start = True):
+		if start:
+			self.ecosystemDataManager.visited = []
+		self.ecosystemDataManager.visited.append(self)
 		globalRegularityRate = self.getLocalRegularityRate()
 		dependencies = self.getDependencies()
 		for dependency in dependencies:
@@ -248,7 +257,10 @@ class Version(object):
 		self.set("VersionsHasGlobalRegularityRate", globalRegularityRate)
 		return globalRegularityRate
 
-	def calculateGlobalRegularityMean(self):
+	def calculateGlobalRegularityMean(self, start = True):
+		if start:
+			self.ecosystemDataManager.visited = []
+		self.ecosystemDataManager.visited.append(self)
 		globalRegularityMean = self.getLocalRegularityRate()
 		dependencies = self.getDependencies()
 		for dependency in dependencies:
