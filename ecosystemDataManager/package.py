@@ -62,47 +62,27 @@ class Package(object):
 			packagesHasVersions[self.index][name]
 		except Exception as e:
 			versionsHasIndex = self.ecosystemDataManager.get("VersionsHasIndex")
-			versionsHasPackage = self.ecosystemDataManager.get("VersionsHasPackage")
-			versionsHasOcurrences = self.ecosystemDataManager.get("VersionsHasOcurrences")
-			versionsHasGlobalRegularityRate = self.ecosystemDataManager.get("VersionsHasGlobalRegularityRate")
-			versionsHasLocalRegularityRate = self.ecosystemDataManager.get("VersionsHasLocalRegularityRate")
-			versionsHasAuthor = self.ecosystemDataManager.get("VersionsHasAuthor")
-			versionsHasEmail = self.ecosystemDataManager.get("VersionsHasEmail")
-			versionsHasContextSize = self.ecosystemDataManager.get("VersionsHasContextSize")
-			versionsHasDatetime = self.ecosystemDataManager.get("VersionsHasDatetime")
-			versionsHasDownloads = self.ecosystemDataManager.get("VersionsHasDownloads")
-			versionsHasLinesOfCode = self.ecosystemDataManager.get("VersionsHasLinesOfCode")
-			
-			versionsHasLicenses = self.ecosystemDataManager.get("VersionsHasLicenses")
-			licensesHasGroup = self.ecosystemDataManager.get("LicensesHasGroup")
-			
-			versionsHasDependencies = self.ecosystemDataManager.get("VersionsHasDependencies")
-			dependenciesAreIrregular = self.ecosystemDataManager.get("DependenciesAreIrregular")
-			dependenciesHasDelimiter = self.ecosystemDataManager.get("DependenciesHasDelimiter")
-			dependenciesHasRequirements = self.ecosystemDataManager.get("DependenciesHasRequirements")
-			
 			packagesHasVersions[self.index][name] = len(versionsHasIndex)
 			versionsHasIndex.append(name)
-			versionsHasPackage.append(self.index)
-			versionsHasOcurrences.append([])
-			versionsHasGlobalRegularityRate.append(None)
-			versionsHasLocalRegularityRate.append(None)
-			versionsHasAuthor.append(None)
-			versionsHasEmail.append(None)
-			versionsHasContextSize.append(None)
-			versionsHasDatetime.append(None)
-			versionsHasDownloads.append(None)
-			versionsHasLinesOfCode.append(None)
-
-			versionsHasLicenses.append([])
-			licensesHasGroup.append([])
+			self.ecosystemDataManager.get("VersionsHasPackage").append(self.index)
 			
-			versionsHasDependencies.append([])
-			dependenciesAreIrregular.append([])
-			dependenciesHasDelimiter.append([])
-			dependenciesHasRequirements.append([])
+			self.ecosystemDataManager.get("VersionsHasGlobalRegularityRate").append(None)
+			self.ecosystemDataManager.get("VersionsHasGlobalRegularityMean").append(None)
+			self.ecosystemDataManager.get("VersionsHasLocalRegularityRate").append(None)
+			self.ecosystemDataManager.get("VersionsHasAuthor").append(None)
+			self.ecosystemDataManager.get("VersionsHasEmail").append(None)
+			self.ecosystemDataManager.get("VersionsHasContextSize").append(None)
+			self.ecosystemDataManager.get("VersionsHasDatetime").append(None)
+			self.ecosystemDataManager.get("VersionsHasDownloads").append(None)
+			self.ecosystemDataManager.get("VersionsHasLicenses").append([])
+			self.ecosystemDataManager.get("LicensesHasGroup").append([])
+			self.ecosystemDataManager.get("VersionsHasDependencies").append([])
+			self.ecosystemDataManager.get("VersionsHasOcurrences").append([])
+			self.ecosystemDataManager.get("DependenciesAreIrregular").append([])
+			self.ecosystemDataManager.get("DependenciesHasDelimiter").append([])
+			self.ecosystemDataManager.get("DependenciesHasRequirements").append([])
 		finally:
-			return self.getVersionByIndex(packagesHasVersions[self.index][name])
+			return self.getVersion(name)
 
 	def getVersion(self, name):
 		versionsHasIndex = self.get("PackagesHasVersions")
@@ -308,6 +288,7 @@ class Package(object):
 		for version in self.getVersions():
 			if version.getGlobalRegularityRate() < 1:
 				return True
+		return False
 
 	def __hash__(self):
 		return self.index

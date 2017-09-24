@@ -10,15 +10,26 @@ if __name__ == '__main__':
 		print("Usage:", sys.argv[0], "<ecosystem> [<licenses> <normalized>]")
 		sys.exit(1)
 	ecosystem = sys.argv[1]
-	if len(sys.argv) > 3:
-		licenses = sys.argv[2]
+	if len(sys.argv) > 4:
 		normalized = sys.argv[3]
+		licenses = sys.argv[2]
 	else:
-		licenses = "licenses.json"
+		print("normalized not provided. using default.")
 		normalized = "normalized.json"
+		if len(sys.argv) > 3:
+			licenses = sys.argv[2]
+		else:
+			print("licenses not provided. using default.")
+			licenses = "licenses.json"
 	licenses = json.load(open(licenses))
 	normalized = json.load(open(normalized))
+	if len(licenses) != len(normalized):
+		print("licenses and normalized length are not equal. aborting.")
+		sys.exit(1)
 	ecosystemDataManager = EcosystemDataManager(ecosystem)
+	backup = input("this is a destructive operation! Do you want to backup licenses? Backup if any will be replaced. [y/n]: ")
+	if backup == "y":
+		ecosystemDataManager.backupLicenses()
 	packages = ecosystemDataManager.getPackages()
 	for package in packages:
 		for version in package.getVersions():

@@ -32,14 +32,15 @@ class EcosystemDataManager(object):
 		self.attributes["VersionsHasPackage"] = []
 		self.attributes["VersionsHasOcurrences"] = []
 		self.attributes["VersionsHasGlobalRegularityRate"] = []
+		self.attributes["VersionsHasGlobalRegularityMean"] = []
 		self.attributes["VersionsHasLocalRegularityRate"] = []
 		self.attributes["VersionsHasAuthor"] = []
 		self.attributes["VersionsHasEmail"] = []
 		self.attributes["VersionsHasContextSize"] = []
 		self.attributes["VersionsHasDatetime"] = []
 		self.attributes["VersionsHasDownloads"] = []
-		self.attributes["VersionsHasLinesOfCode"] = []
 
+		self.attributes["VersionsHasOriginalLicenses"] = []
 		self.attributes["VersionsHasLicenses"] = []
 		self.attributes["LicensesHasGroup"] = []
 
@@ -187,6 +188,29 @@ class EcosystemDataManager(object):
 				print("[" + str(evaluated) + "/" + str(size) + "]", package, "\t", "{" + str(len(package.getDependencies())) + "}", "\t", localRegularityRate, "->", globalRegularityRate)
 			evaluated += 1
 
+	def calculateGlobalRegularityMean(self):
+		packages = self.getPackages()
+		evaluated = 0
+		size = len(packages)
+		for package in packages:
+			for version in package.getVersions():
+				localRegularityRate = version.getLocalRegularityRate()
+				globalRegularityMean = version.calculateGlobalRegularityMean()
+				print("[" + str(evaluated) + "/" + str(size) + "]", package, "\t", "{" + str(len(package.getDependencies())) + "}", "\t", localRegularityRate, "->", globalRegularityMean)
+			evaluated += 1
+
+	def calculateGlobalRegularityMetrics(self):
+		packages = self.getPackages()
+		evaluated = 0
+		size = len(packages)
+		for package in packages:
+			for version in package.getVersions():
+				localRegularityRate = version.getLocalRegularityRate()
+				globalRegularityRate = version.calculateGlobalRegularityRate()
+				globalRegularityMean = version.calculateGlobalRegularityMean()
+				print("[" + str(evaluated) + "/" + str(size) + "]", package, "\t", "{" + str(len(package.getDependencies())) + "}", "\t", localRegularityRate, "->", globalRegularityRate, "<-", globalRegularityMean)
+			evaluated += 1
+
 	def getIrregularPackages(self):
 		return [package for package in self.getPackages() if package.isIrregular()]
 
@@ -233,7 +257,9 @@ class EcosystemDataManager(object):
 
 	def average(self):
 		irregularPackages = 0
+		affectedPackages = 0
 		irregularVersions = 0
+		affectedVersions = 0
 		irregularDependencies = 0
 		packages = self.getPackages()
 		packagesSize = len(packages)
@@ -250,20 +276,28 @@ class EcosystemDataManager(object):
 						irregularDependencies += 1
 				if version.isIrregular():
 					irregularVersions += 1
+				if version.isAffected():
+					affectedVersions += 1
 			if package.isIrregular():
 				irregularPackages += 1
+			if package.isAffected():
+				affectedPackages += 1
 		print(self)
 		print()
-		print("irregularPackages", irregularPackages)
 		print("packages", packagesSize)
+		print("irregularPackages", irregularPackages)
 		print("average", irregularPackages / packagesSize)
+		print("affectedPackages", irregularPackages)
+		print("average", affectedPackages / packagesSize)
 		print()
-		print("irregularVersions", irregularVersions)
 		print("versions", versionsSize)
+		print("irregularVersions", irregularVersions)
 		print("average", irregularVersions / versionsSize)
+		print("affectedVersions", irregularVersions)
+		print("average", affectedVersions / versionsSize)
 		print()
-		print("irregularDependencies", irregularDependencies)
 		print("dependencies", dependenciesSize)
+		print("irregularDependencies", irregularDependencies)
 		print("average", irregularDependencies / dependenciesSize)
 
 	def getMostPopularIrregularPackages(self, size = None):
@@ -271,6 +305,10 @@ class EcosystemDataManager(object):
 		if size:
 			irregularPackages = irregularPackages[:size]
 		return irregularPackages
+
+	def backupLicenses(self):
+		self.attributes["VersionsHasOriginalLicenses"] = self.get("VersionsHasLicenses")
+		self.save("VersionsHasOriginalLicenses")
 
 	def __str__(self):
 		return self.ecosystem + " at " + self.home

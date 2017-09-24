@@ -46,13 +46,6 @@ class Version(object):
 	def getDownloads(self):
 		return self.get("VersionsHasDownloads")
 
-	def setLinesOfCode(self, linesOfCode):
-		self.set("VersionsHasLinesOfCode", linesOfCode)
-		return self
-
-	def getLinesOfCode(self):
-		return self.get("VersionsHasLinesOfCode")
-
 	def getLocalRegularityRate(self):
 		return self.get("VersionsHasLocalRegularityRate")
 
@@ -62,6 +55,13 @@ class Version(object):
 			globalRegularityRate = self.calculateGlobalRegularityRate()
 			self.set("VersionsHasGlobalRegularityRate", globalRegularityRate)
 		return globalRegularityRate
+
+	def getGlobalRegularityMean(self):
+		globalRegularityMean = self.get("VersionsHasGlobalRegularityMean")
+		if not globalRegularityMean:
+			globalRegularityMean = self.calculateGlobalRegularityMean()
+			self.set("VersionsHasGlobalRegularityMean", globalRegularityMean)
+		return globalRegularityMean
 
 	def getLicenseByIndex(self, index):
 		if index < 0:
@@ -219,6 +219,11 @@ class Version(object):
 				return False
 		return True
 
+	def isAffected(self):
+		if self.getGlobalRegularityRate() < 1:
+			return True
+		return False
+
 	def getIrregularDependencies(self):
 		return [dependency for dependency in self.getDependencies() if dependency.isIrregular()]
 
@@ -242,6 +247,15 @@ class Version(object):
 			globalRegularityRate *= dependency.getInVersion().getGlobalRegularityRate()
 		self.set("VersionsHasGlobalRegularityRate", globalRegularityRate)
 		return globalRegularityRate
+
+	def calculateGlobalRegularityMean(self):
+		globalRegularityMean = self.getLocalRegularityRate()
+		dependencies = self.getDependencies()
+		for dependency in dependencies:
+			globalRegularityMean += dependency.getInVersion().getGlobalRegularityMean()
+		globalRegularityMean /= len(dependencies) + 1
+		self.set("VersionsHasGlobalRegularityMean", globalRegularityMean)
+		return globalRegularityMean
 
 	def __hash__(self):
 		return self.index

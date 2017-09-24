@@ -22,14 +22,14 @@ if __name__ == '__main__':
 	packages = ecosystemDataManager.getPackages()
 	try:
 		with open(osi) as file:
-			osi = json.load(open(osi))
+			osi = json.load(file)
 			print("OSI loaded")
 	except Exception as e:
 		osi = []
 		print("OSI not loaded")
 	try:
 		with open(unlisted) as file:
-			unlisted = json.load(open(unlisted))
+			unlisted = json.load(file)
 			print("Unlisted loaded")
 	except Exception as e:
 		print("Unlisted not loaded")
