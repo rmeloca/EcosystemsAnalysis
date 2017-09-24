@@ -1,6 +1,7 @@
 import json
 import sys
 import os
+from collections import OrderedDict
 from .package import Package
 
 class EcosystemDataManager(object):
@@ -257,6 +258,17 @@ class EcosystemDataManager(object):
 		licenses = set(licenses)
 		licenses = list(licenses)
 		return licenses
+	
+	def getMostPopularLicenses(self):
+		licenses = self.getLicenses()
+		mostPopuplarLicenses = {}
+		for license in licenses:
+			if (license in  mostPopuplarLicenses):
+				mostPopuplarLicenses[license] = mostPopuplarLicenses[license] + 1
+			else:
+				mostPopuplarLicenses[license] = 1
+		d_sorted_by_value = OrderedDict(sorted(mostPopuplarLicenses.items(), key=lambda x: x[1]))
+		return d_sorted_by_value
 
 	def average(self):
 		irregularPackages = 0

@@ -75,6 +75,23 @@ def plotMultBarsChart(setName, vector_x, vectors_y, nameBarChart):
 	fig = go.Figure(data=data, layout=layout)
 	plotly.offline.plot(fig, filename=nameBarChart)
 
+def mostPopularLicenses(ecosystemDataManager, ecosystemName, size = None):
+	keys = []
+	values = []
+	for k, v in ecosystemDataManager.getMostPopularLicenses().items():
+		keys.append(k)
+		values.append(v)
+	if size:
+		keys = keys[:size]
+		values = values[:size]
+	trace = go.Histogram(
+		name=ecosystemName,
+		x = keys,
+		y = values	
+	)
+	data = [trace]
+	plotly.offline.plot(data, filename=ecosystemName)
+
 def packageHistory(ecosystemDataManager, packageName):
 	package = ecosystemDataManager.getPackage(packageName)
 	historyVersions = package.getHistory()
@@ -104,3 +121,4 @@ if __name__ == '__main__':
 	plotMultBoxPlot(irregularPackagesHasLocalRegularityRates, ecosystem + '_boxplot_regularityRateVersions.html')
 	plotHistograms(irregularPackagesHasLocalRegularityRates, ecosystem + '_histogram_regularityRateVersions.html')
 	packageHistory(ecosystemDataManager, packageName)
+	mostPopularLicenses(ecosystemDataManager, ecosystem, 10)
