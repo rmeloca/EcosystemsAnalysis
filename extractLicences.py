@@ -17,7 +17,7 @@ if __name__ == '__main__':
 			print("licenses loaded")
 	except Exception as e:
 		print("licenses not loaded. continuing.")
-			extracted = []
+		extracted = []
 	ecosystem = sys.argv[1]
 	ecosystemDataManager = EcosystemDataManager(ecosystem)
 	extracted += ecosystemDataManager.getLicenses()

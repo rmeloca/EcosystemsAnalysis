@@ -124,10 +124,11 @@ if __name__ == '__main__':
 		print("Usage:", sys.argv[0], "<ecosystem> [<package>]")
 		sys.exit(1)
 	ecosystem = sys.argv[1]
-	if "package" in sys.argv:
+	if len(sys.argv) > 2:
 		package = sys.argv[2]
 	else:
 		print("<package> not provided. Most popular and irregular package will be used to plot their history")
+		package = None
 	try:
 		os.makedirs("visualizations")
 	except Exception as e:
@@ -142,8 +143,8 @@ if __name__ == '__main__':
 	plotHistograms(irregularPackagesHasLocalRegularityRates, "visualizations/" + ecosystem + '_histogram_regularityRateVersions.html')
 	licenses = ecosystemDataManager.getMostPopularLicenses()
 	plotMostPopularLicenses([str(k) for k, v in licenses], [v for k, v in licenses], "visualizations/" + ecosystem + "_bars_mostPopularLicenses.html")
-	if "package" not in sys.argv:
-		package = irregularPackages[0]
-	else:
+	if package:
 		package = ecosystemDataManager.getPackage(package)
+	else:
+		package = irregularPackages[0]
 	plotPackageHistory(package)
