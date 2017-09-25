@@ -30,20 +30,24 @@ if __name__ == '__main__':
 		print("done")
 	else:
 		print("assuming that edges are already evaluated")
-	if "globalrate" in options and "globalmean" in options:
-		print("calculating both globalrate and globalmean metrics")
-		ecosystemDataManager.calculateGlobalRegularityMetrics()
-	elif "globalrate" in options or "globalmean" in options:
-		print("calculate globalrate and globalmean together is faster")
-		if "globalrate" in options:
-			print("calculating globalrate")
-			ecosystemDataManager.calculateGlobalRegularityRate()
-		elif "globalmean" in options:
-			print("calculating globalmean")
-			ecosystemDataManager.calculateGlobalRegularityMean()
+	if "globalrate" in options or "globalmean" in options:
+		if "globalrate" in options and "globalmean" in options:
+			print("calculating both globalrate and globalmean metrics")
+			ecosystemDataManager.calculateGlobalRegularityMetrics()
+		else:
+			print("calculate globalrate and globalmean together is faster")
+			if "globalrate" in options:
+				print("calculating globalrate")
+				ecosystemDataManager.calculateGlobalRegularityRate()
+			elif "globalmean" in options:
+				print("calculating globalmean")
+				ecosystemDataManager.calculateGlobalRegularityMean()
 		print("saving")
 		ecosystemDataManager.save()
 		print("done")
 	if "average" in options:
 		print("calculating average")
 		ecosystemDataManager.average()
+		print("in case rates or means has to been calculated: saving")
+		ecosystemDataManager.save()
+		print("done")

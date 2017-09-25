@@ -1,4 +1,5 @@
 import sys
+import os
 import plotly
 import plotly.graph_objs as go
 from ecosystemDataManager.ecosystemDataManager import EcosystemDataManager
@@ -75,25 +76,16 @@ def plotMultBarsChart(setName, vector_x, vectors_y, nameBarChart):
 	fig = go.Figure(data=data, layout=layout)
 	plotly.offline.plot(fig, filename=nameBarChart)
 
-def mostPopularLicenses(ecosystemDataManager, ecosystemName, size = None):
-	keys = []
-	values = []
-	for k, v in ecosystemDataManager.getMostPopularLicenses().items():
-		keys.append(k)
-		values.append(v)
-	if size:
-		keys = keys[:size]
-		values = values[:size]
+def plotMostPopularLicenses(keys, values, chartName):
 	trace = go.Histogram(
-		name=ecosystemName,
+		name=chartName,
 		x = keys,
 		y = values	
 	)
 	data = [trace]
-	plotly.offline.plot(data, filename=ecosystemName)
+	plotly.offline.plot(data, filename=chartName)
 
-def packageHistory(ecosystemDataManager, packageName):
-	package = ecosystemDataManager.getPackage(packageName)
+def plotPackageHistory(package):
 	historyVersions = package.getHistory()
 	listLocalRegularityRate = []
 	listGlobalRegularityRate = []
@@ -103,22 +95,33 @@ def packageHistory(ecosystemDataManager, packageName):
 		listLocalRegularityRate.append((version.calculateLocalRegularityRate()))
 		listGlobalRegularityRate.append((version.calculateGlobalRegularityRate()))
 	setName = ["Local Regularity Rate", "Global Regularity Rate"]
-	plotMultBarsChart(setName ,versionsName, [listLocalRegularityRate, listGlobalRegularityRate], packageName+'_regularity_rate_bars')
+	plotMultBarsChart(setName, versionsName, [listLocalRegularityRate, listGlobalRegularityRate], package.getName() + '_regularity_rate_bars')
 
 if __name__ == '__main__':
-	if len(sys.argv) < 3:
-		print("Usage:", sys.argv[0], "<ecosystem> <package>")
-		print("<package> to use in function 'packageHistory'")
+	if len(sys.argv) < 2:
+		print("Usage:", sys.argv[0], "<ecosystem> [<package>]")
 		sys.exit(1)
 	ecosystem = sys.argv[1]
-	packageName = sys.argv[2]
+	if "package" in sys.argv:
+		package = sys.argv[2]
+	else:
+		print("<package> not provided. Most popular and irregular package will be used to plot their history")
+	try:
+		os.makedirs("visualizations")
+	except Exception as e:
+		pass
 	ecosystemDataManager = EcosystemDataManager(ecosystem)
 	packageSizeDistribution = [len(package) for package in ecosystemDataManager.getPackages()]
-	plotBoxPlot(packageSizeDistribution, ecosystem + '_boxplot_packageSizeDistribution.html')
-	plotHistogram(packageSizeDistribution, ecosystem + '_histogram_packageSizeDistribution.html')
+	plotBoxPlot(packageSizeDistribution, "visualizations/" + ecosystem + '_boxplot_packageSizeDistribution.html')
+	plotHistogram(packageSizeDistribution, "visualizations/" + ecosystem + '_histogram_packageSizeDistribution.html')
 	irregularPackages = ecosystemDataManager.getMostPopularIrregularPackages(10)
 	irregularPackagesHasLocalRegularityRates = {irregularPackage.getName(): irregularPackage.getLocalRegularityRates() for irregularPackage in irregularPackages}
-	plotMultBoxPlot(irregularPackagesHasLocalRegularityRates, ecosystem + '_boxplot_regularityRateVersions.html')
-	plotHistograms(irregularPackagesHasLocalRegularityRates, ecosystem + '_histogram_regularityRateVersions.html')
-	packageHistory(ecosystemDataManager, packageName)
-	mostPopularLicenses(ecosystemDataManager, ecosystem, 10)
+	plotMultBoxPlot(irregularPackagesHasLocalRegularityRates, "visualizations/" + ecosystem + '_boxplot_regularityRateVersions.html')
+	plotHistograms(irregularPackagesHasLocalRegularityRates, "visualizations/" + ecosystem + '_histogram_regularityRateVersions.html')
+	licenses = ecosystemDataManager.getMostPopularLicenses()
+	plotMostPopularLicenses([str(k) for k, v in licenses], [v for k, v in licenses], "visualizations/" + ecosystem + "_bars_mostPopularLicenses.html")
+	if "package" not in sys.argv:
+		package = irregularPackages[0]
+	else:
+		package = ecosystemDataManager.getPackage(package)
+	plotPackageHistory(package)
