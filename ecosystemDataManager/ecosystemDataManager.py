@@ -1,7 +1,6 @@
 import json
 import sys
 import os
-from collections import OrderedDict
 from .package import Package
 
 class EcosystemDataManager(object):
@@ -259,16 +258,19 @@ class EcosystemDataManager(object):
 		licenses = list(licenses)
 		return licenses
 	
-	def getMostPopularLicenses(self):
-		licenses = self.getLicenses()
-		mostPopuplarLicenses = {}
-		for license in licenses:
-			if (license in  mostPopuplarLicenses):
-				mostPopuplarLicenses[license] = mostPopuplarLicenses[license] + 1
-			else:
-				mostPopuplarLicenses[license] = 1
-		d_sorted_by_value = OrderedDict(sorted(mostPopuplarLicenses.items(), key=lambda x: x[1]))
-		return d_sorted_by_value
+	def getMostPopularLicenses(self, size = None):
+		distribution = {}
+		for package in self.getPackages():
+			for version in package.getVersions():
+				for license in version.getLicenses():
+					try:
+						distribution[license] = distribution[license] + 1
+					except Exception as e:
+						distribution[license] = 1
+		mostPopularLicenses = sorted(distribution.items(), key=lambda x: x[1], reverse = True)
+		if size:
+			mostPopularLicenses = mostPopularLicenses[:size]
+		return mostPopularLicenses
 
 	def average(self):
 		irregularPackages = 0
@@ -302,13 +304,13 @@ class EcosystemDataManager(object):
 		print("packages", packagesSize)
 		print("irregularPackages", irregularPackages)
 		print("average", irregularPackages / packagesSize)
-		print("affectedPackages", irregularPackages)
+		print("affectedPackages", affectedPackages)
 		print("average", affectedPackages / packagesSize)
 		print()
 		print("versions", versionsSize)
 		print("irregularVersions", irregularVersions)
 		print("average", irregularVersions / versionsSize)
-		print("affectedVersions", irregularVersions)
+		print("affectedVersions", affectedVersions)
 		print("average", affectedVersions / versionsSize)
 		print()
 		print("dependencies", dependenciesSize)
@@ -332,6 +334,9 @@ class EcosystemDataManager(object):
 			if inLicense == "copyright" or inLicense == "none" or inLicense == None:
 				return True
 		return False
+
+	def getName(self):
+		return self.ecosystem
 
 	def __str__(self):
 		return self.ecosystem + " at " + self.home

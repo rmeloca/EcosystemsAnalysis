@@ -49,7 +49,9 @@ class Version(object):
 	def getLocalRegularityRate(self):
 		return self.get("VersionsHasLocalRegularityRate")
 
-	def getGlobalRegularityRate(self):
+	def getGlobalRegularityRate(self, start = True):
+		if start:
+			self.ecosystemDataManager.visited = []
 		globalRegularityRate = self.get("VersionsHasGlobalRegularityRate")
 		if not globalRegularityRate:
 			if self in self.ecosystemDataManager.visited:
@@ -59,7 +61,9 @@ class Version(object):
 				self.set("VersionsHasGlobalRegularityRate", globalRegularityRate)
 		return globalRegularityRate
 
-	def getGlobalRegularityMean(self):
+	def getGlobalRegularityMean(self, start = True):
+		if start:
+			self.ecosystemDataManager.visited = []
 		globalRegularityMean = self.get("VersionsHasGlobalRegularityMean")
 		if not globalRegularityMean:
 			if self in self.ecosystemDataManager.visited:
@@ -255,7 +259,7 @@ class Version(object):
 		globalRegularityRate = self.getLocalRegularityRate()
 		dependencies = self.getDependencies()
 		for dependency in dependencies:
-			globalRegularityRate *= dependency.getInVersion().getGlobalRegularityRate()
+			globalRegularityRate *= dependency.getInVersion().getGlobalRegularityRate(False)
 		self.set("VersionsHasGlobalRegularityRate", globalRegularityRate)
 		return globalRegularityRate
 
@@ -266,7 +270,7 @@ class Version(object):
 		globalRegularityMean = self.getLocalRegularityRate()
 		dependencies = self.getDependencies()
 		for dependency in dependencies:
-			globalRegularityMean += dependency.getInVersion().getGlobalRegularityMean()
+			globalRegularityMean += dependency.getInVersion().getGlobalRegularityMean(False)
 		globalRegularityMean /= len(dependencies) + 1
 		self.set("VersionsHasGlobalRegularityMean", globalRegularityMean)
 		return globalRegularityMean
