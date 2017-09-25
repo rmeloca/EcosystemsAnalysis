@@ -6,7 +6,7 @@ if __name__ == '__main__':
 	if len(sys.argv) < 2:
 		print("Usage:", sys.argv[0], "<ecosystem> [<licenses>]")
 		sys.exit(1)
-	if len(sys.argv) > 3:
+	if len(sys.argv) > 2:
 		licenses = sys.argv[2]
 	else:
 		print("licenses not provided. using default.")
