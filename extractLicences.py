@@ -20,7 +20,7 @@ if __name__ == '__main__':
 		extracted = []
 	ecosystem = sys.argv[1]
 	ecosystemDataManager = EcosystemDataManager(ecosystem)
-	extracted += [license for license in ecosystemDataManager.getLicenses() if license not in extracted]
+	extracted += [str(license) for license in ecosystemDataManager.getLicenses() if license not in extracted]
 	with open(licenses, "w") as file:
 		print("writing")
 		file.write(json.dumps(extracted, separators=(',\n', ':')))
