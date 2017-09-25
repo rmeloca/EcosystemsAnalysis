@@ -76,6 +76,28 @@ def plotMultBarsChart(setName, vector_x, vectors_y, nameBarChart):
 	fig = go.Figure(data=data, layout=layout)
 	plotly.offline.plot(fig, filename=nameBarChart)
 
+def plorScatterChart(vector_x, vector_y, nameBarChart):
+	data = [go.Scatter(
+	        x=vector_x,
+	        y=vector_y,
+			mode = 'lines+markers'
+	)]	
+	plotly.offline.plot(data, filename=nameBarChart)
+
+def plotMultScatterChart(setName, vector_x, vectors_y, nameBarChart):
+	data = []
+	i = 0
+	for vector in vectors_y:
+		trace = go.Scatter(
+			x=vector_x,
+			y=vector,
+			name=setName[i],
+			mode = 'lines+markers'
+		)
+		i += 1
+		data.append(trace)
+	plotly.offline.plot(data, filename=nameBarChart)
+
 def plotMostPopularLicenses(keys, values, chartName):
 	trace = go.Histogram(
 		name=chartName,
@@ -95,7 +117,7 @@ def plotPackageHistory(package):
 		listLocalRegularityRate.append((version.calculateLocalRegularityRate()))
 		listGlobalRegularityRate.append((version.calculateGlobalRegularityRate()))
 	setName = ["Local Regularity Rate", "Global Regularity Rate"]
-	plotMultBarsChart(setName, versionsName, [listLocalRegularityRate, listGlobalRegularityRate], package.getName() + '_regularity_rate_bars')
+	plotMultScatterChart(setName, versionsName, [listLocalRegularityRate, listGlobalRegularityRate], package.getName() + '_regularity_rate_bars')
 
 if __name__ == '__main__':
 	if len(sys.argv) < 2:
