@@ -1,7 +1,9 @@
 import sys
 import os
 import plotly
+import plotly.offline as offline
 import plotly.graph_objs as go
+import math
 from ecosystemDataManager.ecosystemDataManager import EcosystemDataManager
 
 def plotHistogram(vector, name_histogram):
@@ -49,7 +51,13 @@ def plotMultBoxPlot(vectors, name_boxplot):
 			name=vector
 		)
 		data.append(trace)
-	plotly.offline.plot(data, filename=name_boxplot)
+	# plotly.offline.plot(data, filename=name_boxplot)
+	offline.plot({'data': [{'y': [4, 2, 3, 4]}], 
+               'layout': {'title': 'Test Plot', 
+                          'font': dict(size=16)}},
+             image='png')
+
+
 
 def plorBarChart(vector_x, vector_y, nameBarChart):
 	data = [go.Bar(
@@ -99,10 +107,10 @@ def plotMultScatterChart(setName, vector_x, vectors_y, nameBarChart):
 	plotly.offline.plot(data, filename=nameBarChart)
 
 def plotMostPopularLicenses(keys, values, chartName):
-	trace = go.Histogram(
+	trace = go.Bar(
 		name=chartName,
-		x = keys,
-		y = values	
+		y = values,
+		x = keys
 	)
 	data = [trace]
 	plotly.offline.plot(data, filename=chartName)
@@ -139,17 +147,18 @@ if __name__ == '__main__':
 		print("plotting only package history")
 	ecosystemDataManager = EcosystemDataManager(ecosystem)
 	if "only" not in sys.argv:
-		packageSizeDistribution = [len(package) for package in ecosystemDataManager.getPackages()]
-		plotBoxPlot(packageSizeDistribution, "visualizations/" + ecosystem + '_boxplot_packageSizeDistribution.html')
-		plotHistogram(packageSizeDistribution, "visualizations/" + ecosystem + '_histogram_packageSizeDistribution.html')
-		irregularPackages = ecosystemDataManager.getMostPopularIrregularPackages(10)
-		irregularPackagesHasLocalRegularityRates = {irregularPackage.getName(): irregularPackage.getLocalRegularityRates() for irregularPackage in irregularPackages}
-		plotMultBoxPlot(irregularPackagesHasLocalRegularityRates, "visualizations/" + ecosystem + '_boxplot_regularityRateVersions.html')
-		plotHistograms(irregularPackagesHasLocalRegularityRates, "visualizations/" + ecosystem + '_histogram_regularityRateVersions.html')
-		licenses = ecosystemDataManager.getMostPopularLicenses()
+		#packageSizeDistribution = [len(package) for package in ecosystemDataManager.getPackages()]
+		#plotBoxPlot(packageSizeDistribution, "visualizations/" + ecosystem + '_boxplot_packageSizeDistribution.html')
+		#plotHistogram(packageSizeDistribution, "visualizations/" + ecosystem + '_histogram_packageSizeDistribution.html')
+		#irregularPackages = ecosystemDataManager.getMostPopularIrregularPackages(10)
+		#irregularPackagesHasLocalRegularityRates = {irregularPackage.getName(): irregularPackage.getLocalRegularityRates() for irregularPackage in irregularPackages}
+		#plotMultBoxPlot(irregularPackagesHasLocalRegularityRates, "visualizations/" + ecosystem + '_boxplot_regularityRateVersions.html')
+		#plotHistograms(irregularPackagesHasLocalRegularityRates, "visualizations/" + ecosystem + '_histogram_regularityRateVersions.html')
+		licenses = ecosystemDataManager.getMostPopularLicenses(50)		
 		plotMostPopularLicenses([str(k) for k, v in licenses], [v for k, v in licenses], "visualizations/" + ecosystem + "_bars_mostPopularLicenses.html")
+		plotMostPopularLicenses([str(k) for k, v in licenses], [math.log10(v) for k, v in licenses], "visualizations/" + ecosystem + "_bars_mostPopularLicenses_log10.html")
 	if package:
 		package = ecosystemDataManager.getPackage(package)
 	else:
 		package = irregularPackages[0]
-	plotPackageHistory(package, "visualizations/" + ecosystem + package.getName() + '_regularity_rate_bars.html')
+	#plotPackageHistory(package, "visualizations/" + ecosystem + package.getName() + '_regularity_rate_bars.html')
