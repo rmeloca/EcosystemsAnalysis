@@ -253,7 +253,7 @@ class EcosystemDataManager(object):
 		for package in self.getPackages():
 			for version in package.getVersions():
 				for license in version.getLicenses():
-					licenses.append(license)
+					licenses.append(str(license))
 		licenses = set(licenses)
 		licenses = list(licenses)
 		return licenses
