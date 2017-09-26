@@ -253,7 +253,7 @@ class EcosystemDataManager(object):
 		for package in self.getPackages():
 			for version in package.getVersions():
 				for license in version.getLicenses():
-					licenses.append(license.getName())
+					licenses.append(license)
 		licenses = set(licenses)
 		licenses = list(licenses)
 		return licenses
@@ -337,6 +337,15 @@ class EcosystemDataManager(object):
 
 	def getName(self):
 		return self.ecosystem
+
+	def getLocalRegularityRates(self):
+		return self.get("VersionsHasLocalRegularityRate")
+
+	def getGlobalRegularityRates(self):
+		return self.get("VersionsHasGlobalRegularityRate")
+
+	def getGlobalRegularityMeans(self):
+		return self.get("VersionsHasGlobalRegularityMean")
 
 	def __str__(self):
 		return self.ecosystem + " at " + self.home

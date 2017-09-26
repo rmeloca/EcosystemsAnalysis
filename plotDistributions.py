@@ -79,7 +79,7 @@ def plotMultBarsChart(setName, vector_x, vectors_y, nameBarChart):
 		i += 1
 		data.append(trace)
 	layout = go.Layout(
-    	barmode='group'
+		barmode='group'
 	)
 	fig = go.Figure(data=data, layout=layout)
 	plotly.offline.plot(fig, filename=nameBarChart)
@@ -131,34 +131,52 @@ def plotPackageHistory(package, chartName):
 
 if __name__ == '__main__':
 	if len(sys.argv) < 2:
-		print("Usage:", sys.argv[0], "<ecosystem> [<package>] [only]")
+		print("Usage:", sys.argv[0], "<ecosystem> [history[=<package>]] [package-size] [most-popular-metrics[=<most-popular-size>]] [licenses] [metrics]")
 		sys.exit(1)
-	ecosystem = sys.argv[1]
-	if len(sys.argv) > 2:
-		package = sys.argv[2]
+	if len(sys.argv) == 2:
+		print("no options provided. all plots will be rendered")
+		options = {"history": None, "package-size": None, "most-popular-metrics": None, "licenses": None, "metrics": None}
 	else:
-		print("<package> not provided. Most popular and irregular package will be used to plot their history")
-		package = None
+		options = {}
+		for argument in sys.argv[2:]:
+			split = argument.split("=")
+			if len(split) > 1:
+				options[split[0]] = split[1]
+			else:
+				options[split[0]] = None
 	try:
 		os.makedirs("visualizations")
 	except Exception as e:
 		pass
-	if "only" in sys.argv:
-		print("plotting only package history")
+	ecosystem = sys.argv[1]
 	ecosystemDataManager = EcosystemDataManager(ecosystem)
-	if "only" not in sys.argv:
-		#packageSizeDistribution = [len(package) for package in ecosystemDataManager.getPackages()]
-		#plotBoxPlot(packageSizeDistribution, "visualizations/" + ecosystem + '_boxplot_packageSizeDistribution.html')
-		#plotHistogram(packageSizeDistribution, "visualizations/" + ecosystem + '_histogram_packageSizeDistribution.html')
-		#irregularPackages = ecosystemDataManager.getMostPopularIrregularPackages(10)
-		#irregularPackagesHasLocalRegularityRates = {irregularPackage.getName(): irregularPackage.getLocalRegularityRates() for irregularPackage in irregularPackages}
-		#plotMultBoxPlot(irregularPackagesHasLocalRegularityRates, "visualizations/" + ecosystem + '_boxplot_regularityRateVersions.html')
-		#plotHistograms(irregularPackagesHasLocalRegularityRates, "visualizations/" + ecosystem + '_histogram_regularityRateVersions.html')
-		licenses = ecosystemDataManager.getMostPopularLicenses(50)		
+	if "package-size" in options:
+		packageSizeDistribution = [len(package) for package in ecosystemDataManager.getPackages()]
+		plotBoxPlot(packageSizeDistribution, "visualizations/" + ecosystem + '_boxplot_packageSizeDistribution.html')
+		plotHistogram(packageSizeDistribution, "visualizations/" + ecosystem + '_histogram_packageSizeDistribution.html')
+	if "most-popular-metrics" in options:
+		mostPopularSize = options["most-popular-metrics"]
+		if not mostPopularSize:
+			print("<most-popular-size> not provided. Default size will be used")
+			mostPopularSize = 10
+		irregularPackages = ecosystemDataManager.getMostPopularIrregularPackages(mostPopularSize)
+		irregularPackagesHasLocalRegularityRates = {irregularPackage.getName(): irregularPackage.getLocalRegularityRates() for irregularPackage in irregularPackages}
+		plotMultBoxPlot(irregularPackagesHasLocalRegularityRates, "visualizations/" + ecosystem + '_boxplot_regularityRateVersions.html')
+		plotHistograms(irregularPackagesHasLocalRegularityRates, "visualizations/" + ecosystem + '_histogram_regularityRateVersions.html')
+	if "licenses" in options:
+		licenses = ecosystemDataManager.getMostPopularLicenses()
 		plotMostPopularLicenses([str(k) for k, v in licenses], [v for k, v in licenses], "visualizations/" + ecosystem + "_bars_mostPopularLicenses.html")
-		plotMostPopularLicenses([str(k) for k, v in licenses], [math.log10(v) for k, v in licenses], "visualizations/" + ecosystem + "_bars_mostPopularLicenses_log10.html")
-	if package:
-		package = ecosystemDataManager.getPackage(package)
-	else:
-		package = irregularPackages[0]
-	#plotPackageHistory(package, "visualizations/" + ecosystem + package.getName() + '_regularity_rate_bars.html')
+	if "metrics" in options:
+		metrics = {}
+		metrics["Local Regularity Rate"] = ecosystemDataManager.getLocalRegularityRates()
+		metrics["Global Regularity Rate"] = ecosystemDataManager.getGlobalRegularityRates()
+		metrics["Global Regularity Mean"] = ecosystemDataManager.getGlobalRegularityMeans()
+		plotMultBoxPlot(metrics, "visualizations/" + ecosystem + '_boxplot_metrics.html')
+	if "history" in options:
+		package = options["history"]
+		if package:
+			package = ecosystemDataManager.getPackage(package)
+		else:
+			print("<package> not provided. Most popular and irregular package will be used to plot their history")
+			package = irregularPackages[0]
+		plotPackageHistory(package, "visualizations/" + ecosystem + package.getName() + '_regularity_rate_bars.html')

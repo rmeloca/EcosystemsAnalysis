@@ -9,10 +9,7 @@ def isValidArguments(arguments):
 	return True
 
 if __name__ == '__main__':
-	if len(sys.argv) < 2:
-		print("Usage:", sys.argv[0], "<ecosystem> [<evaluate>] [<globalrate>] [<globalmean>] [<average>]")
-		sys.exit(1)
-	if not isValidArguments(sys.argv[2:]):
+	if len(sys.argv) < 2 or not isValidArguments(sys.argv[2:]):
 		print("Usage:", sys.argv[0], "<ecosystem> [<evaluate>] [<globalrate>] [<globalmean>] [<average>]")
 		sys.exit(1)
 	if len(sys.argv) == 2:
