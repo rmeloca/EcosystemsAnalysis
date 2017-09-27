@@ -13,39 +13,39 @@ if __name__ == '__main__':
 
 	ecosystem = sys.argv[1]
 	ecosystemDataManager = EcosystemDataManager(ecosystem, home)
-	irregularPackages = ecosystemDataManager.getIrregularPackages()
+	iregularPackages = ecosystemDataManager.getIregularPackages()
 
 	with open(ecosystem + "Emails.csv", 'w', newline = '') as csvfile:
 		file = csv.writer(csvfile, delimiter = ';')
 
 		email = "E-mail"
-		package_name = "Package Name"
+		packageName = "Package Name"
 		tags = "Tags"
-		first_insertion = "Fisrt Insertion"
+		firstInsertion = "First Insertion"
 		repository = "Repository"
-		problem_version = "Version"
-		dependency_number = "Dependency Number"
+		iregularVersion = "Version"
+		dependenciesSize = "Dependency Number"
 		author = "Author"
-		downloads_number = "Downloads Number"
-		license = "License"
+		downloads = "Downloads Number"
+		licenses = "Licenses"
 
-		file.writerow([email, package_name, tags, first_insertion, repository, problem_version, dependency_number, author, downloads_number, license])
+		file.writerow([email, packageName, tags, firstInsertion, repository, iregularVersion, dependenciesSize, author, downloads, licenses])
 
-		for package in irregularPackages:
-			irregularVersions = package.getIrregularVersions()
-			problem_version = irregularVersions[0]
-
-			email = problem_version.getEmail()
-			package_name = package.getName()
+		for package in iregularPackages:
+			iregularVersions = package.getIregularVersions()
+			iregularVersion = iregularVersions[0]
+			iregularityType = None
+			email = iregularVersion.getEmail()
+			packageName = package.getName()
 			tags = ", ".join([str(tag) for tag in package.getTags()])
 			try:
-				first_insertion = package.getFirstInsertion()
+				firstInsertion = package.getFirstInsertion()
 			except Exception as e:
-				first_insertion = "n/a"
+				firstInsertion = "n/a"
 			repository = package.getRepository()
-			dependency_number = len(package.getDependencies())
-			author = problem_version.getAuthor()
-			downloads_number = problem_version.getDownloads()
-			license = ", ".join([str(license) for license in problem_version.getLicenses()])
+			dependenciesSize = len(package.getDependencies())
+			author = iregularVersion.getAuthor()
+			downloads = iregularVersion.getDownloads()
+			licenses = ", ".join([str(licenses) for licenses in iregularVersion.getOriginalLicenses()])
 
-			file.writerow([email, package_name, tags, first_insertion, repository, problem_version, dependency_number, author, downloads_number, license])
+			file.writerow([email, packageName, tags, firstInsertion, repository, iregularVersion, dependenciesSize, author, downloads, licenses])
