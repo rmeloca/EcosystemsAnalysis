@@ -1,7 +1,9 @@
 import sys
 import os
 import plotly
+import plotly.offline as offline
 import plotly.graph_objs as go
+import math
 from ecosystemDataManager.ecosystemDataManager import EcosystemDataManager
 
 def plotHistogram(vector, name_histogram):
@@ -49,7 +51,13 @@ def plotMultBoxPlot(vectors, name_boxplot):
 			name=vector
 		)
 		data.append(trace)
-	plotly.offline.plot(data, filename=name_boxplot)
+	# plotly.offline.plot(data, filename=name_boxplot)
+	offline.plot({'data': [{'y': [4, 2, 3, 4]}], 
+               'layout': {'title': 'Test Plot', 
+                          'font': dict(size=16)}},
+             image='png')
+
+
 
 def plorBarChart(vector_x, vector_y, nameBarChart):
 	data = [go.Bar(
@@ -99,10 +107,10 @@ def plotMultScatterChart(setName, vector_x, vectors_y, nameBarChart):
 	plotly.offline.plot(data, filename=nameBarChart)
 
 def plotMostPopularLicenses(keys, values, chartName):
-	trace = go.Histogram(
+	trace = go.Bar(
 		name=chartName,
-		x = keys,
-		y = values	
+		y = values,
+		x = keys
 	)
 	data = [trace]
 	plotly.offline.plot(data, filename=chartName)
