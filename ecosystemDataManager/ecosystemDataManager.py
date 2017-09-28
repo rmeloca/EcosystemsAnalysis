@@ -272,7 +272,7 @@ class EcosystemDataManager(object):
 			mostPopularLicenses = mostPopularLicenses[:size]
 		return mostPopularLicenses
 
-	def average(self):
+	def proportion(self):
 		iregularPackages = 0
 		affectedPackages = 0
 		iregularVersions = 0
@@ -303,19 +303,19 @@ class EcosystemDataManager(object):
 		print()
 		print("packages", packagesSize)
 		print("iregularPackages", iregularPackages)
-		print("average", iregularPackages / packagesSize)
+		print("proportion", iregularPackages / packagesSize)
 		print("affectedPackages", affectedPackages)
-		print("average", affectedPackages / packagesSize)
+		print("proportion", affectedPackages / packagesSize)
 		print()
 		print("versions", versionsSize)
 		print("iregularVersions", iregularVersions)
-		print("average", iregularVersions / versionsSize)
+		print("proportion", iregularVersions / versionsSize)
 		print("affectedVersions", affectedVersions)
-		print("average", affectedVersions / versionsSize)
+		print("proportion", affectedVersions / versionsSize)
 		print()
 		print("dependencies", dependenciesSize)
 		print("iregularDependencies", iregularDependencies)
-		print("average", iregularDependencies / dependenciesSize)
+		print("proportion", iregularDependencies / dependenciesSize)
 
 	def getMostPopularIregularPackages(self, size = None):
 		iregularPackages = [package for package in self.getMostPopularPackages() if package.isIregular()]

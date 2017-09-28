@@ -51,13 +51,7 @@ def plotMultBoxPlot(vectors, name_boxplot):
 			name=vector
 		)
 		data.append(trace)
-	# plotly.offline.plot(data, filename=name_boxplot)
-	offline.plot({'data': [{'y': [4, 2, 3, 4]}], 
-               'layout': {'title': 'Test Plot', 
-                          'font': dict(size=16)}},
-             image='png')
-
-
+	plotly.offline.plot(data, filename=name_boxplot)
 
 def plorBarChart(vector_x, vector_y, nameBarChart):
 	data = [go.Bar(
