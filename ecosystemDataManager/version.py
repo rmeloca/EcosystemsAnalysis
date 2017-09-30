@@ -104,6 +104,9 @@ class Version(object):
 			licenses.append(self.getLicenseByIndex(len(licenses)))
 		return licenses
 
+	def getOriginalLicenses(self):
+		return self.get("VersionsHasOriginalLicenses")
+
 	def setAuthor(self, author):
 		self.set("VersionsHasAuthor", author)
 		return self
@@ -262,6 +265,11 @@ class Version(object):
 			globalRegularityRate *= dependency.getInVersion().getGlobalRegularityRate(False)
 		self.set("VersionsHasGlobalRegularityRate", globalRegularityRate)
 		return globalRegularityRate
+
+	def calculateContextSize(self):
+		contextSize = len(self.getContext())
+		self.set("VersionsHasContextSize", contextSize)
+		return contextSize
 
 	def calculateGlobalRegularityMean(self, start = True):
 		if start:
