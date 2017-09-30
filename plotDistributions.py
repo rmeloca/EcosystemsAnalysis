@@ -51,13 +51,7 @@ def plotMultBoxPlot(vectors, name_boxplot):
 			name=vector
 		)
 		data.append(trace)
-	# plotly.offline.plot(data, filename=name_boxplot)
-	offline.plot({'data': [{'y': [4, 2, 3, 4]}], 
-               'layout': {'title': 'Test Plot', 
-                          'font': dict(size=16)}},
-             image='png')
-
-
+	plotly.offline.plot(data, filename=name_boxplot)
 
 def plorBarChart(vector_x, vector_y, nameBarChart):
 	data = [go.Bar(
@@ -129,13 +123,30 @@ def plotPackageHistory(package, chartName):
 	setName = ["Local Regularity Rate", "Global Regularity Rate", "Global Regularity Mean"]
 	plotMultScatterChart(setName, versionsName, [listLocalRegularityRate, listGlobalRegularityRate, listGlobalRegularityMean], chartName)
 
+def plotNumberDependenciesBetweenPackages(ecosystemDataManager):
+	packages = ecosystemDataManager.getPackages()
+	numeberDependecies = {}
+	lenVersionsDependencies = []
+	for package in packages:
+		for version in package.getVersions():		
+			lenVersionDependencies =  len(version.getDependencies())
+			lenVersionsDependencies.append(lenVersionDependencies)
+		numeberDependecies[package.getName()] = lenVersionsDependencies
+	return lenVersionsDependencies
+	
+
 if __name__ == '__main__':
 	if len(sys.argv) < 2:
 		print("Usage:", sys.argv[0], "<ecosystem> [history[=<package>]] [package-size] [most-popular-metrics[=<most-popular-size>]] [licenses] [metrics]")
 		sys.exit(1)
 	if len(sys.argv) == 2:
-		print("no options provided. all plots will be rendered")
-		options = {"history": None, "package-size": None, "most-popular-metrics": None, "licenses": None, "metrics": None}
+		print("No options provided. all plots will be rendered")
+		x = raw_input('Can plots all charts? (Y/n): ')
+		if (x == 'y' or x == 'Y'):
+			options = {"history": None, "package-size": None, "most-popular-metrics": None, "licenses": None, "metrics": None}
+		else:
+			print ("No charts to render.")
+			exit()
 	else:
 		options = {}
 		for argument in sys.argv[2:]:
@@ -180,3 +191,5 @@ if __name__ == '__main__':
 			print("<package> not provided. Most popular and irregular package will be used to plot their history")
 			package = irregularPackages[0]
 		plotPackageHistory(package, "visualizations/" + ecosystem + package.getName() + '_regularity_rate_bars.html')
+	if "number-dependencies" in options:
+		plotBoxPlot(plotNumberDependenciesBetweenPackages(ecosystemDataManager), "visualizations/" + ecosystem+"_number_dependencies_between_packages.html")
