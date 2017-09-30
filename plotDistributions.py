@@ -109,6 +109,19 @@ def plotMostPopularLicenses(keys, values, chartName):
 	data = [trace]
 	plotly.offline.plot(data, filename=chartName)
 
+def plotBubbleChart(values, chartName):
+	trace0 = go.Scatter(
+    x=[1, 2, 3, 4],
+    y=[10, 11, 12, 13],
+    mode='markers',
+    marker=dict(
+        size=[40, 60, 80, 100],
+    	)
+	)
+
+	data = [trace0]
+	plotly.offline.plot(data, filename=chartName)
+
 def plotPackageHistory(package, chartName):
 	historyVersions = package.getHistory()
 	listLocalRegularityRate = []
@@ -193,3 +206,6 @@ if __name__ == '__main__':
 		plotPackageHistory(package, "visualizations/" + ecosystem + "_" + package.getName() + '_regularity_rate_bars.html')
 	if "number-dependencies" in options:
 		plotBoxPlot(plotNumberDependenciesBetweenPackages(ecosystemDataManager), "visualizations/" + ecosystem+"_number_dependencies_between_packages.html")
+	if "test" in options:
+		plotBubbleChart([], "TesteBubble.html")
+		
