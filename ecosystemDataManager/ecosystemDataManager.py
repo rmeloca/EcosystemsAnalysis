@@ -45,7 +45,7 @@ class EcosystemDataManager(object):
 		self.attributes["LicensesHasGroup"] = []
 
 		self.attributes["VersionsHasDependencies"] = []
-		self.attributes["DependenciesAreIrregular"] = []
+		self.attributes["DependenciesAreIregular"] = []
 		self.attributes["DependenciesHasDelimiter"] = []
 		self.attributes["DependenciesHasRequirements"] = []
 
@@ -151,8 +151,8 @@ class EcosystemDataManager(object):
 			for version in package.getVersions():
 				for dependency in version.getDependencies():
 					try:
-						irregular = dependency.evaluate()
-						if irregular:
+						iregular = dependency.evaluate()
+						if iregular:
 							print("[" + str(evaluated) + "/" + str(size) + "]", dependency)
 					except Exception as e:
 						pass
@@ -165,17 +165,17 @@ class EcosystemDataManager(object):
 		packages = self.getPackages()
 		size = len(packages)
 		evaluated = 0
-		irregularPackages = []
+		iregularPackages = []
 		for package in packages:
 			for packageDependency in package.getPackagesDependencies():
 				if packageDependency.getLatestVersion().getDatetime():
-					irregular = package.evaluate(packageDependency)
-					if irregular:
-						irregularPackages.append(package)
+					iregular = package.evaluate(packageDependency)
+					if iregular:
+						iregularPackages.append(package)
 						print("[" + str(evaluated) + "/" + str(size) + "]", package, "-->", packageDependency)
 						break
 			evaluated += 1
-		return irregularPackages
+		return iregularPackages
 
 	def calculateGlobalRegularityRate(self):
 		packages = self.getPackages()
@@ -214,36 +214,36 @@ class EcosystemDataManager(object):
 					print("[" + str(evaluated) + "/" + str(size) + "]", version, "\t", "{" + str(len(version.getDependencies())) + "}", "\t", localRegularityRate, "->", globalRegularityRate, "<-", globalRegularityMean)
 			evaluated += 1
 
-	def getIrregularPackages(self):
-		return [package for package in self.getPackages() if package.isIrregular()]
+	def getIregularPackages(self):
+		return [package for package in self.getPackages() if package.isIregular()]
 
 	def getRegularPackages(self):
 		packages = self.getPackages()
-		irregularPackages = self.getIrregularPackages()
-		return list(set(packages) - set(irregularPackages))
+		iregularPackages = self.getIregularPackages()
+		return list(set(packages) - set(iregularPackages))
 
-	def getIrregularVersions(self):
-		packages = self.getIrregularPackages()
-		irregularVersions = []
+	def getIregularVersions(self):
+		packages = self.getIregularPackages()
+		iregularVersions = []
 		for package in packages:
-			irregularVersions += package.getIrregularVersions()
-		return irregularVersions
+			iregularVersions += package.getIregularVersions()
+		return iregularVersions
 
 	def getRegularVersions(self):
 		versions = self.getVersions()
-		irregularVersions = self.getIrregularVersions()
-		return list(set(versions) - set(irregularVersions))
+		iregularVersions = self.getIregularVersions()
+		return list(set(versions) - set(iregularVersions))
 
-	def getIrregularDependencies(self):
-		irregularDependencies = []
+	def getIregularDependencies(self):
+		iregularDependencies = []
 		for version in self.getVersions():
-			irregularDependencies += version.getIrregularDependencies()
-		return irregularDependencies
+			iregularDependencies += version.getIregularDependencies()
+		return iregularDependencies
 
 	def getRegularDependencies(self):
 		dependencies = self.getDependencies()
-		irregularDependencies = self.getIrregularDependencies()
-		return list(set(dependencies) - set(irregularDependencies))
+		iregularDependencies = self.getIregularDependencies()
+		return list(set(dependencies) - set(iregularDependencies))
 
 	def getAffectedPackages(self):
 		return [package for package in self.getPackages() if package.isAffected()]
@@ -253,7 +253,7 @@ class EcosystemDataManager(object):
 		for package in self.getPackages():
 			for version in package.getVersions():
 				for license in version.getLicenses():
-					licenses.append(license)
+					licenses.append(str(license))
 		licenses = set(licenses)
 		licenses = list(licenses)
 		return licenses
@@ -272,12 +272,12 @@ class EcosystemDataManager(object):
 			mostPopularLicenses = mostPopularLicenses[:size]
 		return mostPopularLicenses
 
-	def average(self):
-		irregularPackages = 0
+	def proportion(self):
+		iregularPackages = 0
 		affectedPackages = 0
-		irregularVersions = 0
+		iregularVersions = 0
 		affectedVersions = 0
-		irregularDependencies = 0
+		iregularDependencies = 0
 		packages = self.getPackages()
 		packagesSize = len(packages)
 		versionsSize = 0
@@ -289,39 +289,39 @@ class EcosystemDataManager(object):
 				dependencies = version.getDependencies()
 				dependenciesSize += len(dependencies)
 				for dependency in dependencies:
-					if dependency.isIrregular():
-						irregularDependencies += 1
-				if version.isIrregular():
-					irregularVersions += 1
+					if dependency.isIregular():
+						iregularDependencies += 1
+				if version.isIregular():
+					iregularVersions += 1
 				if version.isAffected():
 					affectedVersions += 1
-			if package.isIrregular():
-				irregularPackages += 1
+			if package.isIregular():
+				iregularPackages += 1
 			if package.isAffected():
 				affectedPackages += 1
 		print(self)
 		print()
 		print("packages", packagesSize)
-		print("irregularPackages", irregularPackages)
-		print("average", irregularPackages / packagesSize)
+		print("iregularPackages", iregularPackages)
+		print("proportion", iregularPackages / packagesSize)
 		print("affectedPackages", affectedPackages)
-		print("average", affectedPackages / packagesSize)
+		print("proportion", affectedPackages / packagesSize)
 		print()
 		print("versions", versionsSize)
-		print("irregularVersions", irregularVersions)
-		print("average", irregularVersions / versionsSize)
+		print("iregularVersions", iregularVersions)
+		print("proportion", iregularVersions / versionsSize)
 		print("affectedVersions", affectedVersions)
-		print("average", affectedVersions / versionsSize)
+		print("proportion", affectedVersions / versionsSize)
 		print()
 		print("dependencies", dependenciesSize)
-		print("irregularDependencies", irregularDependencies)
-		print("average", irregularDependencies / dependenciesSize)
+		print("iregularDependencies", iregularDependencies)
+		print("proportion", iregularDependencies / dependenciesSize)
 
-	def getMostPopularIrregularPackages(self, size = None):
-		irregularPackages = [package for package in self.getMostPopularPackages() if package.isIrregular()]
+	def getMostPopularIregularPackages(self, size = None):
+		iregularPackages = [package for package in self.getMostPopularPackages() if package.isIregular()]
 		if size:
-			irregularPackages = irregularPackages[:size]
-		return irregularPackages
+			iregularPackages = iregularPackages[:size]
+		return iregularPackages
 
 	def backupLicenses(self):
 		self.attributes["VersionsHasOriginalLicenses"] = self.get("VersionsHasLicenses")

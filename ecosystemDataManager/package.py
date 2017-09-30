@@ -78,7 +78,7 @@ class Package(object):
 			self.ecosystemDataManager.get("LicensesHasGroup").append([])
 			self.ecosystemDataManager.get("VersionsHasDependencies").append([])
 			self.ecosystemDataManager.get("VersionsHasOcurrences").append([])
-			self.ecosystemDataManager.get("DependenciesAreIrregular").append([])
+			self.ecosystemDataManager.get("DependenciesAreIregular").append([])
 			self.ecosystemDataManager.get("DependenciesHasDelimiter").append([])
 			self.ecosystemDataManager.get("DependenciesHasRequirements").append([])
 		finally:
@@ -256,25 +256,25 @@ class Package(object):
 		inLicenses = dependency.getLicenses()
 		return self.ecosystemDataManager.evaluateInLicenses(inLicenses)
 
-	def isIrregular(self):
+	def isIregular(self):
 		for version in self.getVersions():
-			if version.isIrregular():
+			if version.isIregular():
 				return True
 		return False
 
 	def isRegular(self):
 		for version in self.getVersions():
-			if version.isIrregular():
+			if version.isIregular():
 				return False
 		return True
 
-	def getIrregularVersions(self):
-		return [version for version in self.getVersions() if version.isIrregular()]
+	def getIregularVersions(self):
+		return [version for version in self.getVersions() if version.isIregular()]
 
 	def getRegularVersions(self):
 		versions = self.getVersions()
-		irregularVersions = self.getIrregularVersions()
-		return list(set(versions) - set(irregularVersions))
+		iregularVersions = self.getIregularVersions()
+		return list(set(versions) - set(iregularVersions))
 
 	def isAffected(self):
 		for version in self.getVersions():

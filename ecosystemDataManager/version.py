@@ -135,14 +135,14 @@ class Version(object):
 			versionsHasOcurrences = self.ecosystemDataManager.get("VersionsHasOcurrences")
 			dependenciesHasDelimiter = self.ecosystemDataManager.get("DependenciesHasDelimiter")
 			dependenciesHasRequirements = self.ecosystemDataManager.get("DependenciesHasRequirements")
-			dependenciesAreIrregular = self.ecosystemDataManager.get("DependenciesAreIrregular")
+			dependenciesAreIregular = self.ecosystemDataManager.get("DependenciesAreIregular")
 
 			dependencyIndex = len(versionsHasDependencies[self.index])
 			versionsHasDependencies[self.index].append(version.getIndex())
 			versionsHasOcurrences[version.getIndex()].append(self.getIndex())
 			dependenciesHasDelimiter[self.index].append(None)
 			dependenciesHasRequirements[self.index].append(None)
-			dependenciesAreIrregular[self.index].append(None)
+			dependenciesAreIregular[self.index].append(None)
 		packagesHasOcurrences = self.ecosystemDataManager.get("PackagesHasOcurrences")
 		if self.package.getIndex() in packagesHasOcurrences[version.getPackage().getIndex()]:
 			pass
@@ -217,17 +217,17 @@ class Version(object):
 		context = list(context)
 		return context
 
-	def isIrregular(self):
+	def isIregular(self):
 		dependencies = self.getDependencies()
 		for dependency in dependencies:
-			if dependency.isIrregular():
+			if dependency.isIregular():
 				return True
 		return False
 
 	def isRegular(self):
 		dependencies = self.getDependencies()
 		for dependency in dependencies:
-			if dependency.isIrregular():
+			if dependency.isIregular():
 				return False
 		return True
 
@@ -236,13 +236,13 @@ class Version(object):
 			return True
 		return False
 
-	def getIrregularDependencies(self):
-		return [dependency for dependency in self.getDependencies() if dependency.isIrregular()]
+	def getIregularDependencies(self):
+		return [dependency for dependency in self.getDependencies() if dependency.isIregular()]
 
 	def getRegularDependencies(self):
 		dependencies = self.getDependencies()
-		irregularDependencies = self.getIrregularDependencies()
-		return list(set(dependencies) - set(irregularDependencies))
+		iregularDependencies = self.getIregularDependencies()
+		return list(set(dependencies) - set(iregularDependencies))
 
 	def calculateLocalRegularityRate(self):
 		try:

@@ -2,7 +2,7 @@ import sys
 from ecosystemDataManager.ecosystemDataManager import EcosystemDataManager
 
 def isValidArguments(arguments):
-	options = ["evaluate", "globalrate", "globalmean", "average"]
+	options = ["evaluate", "globalrate", "globalmean", "proportion"]
 	for argument in arguments:
 		if argument not in options:
 			return False
@@ -10,11 +10,11 @@ def isValidArguments(arguments):
 
 if __name__ == '__main__':
 	if len(sys.argv) < 2 or not isValidArguments(sys.argv[2:]):
-		print("Usage:", sys.argv[0], "<ecosystem> [<evaluate>] [<globalrate>] [<globalmean>] [<average>]")
+		print("Usage:", sys.argv[0], "<ecosystem> [<evaluate>] [<globalrate>] [<globalmean>] [<proportion>]")
 		sys.exit(1)
 	if len(sys.argv) == 2:
 		print("no options provided. calculating all metrics")
-		options = ["evaluate", "globalrate", "globalmean", "average"]
+		options = ["evaluate", "globalrate", "globalmean", "proportion"]
 	else:
 		options = [argument for argument in sys.argv[2:]]
 	ecosystem = sys.argv[1]
@@ -42,9 +42,9 @@ if __name__ == '__main__':
 		print("saving")
 		ecosystemDataManager.save()
 		print("done")
-	if "average" in options:
-		print("calculating average")
-		ecosystemDataManager.average()
+	if "proportion" in options:
+		print("calculating proportion")
+		ecosystemDataManager.proportion()
 		print("in case rates or means has to been calculated: saving")
 		ecosystemDataManager.save()
 		print("done")
