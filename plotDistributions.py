@@ -153,10 +153,10 @@ if __name__ == '__main__':
 		if not mostPopularSize:
 			print("<most-popular-size> not provided. Default size will be used")
 			mostPopularSize = 10
-		irregularPackages = ecosystemDataManager.getMostPopularIrregularPackages(mostPopularSize)
-		irregularPackagesHasLocalRegularityRates = {irregularPackage.getName(): irregularPackage.getLocalRegularityRates() for irregularPackage in irregularPackages}
-		plotMultBoxPlot(irregularPackagesHasLocalRegularityRates, "visualizations/" + ecosystem + '_boxplot_regularityRateVersions.html')
-		plotHistograms(irregularPackagesHasLocalRegularityRates, "visualizations/" + ecosystem + '_histogram_regularityRateVersions.html')
+		iregularPackages = ecosystemDataManager.getMostPopularIregularPackages(mostPopularSize)
+		iregularPackagesHasLocalRegularityRates = {iregularPackage.getName(): iregularPackage.getLocalRegularityRates() for iregularPackage in iregularPackages}
+		plotMultBoxPlot(iregularPackagesHasLocalRegularityRates, "visualizations/" + ecosystem + '_boxplot_regularityRateVersions.html')
+		plotHistograms(iregularPackagesHasLocalRegularityRates, "visualizations/" + ecosystem + '_histogram_regularityRateVersions.html')
 	if "licenses" in options:
 		licenses = ecosystemDataManager.getMostPopularLicenses()
 		plotMostPopularLicenses([str(k) for k, v in licenses], [v for k, v in licenses], "visualizations/" + ecosystem + "_bars_mostPopularLicenses.html")
@@ -171,6 +171,6 @@ if __name__ == '__main__':
 		if package:
 			package = ecosystemDataManager.getPackage(package)
 		else:
-			print("<package> not provided. Most popular and irregular package will be used to plot their history")
-			package = irregularPackages[0]
+			print("<package> not provided. Most popular and iregular package will be used to plot their history")
+			package = iregularPackages[0]
 		plotPackageHistory(package, "visualizations/" + ecosystem + "_" + package.getName() + '_regularity_rate_bars.html')

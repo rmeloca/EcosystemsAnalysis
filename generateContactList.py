@@ -23,17 +23,18 @@ if __name__ == '__main__':
 		tags = "Tags"
 		firstInsertion = "First Insertion"
 		repository = "Repository"
-		iregularVersion = "Version"
+		iregularVersions = "Versions"
 		dependenciesSize = "Dependency Number"
 		author = "Author"
 		downloads = "Downloads Number"
 		licenses = "Licenses"
 
-		file.writerow([email, packageName, tags, firstInsertion, repository, iregularVersion, dependenciesSize, author, downloads, licenses])
+		file.writerow([email, packageName, tags, firstInsertion, repository, iregularVersions, dependenciesSize, author, downloads, licenses])
 
 		for package in iregularPackages:
 			iregularVersions = package.getIregularVersions()
 			iregularVersion = iregularVersions[0]
+			iregularVersions = ",".join([version.getName() for version in iregularVersions])
 			iregularityType = None
 			email = iregularVersion.getEmail()
 			packageName = package.getName()
@@ -41,11 +42,11 @@ if __name__ == '__main__':
 			try:
 				firstInsertion = package.getFirstInsertion()
 			except Exception as e:
-				firstInsertion = "n/a"
+				firstInsertion = None
 			repository = package.getRepository()
 			dependenciesSize = len(package.getDependencies())
 			author = iregularVersion.getAuthor()
 			downloads = iregularVersion.getDownloads()
-			licenses = ", ".join([str(licenses) for licenses in iregularVersion.getOriginalLicenses()])
+			licenses = ", ".join(iregularVersion.getOriginalLicenses())
 
-			file.writerow([email, packageName, tags, firstInsertion, repository, iregularVersion, dependenciesSize, author, downloads, licenses])
+			file.writerow([email, packageName, tags, firstInsertion, repository, iregularVersions, dependenciesSize, author, downloads, licenses])
