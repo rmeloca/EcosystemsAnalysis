@@ -201,6 +201,16 @@ class EcosystemDataManager(object):
 					print("[" + str(evaluated) + "/" + str(size) + "]", version, "\t", "{" + str(len(version.getDependencies())) + "}", "\t", localRegularityRate, "->", globalRegularityMean)
 			evaluated += 1
 
+	def calculateContextSize(self):
+		packages = self.getPackages()
+		evaluated = 0
+		size = len(packages)
+		for package in packages:
+			for version in package.getVersions():
+				contextSize = version.calculateContextSize()
+				print("[" + str(evaluated) + "/" + str(size) + "]", version, "\t", contextSize)
+			evaluated += 1
+
 	def calculateGlobalRegularityMetrics(self):
 		packages = self.getPackages()
 		evaluated = 0
@@ -331,7 +341,7 @@ class EcosystemDataManager(object):
 		if not inLicenses:
 			return True
 		for inLicense in inLicenses:
-			if inLicense == "copyright" or inLicense == "none" or inLicense == None:
+			if "copyright" in inLicense or "none" in inLicense or inLicense == "" or inLicense == None:
 				return True
 		return False
 
