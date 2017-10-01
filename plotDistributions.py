@@ -133,7 +133,6 @@ def plotNumberDependenciesBetweenPackages(ecosystemDataManager):
 			lenVersionsDependencies.append(lenVersionDependencies)
 		numeberDependecies[package.getName()] = lenVersionsDependencies
 	return lenVersionsDependencies
-	
 
 if __name__ == '__main__':
 	if len(sys.argv) < 2:
@@ -177,6 +176,7 @@ if __name__ == '__main__':
 	if "licenses" in options:
 		licenses = ecosystemDataManager.getMostPopularLicenses()
 		plotMostPopularLicenses([str(k) for k, v in licenses], [v for k, v in licenses], "visualizations/" + ecosystem + "_bars_mostPopularLicenses.html")
+		plotMostPopularLicenses([str(k) for k, v in licenses], [math.log10(v) for k, v in licenses], "visualizations/" + ecosystem + "_bars_log10_mostPopularLicenses.html")
 	if "metrics" in options:
 		metrics = {}
 		metrics["Local Regularity Rate"] = ecosystemDataManager.getLocalRegularityRates()
