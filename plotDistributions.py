@@ -231,9 +231,7 @@ if __name__ == '__main__':
 		else:
 			print("<package> not provided. Most popular and iregular package will be used to plot their history")
 			package = iregularPackages[0]
-		#plotPackageHistory(package, "visualizations/" + ecosystem + "_" + package.getName() + '_regularity_rate_bars.html')
+		plotPackageHistory(package, "visualizations/" + ecosystem + "_" + package.getName() + '_regularity_rate_bars.html')
 		popularVersionHistory(package, "visualizations/" + ecosystem + "_" + package.getName() + '_poupular_version.html')
 	if "number-dependencies" in options:
 		plotBoxPlot(plotNumberDependenciesBetweenPackages(ecosystemDataManager), "visualizations/" + ecosystem+"_number_dependencies_between_packages.html")
-	if "test" in options:
-		plotBubbleChart([], "TesteBubble.html")
