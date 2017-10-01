@@ -109,6 +109,19 @@ def plotMostPopularLicenses(keys, values, chartName):
 	data = [trace]
 	plotly.offline.plot(data, filename=chartName)
 
+def plotBubbleChart(values, chartName):
+	trace0 = go.Scatter(
+    x=[1, 2, 3, 4],
+    y=[10, 11, 12, 13],
+    mode='markers',
+    marker=dict(
+        size=[40, 60, 80, 100],
+    	)
+	)
+
+	data = [trace0]
+	plotly.offline.plot(data, filename=chartName)
+
 def plotPackageHistory(package, chartName):
 	historyVersions = package.getHistory()
 	listLocalRegularityRate = []
@@ -133,6 +146,34 @@ def plotNumberDependenciesBetweenPackages(ecosystemDataManager):
 			lenVersionsDependencies.append(lenVersionDependencies)
 		numeberDependecies[package.getName()] = lenVersionsDependencies
 	return lenVersionsDependencies
+
+def popularVersionHistory(package, chartName):
+	versionsOcurrences = []
+	downloads = []
+	nameVersions = []
+	for version in package.getVersions():
+		if (version.getDownloads() != None):
+			versionsOcurrences.append((len(version.getOcurrences()) + int(version.getDownloads())))
+			downloads.append(int(version.getDownloads()))
+			nameVersions.append("version = " + version.getName())
+	x = [i*2 for i in range(len(versionsOcurrences))]
+	print(versionsOcurrences)
+	print(downloads)
+	print(x)
+	trace0 = go.Scatter(
+    	x=x,
+    	y=downloads,
+		name=package.getName(),
+		text=nameVersions,
+    	mode='markers',
+    	marker=dict(
+    	    size=versionsOcurrences,
+			sizemode='area'
+    		)
+	)
+
+	data = [trace0]
+	plotly.offline.plot(data, filename=chartName)	
 
 if __name__ == '__main__':
 	if len(sys.argv) < 2:
@@ -191,5 +232,6 @@ if __name__ == '__main__':
 			print("<package> not provided. Most popular and iregular package will be used to plot their history")
 			package = iregularPackages[0]
 		plotPackageHistory(package, "visualizations/" + ecosystem + "_" + package.getName() + '_regularity_rate_bars.html')
+		popularVersionHistory(package, "visualizations/" + ecosystem + "_" + package.getName() + '_poupular_version.html')
 	if "number-dependencies" in options:
 		plotBoxPlot(plotNumberDependenciesBetweenPackages(ecosystemDataManager), "visualizations/" + ecosystem+"_number_dependencies_between_packages.html")
