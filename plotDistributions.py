@@ -151,15 +151,18 @@ def popularVersionHistory(package, chartName):
 	versionsOcurrences = []
 	downloads = []
 	nameVersions = []
-	for version in package.getVersions():
-		if (version.getDownloads() != None):
-			versionsOcurrences.append((len(version.getOcurrences()) + int(version.getDownloads())))
-			downloads.append(int(version.getDownloads()))
+	for version in package.getHistory():
+		if (version.getDownloads()):
+			versionsOcurrences.append(len(version.getOcurrences()))
+			downloads.append(version.getLocalRegularityRate())
+			nameVersions.append("version = " + version.getName())
+			versionsOcurrences.append(len(version.getOcurrences()))
+			downloads.append(version.getGlobalRegularityRate())
+			nameVersions.append("version = " + version.getName())
+			versionsOcurrences.append(len(version.getOcurrences()))
+			downloads.append(version.getGlobalRegularityMean())
 			nameVersions.append("version = " + version.getName())
 	x = [i*2 for i in range(len(versionsOcurrences))]
-	print(versionsOcurrences)
-	print(downloads)
-	print(x)
 	trace0 = go.Scatter(
     	x=x,
     	y=downloads,
