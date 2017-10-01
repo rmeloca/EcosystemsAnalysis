@@ -181,7 +181,7 @@ if __name__ == '__main__':
 		sys.exit(1)
 	if len(sys.argv) == 2:
 		print("No options provided. all plots will be rendered")
-		x = raw_input('Can plots all charts? (Y/n): ')
+		x = input('Can plots all charts? (Y/n): ')
 		if (x == 'y' or x == 'Y'):
 			options = {"history": None, "package-size": None, "most-popular-metrics": None, "licenses": None, "metrics": None}
 		else:
@@ -201,6 +201,7 @@ if __name__ == '__main__':
 		pass
 	ecosystem = sys.argv[1]
 	ecosystemDataManager = EcosystemDataManager(ecosystem)
+	iregularPackages = None
 	if "package-size" in options:
 		packageSizeDistribution = [len(package) for package in ecosystemDataManager.getPackages()]
 		plotBoxPlot(packageSizeDistribution, "visualizations/" + ecosystem + '_boxplot_packageSizeDistribution.html')
@@ -230,6 +231,8 @@ if __name__ == '__main__':
 			package = ecosystemDataManager.getPackage(package)
 		else:
 			print("<package> not provided. Most popular and iregular package will be used to plot their history")
+			if not iregularPackages:
+				iregularPackages = ecosystemDataManager.getMostPopularIregularPackages(1)
 			package = iregularPackages[0]
 		plotPackageHistory(package, "visualizations/" + ecosystem + "_" + package.getName() + '_regularity_rate_bars.html')
 		popularVersionHistory(package, "visualizations/" + ecosystem + "_" + package.getName() + '_poupular_version.html')
