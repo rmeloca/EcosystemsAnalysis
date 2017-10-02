@@ -149,33 +149,54 @@ def plotNumberDependenciesBetweenPackages(ecosystemDataManager):
 
 def popularVersionHistory(package, chartName):
 	versionsOcurrences = []
-	downloads = []
+	localRegularityRate = []
+	globalRegularityRate = []
+	globalRegularityMean = []
 	nameVersions = []
 	for version in package.getHistory():
 		if (version.getDownloads()):
 			versionsOcurrences.append(len(version.getOcurrences()))
-			downloads.append(version.getLocalRegularityRate())
 			nameVersions.append("version = " + version.getName())
-			versionsOcurrences.append(len(version.getOcurrences()))
-			downloads.append(version.getGlobalRegularityRate())
-			nameVersions.append("version = " + version.getName())
-			versionsOcurrences.append(len(version.getOcurrences()))
-			downloads.append(version.getGlobalRegularityMean())
-			nameVersions.append("version = " + version.getName())
+			localRegularityRate.append(version.getLocalRegularityRate())
+			globalRegularityRate.append(version.getGlobalRegularityRate())
+			globalRegularityMean.append(version.getGlobalRegularityMean())
 	x = [i*2 for i in range(len(versionsOcurrences))]
 	trace0 = go.Scatter(
     	x=x,
-    	y=downloads,
-		name=package.getName(),
+    	y=localRegularityRate,
+		name="Local Regularity Rate",
 		text=nameVersions,
     	mode='markers',
     	marker=dict(
-    	    size=versionsOcurrences,
-			sizemode='area'
+    	    size = versionsOcurrences,
+			sizemode ='area',
     		)
 	)
-
-	data = [trace0]
+	x = [i*2 for i in range(len(versionsOcurrences))]
+	trace1 = go.Scatter(
+    	x=x,
+    	y=globalRegularityRate,
+		name="Global Regularity Rate",
+		text=nameVersions,
+    	mode='markers',
+    	marker=dict(
+    	    size = versionsOcurrences,
+			sizemode ='area'
+    		)
+	)
+	x = [i*2 for i in range(len(versionsOcurrences))]
+	trace2 = go.Scatter(
+    	x=x,
+    	y=globalRegularityMean,
+		name="Global Regularity Mean",
+		text=nameVersions,
+    	mode='markers',
+    	marker=dict(
+    	    size = versionsOcurrences,
+			sizemode ='area'
+    		)
+	)
+	data = [trace0, trace1, trace2]
 	plotly.offline.plot(data, filename=chartName)	
 
 if __name__ == '__main__':
@@ -240,4 +261,4 @@ if __name__ == '__main__':
 		plotPackageHistory(package, "visualizations/" + ecosystem + "_" + package.getName() + '_regularity_rate_bars.html')
 		popularVersionHistory(package, "visualizations/" + ecosystem + "_" + package.getName() + '_poupular_version.html')
 	if "number-dependencies" in options:
-		plotBoxPlot(plotNumberDependenciesBetweenPackages(ecosystemDataManager), "visualizations/" + ecosystem+"_number_dependencies_between_packages.html")
+		plotBoxPlot(plotNumberDependenciesBetweenPackages(ecosystemDataManager), "visualizations/" + ecosystem+"_number_dependencies_between_packages")
