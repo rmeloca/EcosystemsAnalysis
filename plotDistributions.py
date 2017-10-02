@@ -33,7 +33,6 @@ def plotHistograms(vectors, name_histogram):
 		)
 		data.append(trace)
 	plotly.offline.plot(data, filename=name_histogram)
-	
 
 def plotBoxPlot(vector, name_boxplot):
 	trace0 = go.Box(
@@ -109,19 +108,6 @@ def plotMostPopularLicenses(keys, values, chartName):
 	data = [trace]
 	plotly.offline.plot(data, filename=chartName)
 
-def plotBubbleChart(values, chartName):
-	trace0 = go.Scatter(
-    x=[1, 2, 3, 4],
-    y=[10, 11, 12, 13],
-    mode='markers',
-    marker=dict(
-        size=[40, 60, 80, 100],
-    	)
-	)
-
-	data = [trace0]
-	plotly.offline.plot(data, filename=chartName)
-
 def plotPackageHistory(package, chartName):
 	historyVersions = package.getHistory()
 	listLocalRegularityRate = []
@@ -129,10 +115,11 @@ def plotPackageHistory(package, chartName):
 	listGlobalRegularityMean = []
 	versionsName = []
 	for version in historyVersions:
-		versionsName.append(version.getName())
-		listLocalRegularityRate.append((version.getLocalRegularityRate()))
-		listGlobalRegularityRate.append((version.getGlobalRegularityRate()))
-		listGlobalRegularityMean.append((version.getGlobalRegularityMean()))
+		if version.getDatetime():
+			versionsName.append(version.getName())
+			listLocalRegularityRate.append((version.getLocalRegularityRate()))
+			listGlobalRegularityRate.append((version.getGlobalRegularityRate()))
+			listGlobalRegularityMean.append((version.getGlobalRegularityMean()))
 	setName = ["Local Regularity Rate", "Global Regularity Rate", "Global Regularity Mean"]
 	plotMultScatterChart(setName, versionsName, [listLocalRegularityRate, listGlobalRegularityRate, listGlobalRegularityMean], chartName)
 
@@ -154,7 +141,7 @@ def popularVersionHistory(package, chartName):
 	globalRegularityMean = []
 	nameVersions = []
 	for version in package.getHistory():
-		if (version.getDownloads()):
+		if version.getDatetime():
 			versionsOcurrences.append(len(version.getOcurrences()))
 			nameVersions.append("version = " + version.getName())
 			localRegularityRate.append(version.getLocalRegularityRate())
@@ -172,7 +159,6 @@ def popularVersionHistory(package, chartName):
 			sizemode ='area',
     		)
 	)
-	x = [i*2 for i in range(len(versionsOcurrences))]
 	trace1 = go.Scatter(
     	x=x,
     	y=globalRegularityRate,
@@ -184,7 +170,6 @@ def popularVersionHistory(package, chartName):
 			sizemode ='area'
     		)
 	)
-	x = [i*2 for i in range(len(versionsOcurrences))]
 	trace2 = go.Scatter(
     	x=x,
     	y=globalRegularityMean,

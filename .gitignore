@@ -6,3 +6,5 @@ schedule.cron
 *.json
 *.html
 *.gexf
+*.html
+*.png
