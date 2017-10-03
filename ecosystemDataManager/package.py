@@ -206,9 +206,8 @@ class Package(object):
 		return packages
 
 	def getPackagesOcurrences(self):
-		packagesHasOcurrences = self.ecosystemDataManager.get("PackagesHasOcurrences")
-		indexes = packagesHasOcurrences[self.index]
-		ocurrences = [self.ecosystemDataManager.getPackageByIndex(indexes[package]) for package in indexes]
+		indexes = self.get("PackagesHasOcurrences")
+		ocurrences = [self.ecosystemDataManager.getPackageByIndex(index) for index in indexes]
 		ocurrences = set(ocurrences)
 		ocurrences = list(ocurrences)
 		return ocurrences

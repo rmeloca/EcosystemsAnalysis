@@ -157,13 +157,16 @@ class Version(object):
 		if start:
 			self.ecosystemDataManager.visited = []
 		elif self in self.ecosystemDataManager.visited:
-			return []
+			return False
 		else:
 			self.ecosystemDataManager.visited.append(self)
+		return True
 
 	def getDependencies(self, recursive = False, start = True):
 		if recursive:
-			self.manageRecursion(start)
+			goOn = self.manageRecursion(start)
+			if not goOn:
+				return []
 		versionsHasDependencies =  self.ecosystemDataManager.get("VersionsHasDependencies")
 		indexes = versionsHasDependencies[self.index]
 		dependencies = []
@@ -180,7 +183,9 @@ class Version(object):
 
 	def getOcurrences(self, recursive = False, start = True):
 		if recursive:
-			self.manageRecursion(start)
+			goOn = self.manageRecursion(start)
+			if not goOn:
+				return []
 		versionsHasOcurrences =  self.ecosystemDataManager.get("VersionsHasOcurrences")
 		indexes = versionsHasOcurrences[self.index]
 		ocurrences =  [Ocurrence(self, Version(self.ecosystemDataManager, None, ocurrence)) for ocurrence in indexes]
@@ -193,7 +198,9 @@ class Version(object):
 		return ocurrences
 
 	def getDescendents(self, start = True):
-		self.manageRecursion(start)
+		goOn = self.manageRecursion(start)
+		if not goOn:
+			return []
 		dependencies = self.getDependencies()
 		descendents = []
 		for dependency in dependencies:
@@ -204,7 +211,9 @@ class Version(object):
 		return descendents
 
 	def getParents(self, start = True):
-		self.manageRecursion(start)
+		goOn = self.manageRecursion(start)
+		if not goOn:
+			return []
 		ocurrences = self.getOcurrences()
 		parents = []
 		for ocurrence in ocurrences:
