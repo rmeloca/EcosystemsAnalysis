@@ -15,7 +15,7 @@ def getOcurrences(entity):
 	if type(entity) == Version:
 		return entity.getOcurrences()
 	elif type(entity) == Package:
-		return entity.getPackageOcurrences()
+		return entity.getPackagesOcurrences()
 	else:
 		raise Exception
 
@@ -23,7 +23,7 @@ def getDependencies(entity):
 	if type(entity) == Version:
 		return entity.getDependencies()
 	elif type(entity) == Package:
-		return entity.getPackageDependencies()
+		return entity.getPackagesDependencies()
 	else:
 		raise Exception
 
@@ -41,7 +41,7 @@ def generateOcurrences(entity):
 	PARENT_VERTICES.append(entity)
 	for ocurrence in getOcurrences(entity):
 		OCURRENCE_EDGES.append((getInVersion(ocurrence), entity))
-		generateOcurrences(ocurrence.getInVersion())
+		generateOcurrences(getInVersion(ocurrence))
 
 def generateDependencies(entity):
 	if entity in DESCENDENT_VERTICES:
@@ -53,12 +53,39 @@ def generateDependencies(entity):
 
 def getAttributes(entity):
 	attributes = {}
-	attributes["red"] = 22
-	attributes["green"] = 66
-	attributes["blue"] = 186
+	size = 3
+	if type(entity) == Version:
+		globalRegularityRate = entity.getGlobalRegularityRate()
+	else:
+		globalRegularityRate = 0 if entity.isIregular() else 1
+	if (globalRegularityRate == 0):
+		r = 249
+		g = 22
+		b = 22
+		size = 3.5
+	elif (globalRegularityRate == 1):
+		r = 49
+		g = 249
+		b = 22
+	elif (globalRegularityRate <= 0.25):
+		r = 255
+		g = 133
+		b = 20
+	elif (globalRegularityRate > 0.25 and globalRegularityRate <= 0.75):
+		r = 255
+		g = 235
+		b = 20
+	elif (globalRegularityRate > 0.75):
+		r = 20
+		g = 129
+		b = 255
+	attributes["red"] = r
+	attributes["green"] = g
+	attributes["blue"] = b
 	attributes["alpha"] = 0.5
-	attributes["size"] = 3
+	attributes["size"] = size
 	attributes["shape"] = "disc"
+	return attributes
 
 def generateGraph(entity):
 	generateDependencies(entity)
@@ -69,60 +96,18 @@ def generateGraph(entity):
 	FILE.write("<nodes>")
 	FILE.write("<node id=\"" + str(entity) + "\" label=\"" + str(entity) + "\"> <viz:color r=\"22\" g=\"66\" b=\"186\" a=\"1\"/> <viz:size value=\"3\"/> <viz:shape value=\"disc\"/></node>")
 	for vertex in PARENT_VERTICES:
-		r = 0
-		g = 0
-		b = 0
-		size = 3
-		globalRegularityRate = float(vertex.getGlobalRegularityRate())
-		if (globalRegularityRate == 0):
-			r = 249
-			g = 22
-			b = 22
-			size = 3.5
-		elif (globalRegularityRate == 1):
-			r = 49
-			g = 249
-			b = 22
-		elif (globalRegularityRate <= 0.25):
-			r = 255
-			g = 133
-			b = 20
-		elif (globalRegularityRate > 0.25 and globalRegularityRate <= 0.75):
-			r = 255
-			g = 235
-			b = 20
-		elif (globalRegularityRate > 0.75):
-			r = 20
-			g = 129
-			b = 255
-		FILE.write("<node id=\"" + str(vertex) + "\" label=\"" + str(vertex) + "\"> <viz:color r=\""+str(r)+"\" g=\""+str(g)+"\" b=\""+str(b)+"\" a=\"1\"/> <viz:size value=\""+str(size)+"\"/> <viz:shape value=\"disc\"/></node>")
+		attributes = getAttributes(vertex)
+		r = attributes["red"]
+		g = attributes["green"]
+		b = attributes["blue"]
+		size = attributes["size"]
+		FILE.write("<node id=\"" + str(vertex) + "\" label=\"" + str(vertex) + "\"> <viz:color r=\""+str(r)+"\" g=\""+str(g)+"\" b=\""+str(b)+"\" a=\"0.5\"/> <viz:size value=\""+str(size)+"\"/> <viz:shape value=\"disc\"/></node>")
 	for vertex in DESCENDENT_VERTICES:
-		r = 0
-		g = 0
-		b = 0
-		size = 3
-		globalRegularityRate = float(vertex.getGlobalRegularityRate())
-		if (globalRegularityRate == 0):
-			r = 249
-			g = 22
-			b = 22
-			size = 3.5
-		elif (globalRegularityRate == 1):
-			r = 49
-			g = 249
-			b = 22
-		elif (globalRegularityRate <= 0.25):
-			r = 255
-			g = 133
-			b = 20
-		elif (globalRegularityRate > 0.25 and globalRegularityRate <= 0.75):
-			r = 255
-			g = 235
-			b = 20
-		elif (globalRegularityRate > 0.75):
-			r = 20
-			g = 129
-			b = 255
+		attributes = getAttributes(vertex)
+		r = attributes["red"]
+		g = attributes["green"]
+		b = attributes["blue"]
+		size = attributes["size"]
 		FILE.write("<node id=\"" + str(vertex) + "\" label=\"" + str(vertex) + "\"> <viz:color r=\""+str(r)+"\" g=\""+str(g)+"\" b=\""+str(b)+"\" a=\"1\"/> <viz:size value=\""+str(size)+"\"/> <viz:shape value=\"disc\"/></node>")
 	FILE.write("</nodes>")
 	FILE.write("<edges>")
@@ -131,21 +116,21 @@ def generateGraph(entity):
 		r = 249
 		g = 22
 		b = 22
-		if (edge[0].isIrregular()):
+		if (edge[0].isIregular()):
 			r = 49
 			g = 249
 			b = 22
-		FILE.write("<edge id=\"" + str(i) + "\" source=\"" + str(edge[0]) + "\" target=\"" + str(edge[1]) + "\"><viz:color r=\""+str(r)+"\" g=\""+str(g)+"\" b=\""+str(b)+"\" a=\"0.3\"/></edge>")
+		FILE.write("<edge id=\"" + str(i) + "\" source=\"" + str(edge[0]) + "\" target=\"" + str(edge[1]) + "\"><viz:color r=\""+str(r)+"\" g=\""+str(g)+"\" b=\""+str(b)+"\" a=\"0.2\"/></edge>")
 		i += 1
 	for edge in DEPENDENCY_EDGES:
 		r = 249
 		g = 22
 		b = 22
-		if (edge[0].isIrregular()):
+		if (edge[0].isIregular()):
 			r = 49
 			g = 249
 			b = 22
-		FILE.write("<edge id=\"" + str(i) + "\" source=\"" + str(edge[0]) + "\" target=\"" + str(edge[1]) + "\"><viz:color r=\""+str(r)+"\" g=\""+str(g)+"\" b=\""+str(b)+"\" a=\"0.3\"/></edge>")
+		FILE.write("<edge id=\"" + str(i) + "\" source=\"" + str(edge[0]) + "\" target=\"" + str(edge[1]) + "\"><viz:color r=\""+str(r)+"\" g=\""+str(g)+"\" b=\""+str(b)+"\" a=\"0.6\"/></edge>")
 		i += 1
 	FILE.write("</edges>")
 	FILE.write("</graph>")
@@ -186,4 +171,6 @@ if __name__ == '__main__':
 			generateGraph(version)
 		print("done")
 	else:
-		print("notImplementedYet")
+		with open(ecosystem + "_" + package.getName() + ".gexf", "w") as FILE:
+			generateGraph(package)
+		print("done")
