@@ -125,13 +125,11 @@ def plotPackageHistory(package, chartName):
 
 def plotNumberDependenciesBetweenPackages(ecosystemDataManager):
 	packages = ecosystemDataManager.getPackages()
-	numeberDependecies = {}
 	lenVersionsDependencies = []
 	for package in packages:
 		for version in package.getVersions():		
 			lenVersionDependencies =  len(version.getDependencies())
 			lenVersionsDependencies.append(lenVersionDependencies)
-		numeberDependecies[package.getName()] = lenVersionsDependencies
 	return lenVersionsDependencies
 
 def popularVersionHistory(package, chartName):
@@ -147,7 +145,7 @@ def popularVersionHistory(package, chartName):
 			localRegularityRate.append(version.getLocalRegularityRate())
 			globalRegularityRate.append(version.getGlobalRegularityRate())
 			globalRegularityMean.append(version.getGlobalRegularityMean())
-	x = [i*2 for i in range(len(versionsOcurrences))]
+	x = [i for i in range(len(versionsOcurrences))]
 	trace0 = go.Scatter(
     	x=x,
     	y=localRegularityRate,
@@ -186,13 +184,13 @@ def popularVersionHistory(package, chartName):
 
 if __name__ == '__main__':
 	if len(sys.argv) < 2:
-		print("Usage:", sys.argv[0], "<ecosystem> [history[=<package>]] [package-size] [most-popular-metrics[=<most-popular-size>]] [licenses] [metrics]")
+		print("Usage:", sys.argv[0], "<ecosystem> [history[=<package>]] [package-size] [most-popular-metrics[=<most-popular-size>]] [number-dependencies] ][licenses] [metrics]")
 		sys.exit(1)
 	if len(sys.argv) == 2:
 		print("No options provided. all plots will be rendered")
 		x = input('Can plots all charts? (Y/n): ')
 		if (x == 'y' or x == 'Y'):
-			options = {"history": None, "package-size": None, "most-popular-metrics": None, "licenses": None, "metrics": None}
+			options = {"history": None, "package-size": None, "most-popular-metrics": None, "licenses": None, "metrics": None, "number-dependencies": None}
 		else:
 			print ("No charts to render.")
 			exit()
