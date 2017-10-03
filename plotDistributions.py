@@ -222,10 +222,13 @@ if __name__ == '__main__':
 			mostPopularSize = 10
 		iregularPackages = ecosystemDataManager.getMostPopularIregularPackages(mostPopularSize)
 		iregularPackagesHasLocalRegularityRates = {iregularPackage.getName(): iregularPackage.getLocalRegularityRates() for iregularPackage in iregularPackages}
-		plotMultBoxPlot(iregularPackagesHasLocalRegularityRates, "visualizations/" + ecosystem + '_boxplot_regularityRateVersions.html')
-		plotHistograms(iregularPackagesHasLocalRegularityRates, "visualizations/" + ecosystem + '_histogram_regularityRateVersions.html')
+		try: 
+			plotMultBoxPlot(iregularPackagesHasLocalRegularityRates, "visualizations/" + ecosystem + '_boxplot_regularityRateVersions.html')
+			plotHistograms(iregularPackagesHasLocalRegularityRates, "visualizations/" + ecosystem + '_histogram_regularityRateVersions.html')
+		except Exception as e:
+			pass
 	if "licenses" in options:
-		licenses = ecosystemDataManager.getMostPopularLicenses()
+		licenses = ecosystemDataManager.getMostPopularLicenses(25)
 		plotMostPopularLicenses([str(k) for k, v in licenses], [v for k, v in licenses], "visualizations/" + ecosystem + "_bars_mostPopularLicenses.html")
 		plotMostPopularLicenses([str(k) for k, v in licenses], [math.log10(v) for k, v in licenses], "visualizations/" + ecosystem + "_bars_log10_mostPopularLicenses.html")
 	if "metrics" in options:
@@ -242,8 +245,11 @@ if __name__ == '__main__':
 			print("<package> not provided. Most popular and iregular package will be used to plot their history")
 			if not iregularPackages:
 				iregularPackages = ecosystemDataManager.getMostPopularIregularPackages(1)
-			package = iregularPackages[0]
-		plotPackageHistory(package, "visualizations/" + ecosystem + "_" + package.getName() + '_regularity_rate_bars.html')
-		popularVersionHistory(package, "visualizations/" + ecosystem + "_" + package.getName() + '_poupular_version.html')
+			try:
+				package = iregularPackages[0]
+				plotPackageHistory(package, "visualizations/" + ecosystem + "_" + package.getName() + '_regularity_rate_bars.html')
+				popularVersionHistory(package, "visualizations/" + ecosystem + "_" + package.getName() + '_poupular_version.html')
+			except Exception as e:
+				pass
 	if "number-dependencies" in options:
 		plotBoxPlot(plotNumberDependenciesBetweenPackages(ecosystemDataManager), "visualizations/" + ecosystem+"_number_dependencies_between_packages")

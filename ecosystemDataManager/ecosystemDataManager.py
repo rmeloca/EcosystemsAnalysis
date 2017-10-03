@@ -270,13 +270,13 @@ class EcosystemDataManager(object):
 	
 	def getMostPopularLicenses(self, size = None):
 		distribution = {}
-		for package in self.getPackages():
-			for version in package.getVersions():
-				for license in version.getLicenses():
-					try:
-						distribution[license] = distribution[license] + 1
-					except Exception as e:
-						distribution[license] = 1
+		versionsHasLicenses = self.get("VersionsHasLicenses")
+		for version in versionsHasLicenses:
+			for license in version:
+				try:
+					distribution[license] = distribution[license] + 1
+				except Exception as e:
+					distribution[license] = 1
 		mostPopularLicenses = sorted(distribution.items(), key=lambda x: x[1], reverse = True)
 		if size:
 			mostPopularLicenses = mostPopularLicenses[:size]
