@@ -58,7 +58,6 @@ class Version(object):
 				return 1
 			else:
 				globalRegularityRate = self.calculateGlobalRegularityRate(False)
-				self.set("VersionsHasGlobalRegularityRate", globalRegularityRate)
 		return globalRegularityRate
 
 	def getGlobalRegularityMean(self, start = True):
@@ -70,8 +69,13 @@ class Version(object):
 				return 1
 			else:
 				globalRegularityMean = self.calculateGlobalRegularityMean(False)
-				self.set("VersionsHasGlobalRegularityMean", globalRegularityMean)
 		return globalRegularityMean
+
+	def getContextSize(self):
+		contextSize = self.get("VersionsHasContextSize")
+		if not contextSize:
+			contextSize = self.calculateContextSize()
+		return contextSize
 
 	def getLicenseByIndex(self, index):
 		if index < 0:
