@@ -2,7 +2,7 @@ import sys
 from ecosystemDataManager.ecosystemDataManager import EcosystemDataManager
 
 def isValidArguments(arguments):
-	options = ["evaluate", "globalrate", "globalmean", "proportion"]
+	options = ["evaluate", "globalrate", "globalmean", "contextsize", "proportion"]
 	for argument in arguments:
 		if argument not in options:
 			return False
@@ -10,11 +10,11 @@ def isValidArguments(arguments):
 
 if __name__ == '__main__':
 	if len(sys.argv) < 2 or not isValidArguments(sys.argv[2:]):
-		print("Usage:", sys.argv[0], "<ecosystem> [<evaluate>] [<globalrate>] [<globalmean>] [<proportion>]")
+		print("Usage:", sys.argv[0], "<ecosystem> [evaluate] [globalrate] [globalmean] [contextsize] [proportion]")
 		sys.exit(1)
 	if len(sys.argv) == 2:
 		print("no options provided. calculating all metrics")
-		options = ["evaluate", "globalrate", "globalmean", "proportion"]
+		options = ["evaluate", "globalrate", "globalmean", "contextsize", "proportion"]
 	else:
 		options = [argument for argument in sys.argv[2:]]
 	ecosystem = sys.argv[1]
@@ -39,6 +39,12 @@ if __name__ == '__main__':
 			elif "globalmean" in options:
 				print("calculating globalmean")
 				ecosystemDataManager.calculateGlobalRegularityMean()
+		print("saving")
+		ecosystemDataManager.save()
+		print("done")
+	if "contextsize" in options:
+		print("calculating contextsize")
+		ecosystemDataManager.calculateContextSize()
 		print("saving")
 		ecosystemDataManager.save()
 		print("done")

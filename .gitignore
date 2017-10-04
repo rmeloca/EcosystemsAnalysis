@@ -2,6 +2,7 @@ __pycache__
 fetchAll.sh
 schedule.cron
 /npm
+/visualizations
 *.csv
 *.json
 *.html

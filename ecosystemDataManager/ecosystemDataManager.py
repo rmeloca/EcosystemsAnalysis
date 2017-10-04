@@ -259,11 +259,8 @@ class EcosystemDataManager(object):
 		return [package for package in self.getPackages() if package.isAffected()]
 
 	def getLicenses(self):
-		licenses = []
-		for package in self.getPackages():
-			for version in package.getVersions():
-				for license in version.getLicenses():
-					licenses.append(str(license))
+		versionsHasLicenses = self.get("VersionsHasLicenses")
+		licenses = [license for version in versionsHasLicenses for license in version]
 		licenses = set(licenses)
 		licenses = list(licenses)
 		return licenses
