@@ -79,7 +79,7 @@ def fetchNpm(package):
 							print(package.getName() + "@" + metadataVersion, "fetching", key + "@" + value, e)
 							fetchNpm(ecosystemDataManager.addPackage(key))
 							value = ecosystemDataManager.getPackage(key).getLatestVersion().getName()
-					if "x" in value:
+					if "x" in value or "X" in value:
 						try:
 							ecosystemDataManager.getPackage(key).resolve(value)
 						except Exception as e:
@@ -139,6 +139,7 @@ def fetchRubygems(package):
 			version.setAuthor(metadata["authors"])
 			version.setEmail(metadata["mailing_list_uri"])
 			version.setDownloads(metadata["version_downloads"])
+			package.setRepository(metadata["bug_tracker_uri"])
 			try:
 				for metadataDependency in metadata["dependencies"]["runtime"]:
 					key = metadataDependency["name"]
@@ -147,7 +148,8 @@ def fetchRubygems(package):
 					split = value.split(" ")
 					delimiter = split[0]
 					value = split[1]
-					if "x" in value:
+					value.replace(",","")
+					if "x" in value or "X" in value:
 						try:
 							ecosystemDataManager.getPackage(key).resolve(value)
 						except Exception as e:
