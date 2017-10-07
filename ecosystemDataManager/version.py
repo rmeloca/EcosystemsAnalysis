@@ -280,7 +280,7 @@ class Version(object):
 		return globalRegularityRate
 
 	def calculateContextSize(self):
-		contextSize = len(self.getContext())
+		contextSize = len(self.getParents())
 		self.set("VersionsHasContextSize", contextSize)
 		return contextSize
 

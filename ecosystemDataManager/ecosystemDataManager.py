@@ -201,15 +201,30 @@ class EcosystemDataManager(object):
 					print("[" + str(evaluated) + "/" + str(size) + "]", version, "\t", "{" + str(len(version.getDependencies())) + "}", "\t", localRegularityRate, "->", globalRegularityMean)
 			evaluated += 1
 
+	def calculateParentsSize(self, versionIndex, start = True):
+		if start:
+			self.visited = []
+		elif versionIndex in self.visited:
+			return 0
+		else:
+			self.visited.append(versionIndex)
+		versionsHasContextSize = self.get("VersionsHasContextSize")
+		if versionsHasContextSize[versionIndex]:
+			return versionsHasContextSize[versionIndex]
+		versionsHasOcurrences = self.get("VersionsHasOcurrences")
+		parentsIndexes = versionsHasOcurrences[versionIndex]
+		parentsSize = len(parentsIndexes)
+		for parentIndex in parentsIndexes:
+			parentsSize += self.calculateParentsSize(parentIndex, False)
+		versionsHasContextSize[versionIndex] = parentsSize
+		return parentsSize
+
 	def calculateContextSize(self):
-		packages = self.getPackages()
-		evaluated = 0
-		size = len(packages)
-		for package in packages:
-			for version in package.getVersions():
-				contextSize = version.calculateContextSize()
-				print("[" + str(evaluated) + "/" + str(size) + "]", version, "\t", contextSize)
-			evaluated += 1
+		versionsHasOcurrences = self.get("VersionsHasOcurrences")
+		size = len(versionsHasOcurrences)
+		for i in range(len(versionsHasOcurrences)):
+			contextSize = self.calculateParentsSize(i)
+			print("[" + str(i) + "/" + str(size) + "]", contextSize)
 
 	def calculateGlobalRegularityMetrics(self):
 		packages = self.getPackages()
@@ -271,7 +286,7 @@ class EcosystemDataManager(object):
 		for version in versionsHasLicenses:
 			for license in version:
 				try:
-					distribution[license] = distribution[license] + 1
+					distribution[license] += 1
 				except Exception as e:
 					distribution[license] = 1
 		mostPopularLicenses = sorted(distribution.items(), key=lambda x: x[1], reverse = True)
@@ -324,6 +339,41 @@ class EcosystemDataManager(object):
 		print("iregularDependencies", iregularDependencies)
 		print("proportion", iregularDependencies / dependenciesSize)
 
+	def groupsProportion(self):
+		versionsHasLicenses = self.get("LicensesHasGroup")
+		versionsHasDatetime = self.get("VersionsHasDatetime")
+		distribution = {}
+		distribution["-1"] = 0
+		for i in range(len(versionsHasLicenses)):
+			version = versionsHasLicenses[i]
+			datetime = versionsHasDatetime[i]
+			if not datetime:
+				continue
+			if not version:
+				distribution["-1"] += 1
+			for group in version:
+				try:
+					distribution[group] += 1
+				except Exception as e:
+					distribution[group] = 1
+		return distribution
+
+	def licensesProportion(self):
+		versionsHasLicenses = self.get("VersionsHasLicenses")
+		versionsHasDatetime = self.get("VersionsHasDatetime")
+		distribution = {}
+		for i in range(len(versionsHasLicenses)):
+			version = versionsHasLicenses[i]
+			datetime = versionsHasDatetime[i]
+			if not datetime:
+				continue
+			size = len(version)
+			try:
+				distribution[size] += 1
+			except Exception as e:
+				distribution[size] = 1
+		return distribution
+
 	def getMostPopularIregularPackages(self, size = None):
 		iregularPackages = [package for package in self.getMostPopularPackages() if package.isIregular()]
 		if size:
@@ -353,6 +403,9 @@ class EcosystemDataManager(object):
 
 	def getGlobalRegularityMeans(self):
 		return self.get("VersionsHasGlobalRegularityMean")
+
+	def getLicensesPerVersion(self):
+		return self.get("VersionsHasLicenses")
 
 	def __str__(self):
 		return self.ecosystem + " at " + self.home
