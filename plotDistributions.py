@@ -128,7 +128,7 @@ def plotNumberDependenciesBetweenPackages(ecosystemDataManager):
 	lenVersionsDependencies = []
 	for package in packages:
 		for version in package.getVersions():		
-			lenVersionDependencies =  len(version.getDependencies())
+			lenVersionDependencies = len(version.getDependencies())
 			lenVersionsDependencies.append(lenVersionDependencies)
 	return lenVersionsDependencies
 
@@ -226,6 +226,8 @@ if __name__ == '__main__':
 		except Exception as e:
 			pass
 	if "licenses" in options:
+		licensePerVersion = [len(licenses) for licenses in ecosystemDataManager.getLicensesPerVersion()]
+		plotHistogram(licensePerVersion, "visualizations/" + ecosystem + '_boxplot_licensesPerVersion.html')
 		licenses = ecosystemDataManager.getMostPopularLicenses(25)
 		plotMostPopularLicenses([str(k) for k, v in licenses], [v for k, v in licenses], "visualizations/" + ecosystem + "_bars_mostPopularLicenses.html")
 		plotMostPopularLicenses([str(k) for k, v in licenses], [math.log10(v) for k, v in licenses], "visualizations/" + ecosystem + "_bars_log10_mostPopularLicenses.html")
@@ -246,7 +248,7 @@ if __name__ == '__main__':
 			try:
 				package = iregularPackages[0]
 				plotPackageHistory(package, "visualizations/" + ecosystem + "_" + package.getName() + '_regularity_rate_bars.html')
-				popularVersionHistory(package, "visualizations/" + ecosystem + "_" + package.getName() + '_poupular_version.html')
+				popularVersionHistory(package, "visualizations/" + ecosystem + "_" + package.getName() + '_popular_version.html')
 			except Exception as e:
 				pass
 	if "number-dependencies" in options:
