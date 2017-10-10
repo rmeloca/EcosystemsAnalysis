@@ -38,15 +38,15 @@ if __name__ == '__main__':
 		for version in package.getVersions():
 			for license in version.getLicenses():
 				if license == "none":
-					license.setGroup(Group.NONE)
+					license.setGroup(Group.UNDEFINED)
 				elif license == "file":
 					license.setGroup(Group.FILE)
 				elif license == "copyright":
 					license.setGroup(Group.COPYRIGHT)
 				elif license in unlisted:
-					license.setGroup(Group.UNLISTED)
-				elif license in osi:
-					license.setGroup(Group.LISTED)
-				else:
 					license.setGroup(Group.UNKNOWN)
+				elif license in osi:
+					license.setGroup(Group.KNOWN)
+				else:
+					license.setGroup(Group.DUBIOUS)
 	ecosystemDataManager.save()

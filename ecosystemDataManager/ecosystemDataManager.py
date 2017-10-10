@@ -2,6 +2,7 @@ import json
 import sys
 import os
 from .package import Package
+from .group import Group
 
 class EcosystemDataManager(object):
 	"""docstring for EcosystemDataManager"""
@@ -374,6 +375,62 @@ class EcosystemDataManager(object):
 				distribution[size] = 1
 		return distribution
 
+	def groupsDependencies(self):
+		adjacencies = [[0 for groupTo in Group] for groupFrom in Group]
+		versionsHasDependencies = self.get("VersionsHasDependencies")
+		licensesHasGroup = self.get("LicensesHasGroup")
+		versionsHasDatetime = self.get("VersionsHasDatetime")
+		for i in range(len(versionsHasDependencies)):
+			versionFrom = i
+			dependencies = versionsHasDependencies[versionFrom]
+			for j in range(len(dependencies)):
+				versionTo = dependencies[j]
+				datetime = versionsHasDatetime[versionTo]
+				if not datetime:
+					continue
+				groupsFrom = licensesHasGroup[versionFrom]
+				groupsTo = licensesHasGroup[versionTo]
+				if not groupsFrom:
+					if not groupsTo:
+						adjacencies[Group.NONE.value][Group.NONE.value] += 1
+					else:
+						for groupTo in groupsTo:
+							adjacencies[Group.NONE.value][groupTo] += 1
+				elif not groupsTo:
+					for groupFrom in groupsFrom:
+						adjacencies[groupFrom][Group.NONE.value] += 1
+				else:
+					for groupFrom in groupsFrom:
+						for groupTo in groupsTo:
+							adjacencies[groupFrom][groupTo] += 1
+		return adjacencies
+
+	def groupsEvolution(self):
+		adjacencies = [[0 for groupTo in Group] for groupFrom in Group]
+		for package in self.getPackages():
+			history = package.getHistory()
+			for i in range(len(history) - 1):
+				versionFrom = history[i]
+				if not versionFrom.getDatetime():
+					continue
+				versionTo = history[i + 1]
+				licensesFrom = versionFrom.getLicenses()
+				licensesTo = versionTo.getLicenses()
+				if not licensesFrom:
+					if not licensesTo:
+						adjacencies[Group.NONE.value][Group.NONE.value] += 1
+					else:
+						for licenseTo in licensesTo:
+							adjacencies[Group.NONE.value][licenseTo.getGroup().value] += 1
+				elif not licensesTo:
+					for licenseFrom in licensesFrom:
+						adjacencies[licenseTo.getGroup().value][Group.NONE.value] += 1
+				else:
+					for licenseFrom in licensesFrom:
+						for licenseTo in licensesTo:
+							adjacencies[licenseFrom.getGroup().value][licenseTo.getGroup().value] += 1
+		return adjacencies
+
 	def getMostPopularIregularPackages(self, size = None):
 		iregularPackages = [package for package in self.getMostPopularPackages() if package.isIregular()]
 		if size:
@@ -388,7 +445,11 @@ class EcosystemDataManager(object):
 		if not inLicenses:
 			return True
 		for inLicense in inLicenses:
-			if "copyright" in inLicense or "none" in inLicense or inLicense == "" or inLicense == None:
+			if inLicense.getGroup() == Group.NONE:
+				return True
+			if inLicense.getGroup() == Group.COPYRIGHT:
+				return True
+			if inLicense.getGroup() == Group.UNLISTED:
 				return True
 		return False
 
