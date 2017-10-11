@@ -62,7 +62,10 @@ if __name__ == '__main__':
 		try:
 			if unknownTOknown > 0 or knownTOunknown > 0:
 				versions = len(package)
-				latestGroup = ",".join([license.getGroup().name for license in package.getLatestVersion().getLicenses()])
+				if package.getLatestVersion().getLicenses():
+					latestGroup = ",".join([license.getGroup().name for license in package.getLatestVersion().getLicenses()])
+				else:
+					latestGroup = Group.NONE.name
 				file.writerow([ecosystem, package, versions, unknownTOknown, knownTOunknown, latestGroup])
 		except Exception as e:
 			print(package, len(package), "discarted")
