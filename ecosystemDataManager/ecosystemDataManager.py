@@ -411,9 +411,11 @@ class EcosystemDataManager(object):
 			history = package.getHistory()
 			for i in range(len(history) - 1):
 				versionFrom = history[i]
+				versionTo = history[i + 1]
 				if not versionFrom.getDatetime():
 					continue
-				versionTo = history[i + 1]
+				if not versionTo.getDatetime():
+					continue
 				licensesFrom = versionFrom.getLicenses()
 				licensesTo = versionTo.getLicenses()
 				if not licensesFrom:

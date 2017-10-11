@@ -32,9 +32,21 @@ if __name__ == '__main__':
 				if license.getGroup() == Group.NONE or license.getGroup() == Group.UNKNOWN or license.getGroup() == Group.UNDEFINED:
 					group = license.getGroup().name
 					author = version.getAuthor()
+					if author:
+						author = author.replace("\"", "").replace("'", "").replace(";", "")
+						author = "\"" + author + "\""
 					email = version.getEmail()
+					if email:
+						email = email.replace("\"", "").replace("'", "").replace(";", "")
+						email = "\"" + email + "\""
 					repository = package.getRepository()
+					if repository:
+						repository = repository.replace("\"", "").replace("'", "").replace(";", "")
+						repository = "\"" + repository + "\""
 					licenses = ", ".join(version.getOriginalLicenses())
+					if licenses:
+						licenses = licenses.replace("\"", "").replace("'", "").replace(";", "")
+						licenses = "\"" + licenses + "\""
 					normalized = ", ".join([str(license) for license in version.getLicenses()])
 					parents = version.getContextSize()
 					file.writerow([ecosystem, package, version, group, author, email, repository, licenses, normalized, parents])
