@@ -220,8 +220,8 @@ class Package(object):
 
 	def getPackagesParents(self):
 		packages = [parent.getPackage() for parent in self.getParents()]
-		parents = set(parents)
-		parents = list(parents)
+		packages = set(packages)
+		packages = list(packages)
 		return packages
 
 	def getPackagesContext(self):

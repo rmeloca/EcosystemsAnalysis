@@ -166,15 +166,22 @@ class EcosystemDataManager(object):
 		packages = self.getPackages()
 		size = len(packages)
 		evaluated = 0
-		iregularPackages = []
+		iregularPackages = {}
 		for package in packages:
 			for packageDependency in package.getPackagesDependencies():
 				if packageDependency.getLatestVersion().getDatetime():
 					iregular = package.evaluate(packageDependency)
 					if iregular:
-						iregularPackages.append(package)
+						try:
+							iregularPackages[package] += 1
+						except Exception as e:
+							iregularPackages[package] = 1
 						print("[" + str(evaluated) + "/" + str(size) + "]", package, "-->", packageDependency)
 						break
+		try:
+			iregularPackages[package] /= len(package.getPackagesDependencies())
+		except Exception as e:
+			pass
 			evaluated += 1
 		return iregularPackages
 
@@ -447,11 +454,11 @@ class EcosystemDataManager(object):
 		if not inLicenses:
 			return True
 		for inLicense in inLicenses:
-			if inLicense.getGroup() == Group.NONE:
+			if inLicense.getGroup() == Group.UNDEFINED:
 				return True
 			if inLicense.getGroup() == Group.COPYRIGHT:
 				return True
-			if inLicense.getGroup() == Group.UNLISTED:
+			if inLicense.getGroup() == Group.UNKNOWN:
 				return True
 		return False
 
