@@ -192,7 +192,7 @@ class Version(object):
 				return []
 		versionsHasOcurrences =  self.ecosystemDataManager.get("VersionsHasOcurrences")
 		indexes = versionsHasOcurrences[self.index]
-		ocurrences =  [Ocurrence(self, Version(self.ecosystemDataManager, None, ocurrence)) for ocurrence in indexes]
+		ocurrences =  [Ocurrence(self.ecosystemDataManager, self, Version(self.ecosystemDataManager, None, ocurrence)) for ocurrence in indexes]
 		if recursive:
 			parents = []
 			parents += ocurrences
@@ -232,6 +232,28 @@ class Version(object):
 		context = set(context)
 		context = list(context)
 		return context
+
+	def getHeight(self, start = True):
+		goOn = self.manageRecursion(start)
+		if not goOn:
+			print("cycle at", self)
+			return 0
+		dependencies =  self.getDependencies()
+		if not dependencies:
+			return 0
+		try:
+			self.ecosystemDataManager.heights
+		except Exception as e:
+			self.ecosystemDataManager.heights = {}
+		heights = []
+		for dependency in dependencies:
+			if dependency in self.ecosystemDataManager.heights.keys():
+				heights.append(self.ecosystemDataManager.heights[dependency])
+			else:
+				heights.append(dependency.getInVersion().getHeight(False))
+		height = 1 + max(heights)
+		self.ecosystemDataManager.heights[self] = height
+		return height
 
 	def isIregular(self):
 		dependencies = self.getDependencies()

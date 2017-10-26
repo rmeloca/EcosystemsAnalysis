@@ -2,12 +2,14 @@ class Dependency(object):
 	"""docstring for Dependency"""
 	def __init__(self, ecosystemDataManager, outVersion, inVersion, index):
 		super(Dependency, self).__init__()
-		if not ecosystemDataManager or not outVersion or not inVersion or index == None:
+		if not ecosystemDataManager or not outVersion or not inVersion:
 			raise Exception
 		self.ecosystemDataManager = ecosystemDataManager
 		self.outVersion = outVersion
 		self.inVersion = inVersion
 		self.index = index
+		if index == None:
+			self.index = self.ecosystemDataManager.get("VersionsHasDependencies")[self.outVersion.getIndex()].index(self.inVersion.getIndex())
 
 	def getIndex(self):
 		return self.index

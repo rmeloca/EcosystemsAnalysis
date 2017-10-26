@@ -9,3 +9,7 @@ schedule.cron
 *.gexf
 *.html
 *.png
+*.dot
+*.pdf
+/data
+*.mwb.bak

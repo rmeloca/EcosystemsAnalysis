@@ -54,9 +54,9 @@ if __name__ == '__main__':
 						groupFrom = licenseFrom.getGroup()
 						groupTo = licenseTo.getGroup()
 						if groupFrom == Group.KNOWN:
-							if groupTo == Group.NONE or groupTo == Group.UNDEFINED or groupTo == Group.UNKNOWN:
+							if groupTo == Group.NONE or groupTo == Group.UNDEFINED or groupTo == Group.UNKNOWN or groupTo == Group.COPYRIGHT or groupTo == Group.DUBIOUS:
 								knownTOunknown += 1
-						if groupFrom == Group.NONE or groupFrom == Group.UNDEFINED or groupFrom == Group.UNKNOWN:
+						if groupFrom == Group.NONE or groupFrom == Group.UNDEFINED or groupFrom == Group.UNKNOWN or groupFrom == Group.COPYRIGHT or groupFrom == Group.DUBIOUS:
 							if groupTo == Group.KNOWN:
 								unknownTOknown += 1
 		try:

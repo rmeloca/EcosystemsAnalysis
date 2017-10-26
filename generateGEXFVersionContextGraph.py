@@ -35,20 +35,28 @@ def getInVersion(entity):
 	else:
 		raise Exception
 
-def generateOcurrences(entity):
-	if entity in PARENT_VERTICES:
+def generateOcurrences(version):
+	if not version.getDatetime():
 		return
-	PARENT_VERTICES.append(entity)
-	for ocurrence in getOcurrences(entity):
-		OCURRENCE_EDGES.append((getInVersion(ocurrence), entity))
+	if version in PARENT_VERTICES:
+		return
+	PARENT_VERTICES.append(version)
+	if version.isAffected() == False:
+		return
+	for ocurrence in getOcurrences(version):
+		OCURRENCE_EDGES.append(ocurrence)
 		generateOcurrences(getInVersion(ocurrence))
 
-def generateDependencies(entity):
-	if entity in DESCENDENT_VERTICES:
+def generateDependencies(version):
+	if not version.getDatetime():
 		return
-	DESCENDENT_VERTICES.append(entity)
-	for dependency in getDependencies(entity):
-		DEPENDENCY_EDGES.append((entity, getInVersion(dependency)))
+	if version in DESCENDENT_VERTICES:
+		return
+	DESCENDENT_VERTICES.append(version)
+	if version.isAffected() == False:
+		return
+	for dependency in getDependencies(version):
+		DEPENDENCY_EDGES.append(dependency)
 		generateDependencies(getInVersion(dependency))
 
 def getAttributes(entity):
@@ -87,14 +95,14 @@ def getAttributes(entity):
 	attributes["shape"] = "disc"
 	return attributes
 
-def generateGraph(entity):
-	generateDependencies(entity)
-	generateOcurrences(entity)
+def generateGraph(version):
+	generateDependencies(version)
+	generateOcurrences(version)
 	FILE.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
 	FILE.write("<gexf xmlns=\"http://www.gexf.net/1.2draft\" xmlns:viz=\"http://www.gexf.net/1.1draft/viz\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.gexf.net/1.2draft http://www.gexf.net/1.2draft/gexf.xsd\" version=\"1.2\">")
 	FILE.write("<graph>")
 	FILE.write("<nodes>")
-	FILE.write("<node id=\"" + str(entity) + "\" label=\"" + str(entity) + "\"> <viz:color r=\"22\" g=\"66\" b=\"186\" a=\"1\"/> <viz:size value=\"3\"/> <viz:shape value=\"disc\"/></node>")
+	FILE.write("<node id=\"" + str(version) + "\" label=\"" + str(version) + "\"> <viz:color r=\"22\" g=\"66\" b=\"186\" a=\"1\"/> <viz:size value=\"10\"/> <viz:shape value=\"disc\"/></node>")
 	for vertex in PARENT_VERTICES:
 		attributes = getAttributes(vertex)
 		r = attributes["red"]
@@ -113,24 +121,25 @@ def generateGraph(entity):
 	FILE.write("<edges>")
 	i = 0
 	for edge in OCURRENCE_EDGES:
-		r = 249
-		g = 22
-		b = 22
-		if (edge[1].isIregular()):
-			r = 49
-			g = 249
-			b = 22
-		FILE.write("<edge id=\"" + str(i) + "\" source=\"" + str(edge[0]) + "\" target=\"" + str(edge[1]) + "\"><viz:color r=\""+str(r)+"\" g=\""+str(g)+"\" b=\""+str(b)+"\" a=\"0.2\"/></edge>")
+		r = 220
+		g = 220
+		b = 220
+		dependency = edge.getDependency()
+		if (dependency.isIregular()):
+			r = 100
+			g = 30
+			b = 30
+		FILE.write("<edge id=\"" + str(i) + "\" source=\"" + str(dependency.getOutVersion()) + "\" target=\"" + str(dependency.getInVersion()) + "\"><viz:color r=\""+str(r)+"\" g=\""+str(g)+"\" b=\""+str(b)+"\" a=\"0.2\"/></edge>")
 		i += 1
 	for edge in DEPENDENCY_EDGES:
-		r = 249
-		g = 22
-		b = 22
-		if (edge[0].isIregular()):
-			r = 49
-			g = 249
-			b = 22
-		FILE.write("<edge id=\"" + str(i) + "\" source=\"" + str(edge[0]) + "\" target=\"" + str(edge[1]) + "\"><viz:color r=\""+str(r)+"\" g=\""+str(g)+"\" b=\""+str(b)+"\" a=\"0.6\"/></edge>")
+		r = 0
+		g = 255
+		b = 0
+		if (edge.isIregular()):
+			r = 255
+			g = 0
+			b = 0
+		FILE.write("<edge id=\"" + str(i) + "\" source=\"" + str(edge.getOutVersion()) + "\" target=\"" + str(edge.getInVersion()) + "\"><viz:color r=\""+str(r)+"\" g=\""+str(g)+"\" b=\""+str(b)+"\" a=\"0.6\"/></edge>")
 		i += 1
 	FILE.write("</edges>")
 	FILE.write("</graph>")
@@ -140,19 +149,12 @@ if __name__ == '__main__':
 	package = None
 	version = None
 	if len(sys.argv) < 2:
-		print("Usage:", sys.argv[0], "<ecosystem> [[package|version] [<package> [<version>]]]")
+		print("Usage:", sys.argv[0], "<ecosystem> [<package> [<version>]]")
 		sys.exit(1)
-	elif len(sys.argv) > 2:
-		if sys.argv[2] != "package" and sys.argv[2] != "version":
-			print("Usage:", sys.argv[0], "<ecosystem> [[package|version] [<package> [<version>]]]")
-			sys.exit(1)
-		graphType = sys.argv[2]
-		if len(sys.argv) > 3:
-			package = sys.argv[3]
-		if len(sys.argv) > 4:
-			version = sys.argv[4]
-	else:
-		graphType = "version"
+	if len(sys.argv) > 2:
+		package = sys.argv[2]
+	if len(sys.argv) > 3:
+		version = sys.argv[3]
 	ecosystem = sys.argv[1]
 	ecosystemDataManager = EcosystemDataManager(ecosystem)
 	if package:
@@ -160,17 +162,12 @@ if __name__ == '__main__':
 	else:
 		print("no package provided. Retrieving Most Popular")
 		package = ecosystemDataManager.getMostPopularPackages(1)[0]
-	if graphType == "version":
-		if version:
-			version = package.getVersion(version)
-		else:
-			print("no version provided. Retrieving Most Popular")
-			version = package.getMostPopularVersions(1)[0]
-		print("generating GEXF to", version)
-		with open(ecosystem + "_" + package.getName() + "_" + version.getName() + ".gexf", "w") as FILE:
-			generateGraph(version)
-		print("done")
+	if version:
+		version = package.getVersion(version)
 	else:
-		with open(ecosystem + "_" + package.getName() + ".gexf", "w") as FILE:
-			generateGraph(package)
-		print("done")
+		print("no version provided. Retrieving Most Popular")
+		version = package.getMostPopularVersions(1)[0]
+	print("generating GEXF to", version)
+	with open(ecosystem + "_" + package.getName() + "_" + version.getName() + ".gexf", "w") as FILE:
+		generateGraph(version)
+	print("done")

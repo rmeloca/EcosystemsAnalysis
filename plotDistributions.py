@@ -228,7 +228,7 @@ if __name__ == '__main__':
 	if "licenses" in options:
 		licensePerVersion = [len(licenses) for licenses in ecosystemDataManager.getLicensesPerVersion()]
 		plotHistogram(licensePerVersion, "visualizations/" + ecosystem + '_boxplot_licensesPerVersion.html')
-		licenses = ecosystemDataManager.getMostPopularLicenses(25)
+		licenses = ecosystemDataManager.getMostPopularLicenses(25, unknown = True)
 		plotMostPopularLicenses([str(k) for k, v in licenses], [v for k, v in licenses], "visualizations/" + ecosystem + "_bars_mostPopularLicenses.html")
 		plotMostPopularLicenses([str(k) for k, v in licenses], [math.log10(v) for k, v in licenses], "visualizations/" + ecosystem + "_bars_log10_mostPopularLicenses.html")
 	if "metrics" in options:
