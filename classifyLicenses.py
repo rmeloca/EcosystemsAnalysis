@@ -44,9 +44,9 @@ if __name__ == '__main__':
 				elif license == "copyright":
 					license.setGroup(Group.COPYRIGHT)
 				elif license in unlisted:
-					license.setGroup(Group.UNKNOWN)
+					license.setGroup(Group.UNAPPROVED)
 				elif license in osi:
 					license.setGroup(Group.KNOWN)
 				else:
-					license.setGroup(Group.DUBIOUS)
+					license.setGroup(Group.MISUSED)
 	ecosystemDataManager.save()
