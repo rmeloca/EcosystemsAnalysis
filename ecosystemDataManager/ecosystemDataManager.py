@@ -528,15 +528,15 @@ class EcosystemDataManager(object):
 		self.save("VersionsHasOriginalLicenses")
 
 	def evaluateInLicenses(self, inLicenses):
-		if not inLicenses:
-			return True
+		# if not inLicenses:
+			# return True
 		for inLicense in inLicenses:
-			if inLicense.getGroup() == Group.UNDEFINED:
-				return True
-			if inLicense.getGroup() == Group.COPYRIGHT:
-				return True
-			if inLicense.getGroup() == Group.UNAPPROVED:
-				return True
+			# if inLicense.getGroup() == Group.UNDEFINED:
+			# 	return True
+			# if inLicense.getGroup() == Group.COPYRIGHT:
+			# 	return True
+			# if inLicense.getGroup() == Group.UNAPPROVED:
+				# return True
 			if inLicense.getGroup() == Group.MISUSED:
 				return True
 		return False
