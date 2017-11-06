@@ -12,6 +12,8 @@ def generate(version):
 		return
 	color = "red" if version.isIregular() == True else "orange" if version.isAffected() == True else "blue"
 	licenses = ", ".join([str(l) for l in version.getLicenses()])
+	if not licenses:
+		licenses = "none"
 	FILE.write("\"" + str(version) + "\\n" + licenses + "\"" + "[color="+color+"]" + ";")
 	for d in version.getDependencies():
 		inV = d.getInVersion()
@@ -19,7 +21,11 @@ def generate(version):
 			continue
 		outV = d.getOutVersion()
 		outL = ", ".join([str(l) for l in outV.getLicenses()])
+		if not outL:
+			outL = "none"
 		inL = ", ".join([str(l) for l in inV.getLicenses()])
+		if not inL:
+			inL = "none"
 		color = "red" if d.isIregular() == True else "green" if d.isIregular() == False else "gray"
 		FILE.write("\"" + str(outV) + "\\n" + outL + "\"" + "->" + "\"" + str(inV) + "\\n" + inL + "\"" + "[color=" + color + "]" + ";")
 		generate(inV)

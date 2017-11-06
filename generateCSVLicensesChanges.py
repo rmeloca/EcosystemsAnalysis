@@ -49,6 +49,10 @@ if __name__ == '__main__':
 					if groupFrom == Group.KNOWN:
 						knownTOunknown += 1
 			else:
+				groupsFrom = [license.getGroup().value for license in licensesFrom]
+				groupsTo = [license.getGroup().value for license in licensesFrom]
+				if groupsFrom == groupsTo:
+					continue
 				for licenseFrom in licensesFrom:
 					for licenseTo in licensesTo:
 						groupFrom = licenseFrom.getGroup()

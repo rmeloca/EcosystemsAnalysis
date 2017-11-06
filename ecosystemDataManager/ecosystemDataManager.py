@@ -475,6 +475,11 @@ class EcosystemDataManager(object):
 							adjacencies[licenseFrom.getGroup().value][licenseTo.getGroup().value] += 1
 		return adjacencies
 
+	def resolveGroup(self, group):
+		if group == Group.NONE or group == Group.UNDEFINED:
+			return Group.NONE
+		return group
+
 	def extractEvolutionPatterns(self, size = None):
 		adjacencies = {groupFrom.name: {groupTo.name: {} for groupTo in Group} for groupFrom in Group}
 		for package in self.getPackages():
@@ -491,11 +496,11 @@ class EcosystemDataManager(object):
 				if not licensesFrom and licensesTo:
 					for licenseTo in licensesTo:
 						group = licenseTo.getGroup()
-						self.addDictKey(adjacencies[Group.NONE.name][group.name], "none" + "->" + str(licenseTo))
+						self.addDictKey(adjacencies[Group.NONE.name][self.resolveGroup(group).name], "none" + "->" + str(licenseTo))
 				elif not licensesTo:
 					for licenseFrom in licensesFrom:
 						group = licenseFrom.getGroup()
-						self.addDictKey(adjacencies[group.name][Group.NONE.name], str(licenseFrom) + "->" + "none")
+						self.addDictKey(adjacencies[self.resolveGroup(group).name][Group.NONE.name], str(licenseFrom) + "->" + "none")
 				else:
 					for licenseFrom in licensesFrom:
 						for licenseTo in licensesTo:
@@ -503,7 +508,7 @@ class EcosystemDataManager(object):
 							groupTo = licenseTo.getGroup()
 							if licenseFrom == licenseTo:
 								continue
-							self.addDictKey(adjacencies[groupFrom.name][groupTo.name], str(licenseFrom) + "->" + str(licenseTo))
+							self.addDictKey(adjacencies[self.resolveGroup(groupFrom).name][self.resolveGroup(groupTo).name], str(licenseFrom) + "->" + str(licenseTo))
 		for groupFrom in adjacencies.keys():
 			for groupTo in adjacencies.keys():
 				adjacencies[groupFrom][groupTo] = sorted(adjacencies[groupFrom][groupTo].items(), key=lambda x: x[1], reverse = True)
@@ -533,12 +538,10 @@ class EcosystemDataManager(object):
 		for inLicense in inLicenses:
 			if inLicense.getGroup() == Group.UNDEFINED:
 				return True
-			if inLicense.getGroup() == Group.COPYRIGHT:
-				return True
 			if inLicense.getGroup() == Group.UNAPPROVED:
 				return True
-			if inLicense.getGroup() == Group.MISUSED:
-				return True
+			# if inLicense.getGroup() == Group.MISUSED:
+			# 	return True
 		return False
 
 	def getName(self):
