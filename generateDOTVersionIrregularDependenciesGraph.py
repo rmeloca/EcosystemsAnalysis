@@ -4,6 +4,10 @@ from ecosystemDataManager.ecosystemDataManager import EcosystemDataManager
 VISITED = []
 FILE = None
 
+"""
+Write in file the struct to by read in DOT generator
+To generate DOT in PDF use the comand: dot -Tpdf > file.pdf
+"""
 def generate(version):
 	if version in VISITED:
 		return
@@ -24,6 +28,9 @@ def generate(version):
 		FILE.write("\"" + str(outV) + "\\n" + outL + "\"" + "->" + "\"" + str(inV) + "\\n" + inL + "\"" + "[color=" + color + "]" + ";")
 		generate(inV)
 
+"""
+Generate a directed graphs from package of ecosystem
+"""
 def generateDot(version):
 	FILE.write("digraph graphname {")
 	generate(version)
