@@ -34,19 +34,23 @@ if __name__ == '__main__':
 	except Exception as e:
 		print("Unlisted not loaded")
 		unlisted = []
-	for package in packages:
-		for version in package.getVersions():
-			for license in version.getLicenses():
-				if license == "none":
-					license.setGroup(Group.UNDEFINED)
-				elif license == "file":
-					license.setGroup(Group.FILE)
-				elif license == "copyright":
-					license.setGroup(Group.COPYRIGHT)
-				elif license in unlisted:
-					license.setGroup(Group.UNAPPROVED)
-				elif license in osi:
-					license.setGroup(Group.KNOWN)
-				else:
-					license.setGroup(Group.MISUSED)
-	ecosystemDataManager.save()
+
+	versionsHasLicenses = ecosystemDataManager.get("VersionsHasLicenses")
+	licensesHasGroup = ecosystemDataManager.get("LicensesHasGroup")
+	for i in range(len(versionsHasLicenses)):
+		version = versionsHasLicenses[i]
+		for j in range(len(version)):
+			license = version[j]
+			if license == "none":
+				licensesHasGroup[i][j] = Group.UNDEFINED.value
+			elif license == "file":
+				licensesHasGroup[i][j] = Group.FILE.value
+			elif license == "copyright":
+				licensesHasGroup[i][j] = Group.COPYRIGHT.value
+			elif license in unlisted:
+				licensesHasGroup[i][j] = Group.UNAPPROVED.value
+			elif license in osi:
+				licensesHasGroup[i][j] = Group.KNOWN.value
+			else:
+				licensesHasGroup[i][j] = Group.MISUSED.value
+	ecosystemDataManager.save("LicensesHasGroup")

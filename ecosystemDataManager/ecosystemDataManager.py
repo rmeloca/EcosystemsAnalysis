@@ -172,10 +172,7 @@ class EcosystemDataManager(object):
 				if packageDependency.getLatestVersion().getDatetime():
 					iregular = package.evaluate(packageDependency)
 					if iregular:
-						try:
-							iregularPackages[package] += 1
-						except Exception as e:
-							iregularPackages[package] = 1
+						self.addDictKey(iregularPackages, package)
 						print("[" + str(evaluated) + "/" + str(size) + "]", package, "-->", packageDependency)
 						break
 			evaluated += 1
@@ -320,8 +317,8 @@ class EcosystemDataManager(object):
 		licenses = list(licenses)
 		return licenses
 	
-	def getMostPopularLicenses(self, size = None, unknown = False, known = False):
-		distribution = {}
+	def getMostPopularLicenses(self, size = None):
+		distribution = {group.value: {} for group in Group}
 		versionsHasLicenses = self.get("VersionsHasLicenses")
 		licensesHasGroup = self.get("LicensesHasGroup")
 		for i in range(len(versionsHasLicenses)):
@@ -329,30 +326,12 @@ class EcosystemDataManager(object):
 			for j in range(len(version)):
 				license = version[j]
 				group = licensesHasGroup[i][j]
-				if unknown:
-					if group == Group.KNOWN.value:
-						continue
-					if group == Group.FILE.value:
-						continue
-				elif known:
-					if group == Group.UNDEFINED.value:
-						continue
-					if group == Group.COPYRIGHT.value:
-						continue
-					if group == Group.DUBIOUS.value:
-						continue
-					if group == Group.FILE.value:
-						continue
-					if group == Group.UNKNOWN.value:
-						continue
-				try:
-					distribution[license] += 1
-				except Exception as e:
-					distribution[license] = 1
-		mostPopularLicenses = sorted(distribution.items(), key=lambda x: x[1], reverse = True)
-		if size:
-			mostPopularLicenses = mostPopularLicenses[:size]
-		return mostPopularLicenses
+				self.addDictKey(distribution[group], license)
+		for group in distribution.keys():
+			distribution[group] = sorted(distribution[group].items(), key=lambda x: x[1], reverse = True)
+			if size:
+				distribution[group] = distribution[group][:size]
+		return distribution
 
 	def proportion(self):
 		iregularPackages = 0
@@ -414,19 +393,15 @@ class EcosystemDataManager(object):
 		versionsHasLicenses = self.get("LicensesHasGroup")
 		versionsHasDatetime = self.get("VersionsHasDatetime")
 		distribution = {}
-		distribution["-1"] = 0
 		for i in range(len(versionsHasLicenses)):
 			version = versionsHasLicenses[i]
 			datetime = versionsHasDatetime[i]
 			if not datetime:
 				continue
 			if not version:
-				distribution["-1"] += 1
+				self.addDictKey(distribution, "-1")
 			for group in version:
-				try:
-					distribution[group] += 1
-				except Exception as e:
-					distribution[group] = 1
+				self.addDictKey(distribution, group)
 		return distribution
 
 	def licensesProportion(self):
@@ -439,10 +414,7 @@ class EcosystemDataManager(object):
 			if not datetime:
 				continue
 			size = len(version)
-			try:
-				distribution[size] += 1
-			except Exception as e:
-				distribution[size] = 1
+			self.addDictKey(distribution, size)
 		return distribution
 
 	def groupsDependencies(self):
@@ -504,12 +476,12 @@ class EcosystemDataManager(object):
 		return adjacencies
 
 	def resolveGroup(self, group):
-		if group == Group.UNDEFINED or group == Group.COPYRIGHT or group == Group.DUBIOUS or group == Group.UNKNOWN:
-			return Group.UNKNOWN
+		if group == Group.NONE or group == Group.UNDEFINED:
+			return Group.NONE
 		return group
 
-	def extractEvolutionPatterns(self):
-		adjacencies = {groupFrom.name:{groupTo.name:0 for groupTo in Group} for groupFrom in Group}
+	def extractEvolutionPatterns(self, size = None):
+		adjacencies = {groupFrom.name: {groupTo.name: {} for groupTo in Group} for groupFrom in Group}
 		for package in self.getPackages():
 			history = package.getHistory()
 			for i in range(len(history) - 1):
@@ -524,11 +496,11 @@ class EcosystemDataManager(object):
 				if not licensesFrom and licensesTo:
 					for licenseTo in licensesTo:
 						group = licenseTo.getGroup()
-						self.addDictKey(adjacencies[Group.UNKNOWN.name][self.resolveGroup(group)], "none" + "->" + str(licenseTo))
+						self.addDictKey(adjacencies[Group.NONE.name][self.resolveGroup(group).name], "none" + "->" + str(licenseTo))
 				elif not licensesTo:
 					for licenseFrom in licensesFrom:
 						group = licenseFrom.getGroup()
-						self.addDictKey(adjacencies[self.resolveGroup(group)][Group.UNKNOWN.name], str(licenseFrom) + "->" + "none")
+						self.addDictKey(adjacencies[self.resolveGroup(group).name][Group.NONE.name], str(licenseFrom) + "->" + "none")
 				else:
 					for licenseFrom in licensesFrom:
 						for licenseTo in licensesTo:
@@ -536,7 +508,12 @@ class EcosystemDataManager(object):
 							groupTo = licenseTo.getGroup()
 							if licenseFrom == licenseTo:
 								continue
-							self.addDictKey(adjacencies[self.resolveGroup(groupFrom)][self.resolveGroup(groupTo)], str(licenseFrom) + "->" + str(licenseTo))
+							self.addDictKey(adjacencies[self.resolveGroup(groupFrom).name][self.resolveGroup(groupTo).name], str(licenseFrom) + "->" + str(licenseTo))
+		for groupFrom in adjacencies.keys():
+			for groupTo in adjacencies.keys():
+				adjacencies[groupFrom][groupTo] = sorted(adjacencies[groupFrom][groupTo].items(), key=lambda x: x[1], reverse = True)
+				if size:
+					adjacencies[groupFrom][groupTo] = adjacencies[groupFrom][groupTo][:size]
 		return adjacencies
 
 	def addDictKey(self, dictionary, key):
@@ -561,12 +538,10 @@ class EcosystemDataManager(object):
 		for inLicense in inLicenses:
 			if inLicense.getGroup() == Group.UNDEFINED:
 				return True
-			if inLicense.getGroup() == Group.COPYRIGHT:
+			if inLicense.getGroup() == Group.UNAPPROVED:
 				return True
-			if inLicense.getGroup() == Group.UNKNOWN:
-				return True
-			if inLicense.getGroup() == Group.DUBIOUS:
-				return True
+			# if inLicense.getGroup() == Group.MISUSED:
+			# 	return True
 		return False
 
 	def getName(self):
