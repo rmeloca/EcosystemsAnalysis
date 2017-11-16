@@ -3,6 +3,9 @@ from ecosystemDataManager.group import Group
 import csv
 import sys
 
+"""
+Generate a list of licenses changes to CSV formats
+"""
 if __name__ == '__main__':
 	if len(sys.argv) < 2:
 		print("Usage:", sys.argv[0], "<ecosystem> [<file>]")
