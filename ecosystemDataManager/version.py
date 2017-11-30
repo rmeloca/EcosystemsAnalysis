@@ -14,7 +14,10 @@ class Version(object):
 			package = self.ecosystemDataManager.getPackageByIndex(versionsHasPackage[index])
 		self.package = package
 		self.index = index
-
+	"""
+	This function is internally called for initialization of the class and set all attributes.
+	If haven't set ecosystemDataManager or index requested this class cound't be initialized.
+	"""
 	def getIndex(self):
 		return self.index
 
@@ -31,7 +34,9 @@ class Version(object):
 
 	def getName(self):
 		return self.get("VersionsHasIndex")
-
+	"""
+	This function is internally called to return the version name itself 
+	"""
 	def setDatetime(self, datetime):
 		self.set("VersionsHasDatetime", datetime)
 		return self
@@ -320,11 +325,18 @@ class Version(object):
 
 	def __hash__(self):
 		return self.index
-
+	"""
+	This overwritten function is internally called to return the self index for hash
+	"""
 	def __eq__(self, other):
 		if type(other) != type(self):
 			return False
 		return other.getIndex() == self.getIndex()
-
+	"""
+	This overwritten function is internally called to compare this license with other license by license Index
+	"""
 	def __str__(self):
 		return self.getPackage().getName() + "@" + str(self.getName())
+	"""
+	This overwritten function is internally called to return license Name
+	"""

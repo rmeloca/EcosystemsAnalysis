@@ -9,38 +9,57 @@ class Package(object):
 			raise Exception
 		self.ecosystemDataManager = ecosystemDataManager
 		self.index = index
-
+	"""
+	This function is internally called for initialization of the class and set all attributes.
+	If haven't set all requested this class cound't be initialized.
+	"""
 	def getIndex(self):
 		return self.index
-
+	"""
+	This function is internally called to return the index itself
+	"""
 	def getEcosystemDataManager(self):
 		return self.ecosystemDataManager
-
+	"""
+	This function is internally called to return the ecosystem data manager itself
+	"""
 	def set(self, attribute, value):
 		table = self.ecosystemDataManager.get(attribute)
 		table[self.index] = value
-
+	"""
+	This function is internally called to set table value by the requests attributes
+	"""
 	def get(self, attribute):
 		table = self.ecosystemDataManager.get(attribute)
 		return table[self.index]
-
+	"""
+	This function is internally called to return the requested attribute of this package
+	"""
 	def getName(self):
 		return self.get("PackagesHasIndex")
-
+	"""
+	This function is internally called to return the package name itself 
+	"""
 	def setRepository(self, repository):
 		self.set("PackagesHasRepository", repository)
 		return self
 
 	def getRepository(self):
 		return self.get("PackagesHasRepository")
-
+	"""
+	This function is internally called to return the repository itself
+	"""
 	def setTags(self, tags):
 		self.set("PackagesHasTags", tags)
 		return self
-
+	"""
+	This function is internally called to set some tags
+	"""
 	def getTags(self):
 		return self.get("PackagesHasTags")
-
+	"""
+	This function is internally called to return the tags itself
+	"""
 	def getVersionByIndex(self, index):
 		if index < 0:
 			raise Exception
@@ -48,7 +67,9 @@ class Package(object):
 			return Version(self.ecosystemDataManager, self, index)
 		except Exception as e:
 			raise e
-
+	"""
+	This function is internally called to return version by requested index
+	"""
 	def resolve(self, strVersion):
 		versions = self.getVersions()
 		for version in versions:
@@ -83,7 +104,10 @@ class Package(object):
 			self.ecosystemDataManager.get("DependenciesHasRequirements").append([])
 		finally:
 			return self.getVersion(name)
-
+	"""
+	This function is internally called to add a new version to this package.
+	"""
+	
 	def getVersion(self, name):
 		versionsHasIndex = self.get("PackagesHasVersions")
 		try:
@@ -260,37 +284,60 @@ class Package(object):
 			if version.isIregular():
 				return True
 		return False
-
+	"""
+	This function is internally called to return if at least one version is irregular, this
+	package is irregular too.
+	"""
 	def isRegular(self):
 		for version in self.getVersions():
 			if version.isIregular():
 				return False
 		return True
-
+	"""
+	This function is internally called to return if any version is irregular, this
+	package is regular.
+	"""
 	def getIregularVersions(self):
 		return [version for version in self.getVersions() if version.isIregular()]
-
+	"""
+	This function is internally called to return a list of iregular versions
+	"""
 	def getRegularVersions(self):
 		versions = self.getVersions()
 		iregularVersions = self.getIregularVersions()
 		return list(set(versions) - set(iregularVersions))
-
+	"""
+	This function is internally called to return a list of regular versions
+	"""
 	def isAffected(self):
 		for version in self.getVersions():
 			if version.getGlobalRegularityRate() < 1:
 				return True
 		return False
+	"""
+	This function is internally called to return if itself pakcage is affected ou not, by
+	the global regularity rate.
+	"""	
 
 	def __hash__(self):
 		return self.index
-
+	"""
+	This overwritten function is internally called to return the self index for hash
+	"""
 	def __len__(self):
 		return len(self.get("PackagesHasVersions"))
-
+	"""
+	This overwritten function is internally called to return the self len by len of PackagesHasVersions
+	"""
 	def __eq__(self, other):
 		if type(other) != type(self):
 			return False
 		return other.getIndex() == self.getIndex()
-
+	"""
+	This overwritten function is internally called to compare this license with other license by license Index
+	"""
 	def __str__(self):
 		return self.getName()
+	"""
+	This overwritten function is internally called to return license Name
+	"""
