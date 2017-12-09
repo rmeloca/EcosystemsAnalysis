@@ -2,7 +2,10 @@ from datetime import datetime
 from .version import Version
 
 class Package(object):
-	"""docstring for Package"""
+	"""
+	This function is internally called for initialization of the class and set all attributes.
+	If haven't set all requested this class cound't be initialized.
+	"""
 	def __init__(self, ecosystemDataManager, index):
 		super(Package, self).__init__()
 		if not ecosystemDataManager or index == None:
@@ -10,38 +13,67 @@ class Package(object):
 		self.ecosystemDataManager = ecosystemDataManager
 		self.index = index
 
+	"""
+	This function is internally called to return the index itself
+	"""
 	def getIndex(self):
 		return self.index
 
+	"""
+	This function is internally called to return the ecosystem data manager itself
+	"""
 	def getEcosystemDataManager(self):
 		return self.ecosystemDataManager
 
+	"""
+	This function is internally called to set table value by the requests attributes
+	"""
 	def set(self, attribute, value):
 		table = self.ecosystemDataManager.get(attribute)
 		table[self.index] = value
 		return self
 
+	"""
+	This function is internally called to return the requested attribute of this package
+	"""
 	def get(self, attribute):
 		table = self.ecosystemDataManager.get(attribute)
 		return table[self.index]
 
+	"""
+	This function is internally called to return the package name itself 
+	"""
 	def getName(self):
 		return self.get("PackagesHasIndex")
 
+	"""
+	This function is internally called to return the repository itself
+	"""
 	def setRepository(self, repository):
 		self.set("PackagesHasRepository", repository)
 		return self
 
+	"""
+	This function is internally called to return the repository itself
+	"""
 	def getRepository(self):
 		return self.get("PackagesHasRepository")
 
+	"""
+	This function is internally called to set some tags
+	"""
 	def setTags(self, tags):
 		self.set("PackagesHasTags", tags)
 		return self
 
+	"""
+	This function is internally called to return the tags itself
+	"""
 	def getTags(self):
 		return self.get("PackagesHasTags")
-
+	"""
+	This function is internally called to return version by requested index
+	"""
 	def getVersionByIndex(self, index):
 		if index < 0:
 			raise Exception
@@ -49,7 +81,6 @@ class Package(object):
 			return Version(self.ecosystemDataManager, self, index)
 		except Exception as e:
 			raise e
-
 	def resolve(self, strVersion):
 		versions = self.getVersions()
 		for version in versions:
@@ -57,6 +88,9 @@ class Package(object):
 				return version
 		raise Exception
 
+	"""
+	This function is internally called to add a new version to this package.
+	"""
 	def addVersion(self, name):
 		packagesHasVersions = self.ecosystemDataManager.get("PackagesHasVersions")
 		try:
@@ -84,7 +118,7 @@ class Package(object):
 			self.ecosystemDataManager.get("DependenciesHasRequirements").append([])
 		finally:
 			return self.getVersion(name)
-
+	
 	def getVersion(self, name):
 		versionsHasIndex = self.get("PackagesHasVersions")
 		try:
@@ -256,42 +290,72 @@ class Package(object):
 		inLicenses = dependency.getLicenses()
 		return self.ecosystemDataManager.evaluateInLicenses(inLicenses)
 
+	"""
+	This function is internally called to return if at least one version is irregular, this
+	package is irregular too.
+	"""
 	def isIrregular(self):
 		for version in self.getVersions():
 			if version.isIrregular():
 				return True
 		return False
 
+	"""
+	This function is internally called to return if any version is irregular, this
+	package is regular.
+	"""
 	def isRegular(self):
 		for version in self.getVersions():
 			if version.isIrregular():
 				return False
 		return True
 
+	"""
+	This function is internally called to return a list of iregular versions
+	"""
 	def getIrregularVersions(self):
 		return [version for version in self.getVersions() if version.isIrregular()]
 
+	"""
+	This function is internally called to return a list of regular versions
+	"""
 	def getRegularVersions(self):
 		versions = self.getVersions()
 		irregularVersions = self.getIrregularVersions()
 		return list(set(versions) - set(irregularVersions))
 
+	"""
+	This function is internally called to return if itself pakcage is affected ou not, by
+	the global regularity rate.
+	"""	
 	def isAffected(self):
 		for version in self.getVersions():
 			if version.getGlobalRegularityRate() < 1:
 				return True
 		return False
 
+	"""
+	This overwritten function is internally called to return the self index for hash
+	"""
 	def __hash__(self):
 		return self.index
 
+	"""
+	This overwritten function is internally called to return the self len by len of PackagesHasVersions
+	"""
 	def __len__(self):
 		return len(self.get("PackagesHasVersions"))
 
+	"""
+	This overwritten function is internally called to compare this license with other license by license Index
+	"""
 	def __eq__(self, other):
 		if type(other) != type(self):
 			return False
 		return other.getIndex() == self.getIndex()
 
+	"""
+	This overwritten function is internally called to return license Name
+	"""
 	def __str__(self):
 		return self.getName()

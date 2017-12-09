@@ -87,6 +87,9 @@ def getAttributes(entity):
 	attributes["shape"] = "disc"
 	return attributes
 
+"""
+Generate a directed graph by package in ecosystem, this graph most be read by Gephi
+"""
 def generateGraph(entity):
 	generateDependencies(entity)
 	generateOccurrences(entity)

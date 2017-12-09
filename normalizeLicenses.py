@@ -2,6 +2,9 @@ import sys
 import json
 from ecosystemDataManager.ecosystemDataManager import EcosystemDataManager
 
+"""
+
+"""
 if __name__ == '__main__':
 	if len(sys.argv) < 2:
 		print("Usage:", sys.argv[0], "<ecosystem> [<licenses> <normalized>]")

@@ -95,6 +95,9 @@ def getAttributes(entity):
 	attributes["shape"] = "disc"
 	return attributes
 
+"""
+Generate a directed graph of package with all verions in ecosystem, this graph most be read by Gephi
+"""
 def generateGraph(version):
 	generateDependencies(version)
 	generateOccurrences(version)

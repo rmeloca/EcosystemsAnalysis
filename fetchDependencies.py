@@ -17,6 +17,9 @@ def getContent(url):
 def getJson(url):
 	return json.loads(getContent(url))
 
+"""
+Get all packages from NPM ecosystem
+"""
 def fetchNpm(package):
 	if package in VISITED_PACKAGES:
 		return
@@ -99,6 +102,9 @@ def fetchNpm(package):
 		except Exception as e:
 			print(package.getName() + "@" + metadataVersion, "no dependencies", e)
 
+"""
+Get all packages from Rubygems ecosystem
+"""
 def fetchRubygemsPackages():
 	registry = 'https://rubygems.org/'
 	packages = getContent(os.path.join(registry, 'versions'))
@@ -169,6 +175,9 @@ def fetchRubygems(package):
 		except Exception as e:
 			print(package.getName() + "@" + metadataVersion, "VERSION FETCH FAIL")
 
+"""
+Get all packages from Cran ecosystem
+"""
 def fetchCran(package):
 	ecosystemDataManager = package.getEcosystemDataManager()
 	registry = "https://cran.r-project.org/web/packages/"
