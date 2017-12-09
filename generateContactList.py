@@ -13,7 +13,7 @@ if __name__ == '__main__':
 
 	ecosystem = sys.argv[1]
 	ecosystemDataManager = EcosystemDataManager(ecosystem, home)
-	iregularPackages = ecosystemDataManager.getIregularPackages()
+	irregularPackages = ecosystemDataManager.getIrregularPackages()
 
 	with open(ecosystem + "Emails.csv", 'w', newline = '') as csvfile:
 		file = csv.writer(csvfile, delimiter = ';')
@@ -23,20 +23,20 @@ if __name__ == '__main__':
 		tags = "Tags"
 		firstInsertion = "First Insertion"
 		repository = "Repository"
-		iregularVersions = "Versions"
+		irregularVersions = "Versions"
 		dependenciesSize = "Dependency Number"
 		author = "Author"
 		downloads = "Downloads Number"
 		licenses = "Licenses"
 
-		file.writerow([email, packageName, tags, firstInsertion, repository, iregularVersions, dependenciesSize, author, downloads, licenses])
+		file.writerow([email, packageName, tags, firstInsertion, repository, irregularVersions, dependenciesSize, author, downloads, licenses])
 
-		for package in iregularPackages:
-			iregularVersions = package.getIregularVersions()
-			iregularVersion = iregularVersions[0]
-			iregularVersions = ",".join([version.getName() for version in iregularVersions])
-			iregularityType = None
-			email = iregularVersion.getEmail()
+		for package in irregularPackages:
+			irregularVersions = package.getIrregularVersions()
+			irregularVersion = irregularVersions[0]
+			irregularVersions = ",".join([version.getName() for version in irregularVersions])
+			irregularityType = None
+			email = irregularVersion.getEmail()
 			packageName = package.getName()
 			tags = ", ".join([str(tag) for tag in package.getTags()])
 			try:
@@ -45,8 +45,8 @@ if __name__ == '__main__':
 				firstInsertion = None
 			repository = package.getRepository()
 			dependenciesSize = len(package.getDependencies())
-			author = iregularVersion.getAuthor()
-			downloads = iregularVersion.getDownloads()
-			licenses = ", ".join(iregularVersion.getOriginalLicenses())
+			author = irregularVersion.getAuthor()
+			downloads = irregularVersion.getDownloads()
+			licenses = ", ".join(irregularVersion.getOriginalLicenses())
 
-			file.writerow([email, packageName, tags, firstInsertion, repository, iregularVersions, dependenciesSize, author, downloads, licenses])
+			file.writerow([email, packageName, tags, firstInsertion, repository, irregularVersions, dependenciesSize, author, downloads, licenses])

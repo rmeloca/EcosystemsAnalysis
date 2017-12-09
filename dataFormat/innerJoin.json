@@ -12,7 +12,7 @@
     "tags": [
       "framework"
     ],
-    "ocurrences": {
+    "occurrences": {
       "react": [
         "15.6"
       ]
@@ -54,7 +54,7 @@
             "i": true
           }
         },
-        "ocurrences": {
+        "occurrences": {
           "react": [
             "15.6"
           ]

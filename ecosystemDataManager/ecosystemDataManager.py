@@ -5,7 +5,25 @@ from .package import Package
 from .group import Group
 
 class EcosystemDataManager(object):
-	"""docstring for EcosystemDataManager"""
+	"""
+	docstring for EcosystemDataManager
+	This class is responsible for managing persistence and retrieval for
+	any ecosystem. It works by abstrating opening JSON files whose contain downloaded
+	data.
+	This class does not respond to fetch metadata nor delete them.
+	'ecosystem' param is needed to inform what ecosystem to load.
+	EcosystemDataManager will look for a folder named with 'ecosystem' variable
+	content and if does not exists, will create the structure.
+	'home' param is optional and describes folder to look for ecosystem.
+	If 'home' not informed, EcosystemDataManager will for for 'ecosystem' in the same
+	folder.
+	At object construction packages are loaded.
+	Once file is loaded into primary memory, EcosystemDataManager does not
+	perform a garbage collection.
+	Any modifications in the data must be explicitly persisted by calling
+	EcosystemDataManager.save() or EcosystemDataManager.save(attribute).
+	All Package, Version, Dependency, Ocurrence and License objects stores an index 
+	"""
 	def __init__(self, ecosystem, home = ""):
 		super(EcosystemDataManager, self).__init__()
 		self.home = home
@@ -14,24 +32,34 @@ class EcosystemDataManager(object):
 		self.reset()
 		self.load("PackagesHasIndex")
 
+	"""
+	This function is internally called for creating requested 'ecosystem' if
+	its folder does not exists.
+	"""
 	def initialize(self):
 		try:
 			os.makedirs(self.getPath())
 		except Exception as e:
 			pass
 
+	"""
+	This function is internally used for initialize/reset ecosystem attributes.
+	Each attribute contains the file array JSON content that stores ecosystem attribute.
+	Unused attributes are not loaded and once a attribute is loaded from file, variable
+	content is never cleaned.
+	"""
 	def reset(self):
 		self.attributes = {}
 		self.attributes["PackagesHasIndex"] = []
 		self.attributes["PackagesHasMap"] = {}
 		self.attributes["PackagesHasVersions"] = []
-		self.attributes["PackagesHasOcurrences"] = []
+		self.attributes["PackagesHasOccurrences"] = []
 		self.attributes["PackagesHasTags"] = []
 		self.attributes["PackagesHasRepository"] = []
 
 		self.attributes["VersionsHasIndex"] = []
 		self.attributes["VersionsHasPackage"] = []
-		self.attributes["VersionsHasOcurrences"] = []
+		self.attributes["VersionsHasOccurrences"] = []
 		self.attributes["VersionsHasGlobalRegularityRate"] = []
 		self.attributes["VersionsHasGlobalRegularityMean"] = []
 		self.attributes["VersionsHasLocalRegularityRate"] = []
@@ -46,15 +74,26 @@ class EcosystemDataManager(object):
 		self.attributes["LicensesHasGroup"] = []
 
 		self.attributes["VersionsHasDependencies"] = []
-		self.attributes["DependenciesAreIregular"] = []
+		self.attributes["DependenciesAreIrregular"] = []
 		self.attributes["DependenciesHasDelimiter"] = []
 		self.attributes["DependenciesHasRequirements"] = []
 
+	"""
+	getPath function abstracts the path and extension for an attribute
+	if nor filename and extension is informed, getPath will return
+	ecosystem home folder. Internal propouse.
+	"""
 	def getPath(self, filename = "", extension = ""):
 		if extension:
 			extension = "." + extension
 		return os.path.join(self.home, self.ecosystem, filename + extension)
 
+	"""
+	save function is internally used to persist attribute into JSON file.
+	If file does not exist, file is created.
+	If 'attribute' is not informed, all loaded attributes will be persisted
+
+	"""
 	def save(self, attribute = None):
 		if attribute:
 			with open(self.getPath(attribute, "json"), "w") as file:
@@ -64,6 +103,11 @@ class EcosystemDataManager(object):
 				if self.attributes[attribute]:
 					self.save(attribute)
 
+	"""
+	load function is internally used for load from disk JSON array attribute
+	field. If file does not exist, it will be created.
+	If 'attribute' is not informed, all attributes will be loaded.
+	"""
 	def load(self, attribute = None):
 		if attribute:
 			try:
@@ -74,12 +118,18 @@ class EcosystemDataManager(object):
 		else:
 			for attribute in self.attributes:
 				self.load(attribute)
-
+	"""
+	get function is used for get an attribute by loading if not loaded
+	then return if already loaded.
+	"""
 	def get(self, attribute):
 		if not self.attributes[attribute]:
 			self.load(attribute)
 		return self.attributes[attribute]
 
+	"""
+	getPackageByIndex is internally used to construct an Object
+	"""
 	def getPackageByIndex(self, index):
 		if index < 0:
 			raise Exception
@@ -88,6 +138,10 @@ class EcosystemDataManager(object):
 		except Exception as e:
 			raise e
 
+	"""
+	addPackage insert a package by name into ecosystemDataManager allocating spaces to attributes
+	changes are not persisted untill commit (save) operation are explicitly invoked
+	"""
 	def addPackage(self, name):
 		packagesHasMap = self.get("PackagesHasMap")
 		try:
@@ -95,19 +149,22 @@ class EcosystemDataManager(object):
 		except Exception as e:
 			packagesHasIndex = self.get("PackagesHasIndex")
 			packagesHasVersions = self.get("PackagesHasVersions")
-			packagesHasOcurrences = self.get("PackagesHasOcurrences")
+			packagesHasOccurrences = self.get("PackagesHasOccurrences")
 			packagesHasRepository = self.get("PackagesHasRepository")
 			packagesHasTags = self.get("PackagesHasTags")
 
 			packagesHasMap[name] = len(packagesHasIndex)
 			packagesHasIndex.append(name)
 			packagesHasVersions.append({})
-			packagesHasOcurrences.append([])
+			packagesHasOccurrences.append([])
 			packagesHasRepository.append(None)
 			packagesHasTags.append([])
 		finally:
 			return self.getPackageByIndex(packagesHasMap[name])
 
+	"""
+	getPackage construct a Package object from ecosystem data
+	"""
 	def getPackage(self, name):
 		packagesHasMap = self.get("PackagesHasMap")
 		try:
@@ -115,35 +172,63 @@ class EcosystemDataManager(object):
 		except Exception as e:
 			raise e
 
+	"""
+	getPackages constructs and return a list with all Package objects in the ecosystem
+	"""
 	def getPackages(self):
 		return [self.getPackage(package) for package in self.get("PackagesHasIndex")]
 
+	"""
+	constructs and return a list with all Version objects in the ecosystem
+	"""
 	def getVersions(self):
 		versions = []
 		for package in self.getPackages():
 			versions += package.getVersions()
 		return versions
 
+	"""
+	returns the Version object given an package@version formed string
+	"""
+	def getVersion(self, version):
+		split = version.split("@")
+		return self.getPackage(split[0]).getVersion(split[1])
+
+	"""
+	constructs and return a list with all Dependency objects in the ecosystem
+	"""
 	def getDependencies(self):
 		dependencies = []
 		for version in self.getVersions():
 			dependencies += version.getDependencies()
 		return dependencies
 
+	"""
+	return an list of Versions ordered by version ocurrence length
+	size can be informed to trucate the list
+	"""
 	def getMostPopularVersions(self, size = None):
-		popularity = {version: len(version.getOcurrences()) for version in self.getVersions()}
+		popularity = {version: len(version.getOccurrences()) for version in self.getVersions()}
 		popularity = sorted(popularity.items(), key = lambda x: x[1], reverse = True)
 		if size:
 			popularity = popularity[:size]
 		return [entry[0] for entry in popularity]
 
+	"""
+	return an list of Packages ordered by package ocurrence length
+	size can be informed to trucate the list
+	"""
 	def getMostPopularPackages(self, size = None):
-		popularity = {package: len(package.getOcurrences()) for package in self.getPackages()}
+		popularity = {package: len(package.getOccurrences()) for package in self.getPackages()}
 		popularity = sorted(popularity.items(), key = lambda x: x[1], reverse = True)
 		if size:
 			popularity = popularity[:size]
 		return [entry[0] for entry in popularity]
 
+	
+	"""
+	for each dependency, evaluate edges by analysing dependency licenses with choosen groups
+	"""
 	def evaluateEdges(self):
 		packages = self.getPackages()
 		size = len(packages)
@@ -152,8 +237,8 @@ class EcosystemDataManager(object):
 			for version in package.getVersions():
 				for dependency in version.getDependencies():
 					try:
-						iregular = dependency.evaluate()
-						if iregular:
+						irregular = dependency.evaluate()
+						if irregular:
 							print("[" + str(evaluated) + "/" + str(size) + "]", dependency)
 					except Exception as e:
 						pass
@@ -162,26 +247,36 @@ class EcosystemDataManager(object):
 					print("[" + str(evaluated) + "/" + str(size) + "]", localRegularityRate, version)
 			evaluated += 1
 
+	"""
+	evaluatePackages considering package graph order. This functions does not alter attributes
+	values. Istead, returns a dictionary of irregular packages. A package licenses are a set of
+	the union of the set licenses of each version of the package.
+	"""
 	def evaluatePackages(self):
 		packages = self.getPackages()
 		size = len(packages)
 		evaluated = 0
-		iregularPackages = {}
+		irregularPackages = {}
 		for package in packages:
 			for packageDependency in package.getPackagesDependencies():
 				if packageDependency.getLatestVersion().getDatetime():
-					iregular = package.evaluate(packageDependency)
-					if iregular:
-						self.addDictKey(iregularPackages, package)
+					irregular = package.evaluate(packageDependency)
+					if irregular:
+						self.addDictKey(irregularPackages, package)
 						print("[" + str(evaluated) + "/" + str(size) + "]", package, "-->", packageDependency)
 						break
 			evaluated += 1
 		try:
-			iregularPackages[package] /= len(package.getPackagesDependencies())
+			irregularPackages[package] /= len(package.getPackagesDependencies())
 		except Exception as e:
 			pass
-		return iregularPackages
+		return irregularPackages
 
+	"""
+	This function calculates and change attributes of each GlobalRegularityRate of each version.
+	GlobalRegularityRate is given by the product of LocalRegularityRate of the version (vertex)
+	and GlobalRegularityRate of each dependency (adjacency).
+	"""
 	def calculateGlobalRegularityRate(self):
 		packages = self.getPackages()
 		evaluated = 0
@@ -194,6 +289,10 @@ class EcosystemDataManager(object):
 					print("[" + str(evaluated) + "/" + str(size) + "]", version, "\t", "{" + str(len(version.getDependencies())) + "}", "\t", localRegularityRate, "->", globalRegularityRate)
 			evaluated += 1
 
+	"""
+	This function calculates and change attributes GlobalRegularityMean of each version.
+	GlobalRegularityMean is given by the average between
+	"""
 	def calculateGlobalRegularityMean(self):
 		packages = self.getPackages()
 		evaluated = 0
@@ -206,6 +305,12 @@ class EcosystemDataManager(object):
 					print("[" + str(evaluated) + "/" + str(size) + "]", version, "\t", "{" + str(len(version.getDependencies())) + "}", "\t", localRegularityRate, "->", globalRegularityMean)
 			evaluated += 1
 
+	"""
+	this function is internally used to calculate
+	and stores the parents size of a given version.
+	start parameter manages the recursion and avoid cycles.
+	versionIndex is a int index of the version list.
+	"""
 	def calculateParentsSize(self, versionIndex, start = True):
 		if start:
 			self.visited = []
@@ -216,21 +321,30 @@ class EcosystemDataManager(object):
 		versionsHasContextSize = self.get("VersionsHasContextSize")
 		if versionsHasContextSize[versionIndex]:
 			return versionsHasContextSize[versionIndex]
-		versionsHasOcurrences = self.get("VersionsHasOcurrences")
-		parentsIndexes = versionsHasOcurrences[versionIndex]
+		versionsHasOccurrences = self.get("VersionsHasOccurrences")
+		parentsIndexes = versionsHasOccurrences[versionIndex]
 		parentsSize = len(parentsIndexes)
 		for parentIndex in parentsIndexes:
 			parentsSize += self.calculateParentsSize(parentIndex, False)
 		versionsHasContextSize[versionIndex] = parentsSize
 		return parentsSize
 
+	"""
+	this function calculates and stores the parents size of each version
+	"""
 	def calculateContextSize(self):
-		versionsHasOcurrences = self.get("VersionsHasOcurrences")
-		size = len(versionsHasOcurrences)
-		for i in range(len(versionsHasOcurrences)):
+		versionsHasOccurrences = self.get("VersionsHasOccurrences")
+		size = len(versionsHasOccurrences)
+		for i in range(len(versionsHasOccurrences)):
 			contextSize = self.calculateParentsSize(i)
 			print("[" + str(i) + "/" + str(size) + "]", contextSize)
 
+	"""
+	this function is internally used to calculate
+	but not store the height of a given version.
+	start parameter manages the recursion and avoid cycles.
+	versionIndex is a int index of the version list.
+	"""
 	def calculateHeight(self, versionIndex, start = True):
 		if start:
 			self.visited = []
@@ -255,6 +369,9 @@ class EcosystemDataManager(object):
 		self.heights[versionIndex] = height
 		return height
 
+	"""
+	this function calculates and prints the height of each version
+	"""
 	def calculateAllHeight(self):
 		self.heights = {}
 		versionsHasDependencies = self.get("VersionsHasDependencies")
@@ -263,6 +380,10 @@ class EcosystemDataManager(object):
 			height = self.calculateHeight(i)
 			print("[" + str(i) + "/" + str(size) + "]", height)
 
+	"""
+	calculates localRate, GlobalRate and GlobalMean of each version
+	and stores. EcosystemDataManager.save() must be invoked.
+	"""
 	def calculateGlobalRegularityMetrics(self):
 		packages = self.getPackages()
 		evaluated = 0
@@ -276,40 +397,65 @@ class EcosystemDataManager(object):
 					print("[" + str(evaluated) + "/" + str(size) + "]", version, "\t", "{" + str(len(version.getDependencies())) + "}", "\t", localRegularityRate, "->", globalRegularityRate, "<-", globalRegularityMean)
 			evaluated += 1
 
-	def getIregularPackages(self):
-		return [package for package in self.getPackages() if package.isIregular()]
+	"""
+	return a list of packages marked with irregular by evaluateEdges function.
+	"""
+	def getIrregularPackages(self):
+		return [package for package in self.getPackages() if package.isIrregular()]
 
+	"""
+	returns the list of packages not marked as irregular.
+	Packages that couldnt be evaluated also are returned.
+	"""
 	def getRegularPackages(self):
 		packages = self.getPackages()
-		iregularPackages = self.getIregularPackages()
-		return list(set(packages) - set(iregularPackages))
+		irregularPackages = self.getIrregularPackages()
+		return list(set(packages) - set(irregularPackages))
 
-	def getIregularVersions(self):
-		packages = self.getIregularPackages()
-		iregularVersions = []
+	"""
+	returns the list of versions marked as irregular.
+	"""
+	def getIrregularVersions(self):
+		packages = self.getIrregularPackages()
+		irregularVersions = []
 		for package in packages:
-			iregularVersions += package.getIregularVersions()
-		return iregularVersions
+			irregularVersions += package.getIrregularVersions()
+		return irregularVersions
 
+	"""
+	retuns the list of versions not marked as irregular.
+	"""
 	def getRegularVersions(self):
 		versions = self.getVersions()
-		iregularVersions = self.getIregularVersions()
-		return list(set(versions) - set(iregularVersions))
+		irregularVersions = self.getIrregularVersions()
+		return list(set(versions) - set(irregularVersions))
 
-	def getIregularDependencies(self):
-		iregularDependencies = []
+	"""
+	returns the list of irregular dependencies
+	"""
+	def getIrregularDependencies(self):
+		irregularDependencies = []
 		for version in self.getVersions():
-			iregularDependencies += version.getIregularDependencies()
-		return iregularDependencies
+			irregularDependencies += version.getIrregularDependencies()
+		return irregularDependencies
 
+	"""
+	returns the list of regular dependencies
+	"""
 	def getRegularDependencies(self):
 		dependencies = self.getDependencies()
-		iregularDependencies = self.getIregularDependencies()
-		return list(set(dependencies) - set(iregularDependencies))
+		irregularDependencies = self.getIrregularDependencies()
+		return list(set(dependencies) - set(irregularDependencies))
 
+	"""
+	returns the list of affected packages. irregular packages are not put on the list.
+	"""
 	def getAffectedPackages(self):
 		return [package for package in self.getPackages() if package.isAffected()]
 
+	"""
+	returns the list of distinct licenses used on the ecosystem.
+	"""
 	def getLicenses(self):
 		versionsHasLicenses = self.get("VersionsHasLicenses")
 		licenses = [license for version in versionsHasLicenses for license in version]
@@ -317,6 +463,10 @@ class EcosystemDataManager(object):
 		licenses = list(licenses)
 		return licenses
 	
+	"""
+	returns the list of distinct licenses ordered by descending usage.
+	size parameter can be informed to truncate the list.
+	"""
 	def getMostPopularLicenses(self, size = None):
 		distribution = {group.value: {} for group in Group}
 		versionsHasLicenses = self.get("VersionsHasLicenses")
@@ -333,12 +483,15 @@ class EcosystemDataManager(object):
 				distribution[group] = distribution[group][:size]
 		return distribution
 
+	"""
+	calculates and prints the proportion of irregular and affected packages and versions.
+	"""
 	def proportion(self):
-		iregularPackages = 0
+		irregularPackages = 0
 		affectedPackages = 0
-		iregularVersions = 0
+		irregularVersions = 0
 		affectedVersions = 0
-		iregularDependencies = 0
+		irregularDependencies = 0
 		packages = self.getPackages()
 		packagesSize = 0
 		versionsSize = 0
@@ -361,34 +514,37 @@ class EcosystemDataManager(object):
 					if not dependency.getInVersion().getDatetime():
 						continue
 					dependenciesSize += 1
-					if dependency.isIregular():
-						iregularDependencies += 1
-				if version.isIregular():
-					iregularVersions += 1
+					if dependency.isIrregular():
+						irregularDependencies += 1
+				if version.isIrregular():
+					irregularVersions += 1
 				if version.isAffected():
 					affectedVersions += 1
-			if package.isIregular():
-				iregularPackages += 1
+			if package.isIrregular():
+				irregularPackages += 1
 			if package.isAffected():
 				affectedPackages += 1
 		print(self)
 		print()
 		print("packages", packagesSize)
-		print("iregularPackages", iregularPackages)
-		print("proportion", iregularPackages / packagesSize)
+		print("irregularPackages", irregularPackages)
+		print("proportion", irregularPackages / packagesSize)
 		print("affectedPackages", affectedPackages)
 		print("proportion", affectedPackages / packagesSize)
 		print()
 		print("versions", versionsSize)
-		print("iregularVersions", iregularVersions)
-		print("proportion", iregularVersions / versionsSize)
+		print("irregularVersions", irregularVersions)
+		print("proportion", irregularVersions / versionsSize)
 		print("affectedVersions", affectedVersions)
 		print("proportion", affectedVersions / versionsSize)
 		print()
 		print("dependencies", dependenciesSize)
-		print("iregularDependencies", iregularDependencies)
-		print("proportion", iregularDependencies / dependenciesSize)
+		print("irregularDependencies", irregularDependencies)
+		print("proportion", irregularDependencies / dependenciesSize)
 
+	"""
+	calculates and returns a dictionary with the occurrences of each license group
+	"""
 	def groupsProportion(self):
 		versionsHasLicenses = self.get("LicensesHasGroup")
 		versionsHasDatetime = self.get("VersionsHasDatetime")
@@ -404,6 +560,12 @@ class EcosystemDataManager(object):
 				self.addDictKey(distribution, group)
 		return distribution
 
+	"""
+	calculates and returns a dictionary with the distribution of the number
+	of licenses per version.
+	a dictionary key is the number of licenses and their value is the number
+	of versions that hast this number of licenses associated.
+	"""
 	def licensesProportion(self):
 		versionsHasLicenses = self.get("VersionsHasLicenses")
 		versionsHasDatetime = self.get("VersionsHasDatetime")
@@ -417,6 +579,11 @@ class EcosystemDataManager(object):
 			self.addDictKey(distribution, size)
 		return distribution
 
+	"""
+	returns an adjacency matrix that relates groups and quantifies the number
+	of edges between license groups. In case of a list of licenses, a cartesian
+	product are considered and quantified.
+	"""
 	def groupsDependencies(self):
 		adjacencies = [[0 for groupTo in Group] for groupFrom in Group]
 		versionsHasDependencies = self.get("VersionsHasDependencies")
@@ -447,6 +614,11 @@ class EcosystemDataManager(object):
 							adjacencies[groupFrom][groupTo] += 1
 		return adjacencies
 
+	"""
+	returns an adjacency matrix that relates groups and quantifies the pairwise evolution
+	of licenses between versions of a package. In case of a list of licenses, a cartesian
+	product are considered and quantified.
+	"""
 	def groupsEvolution(self):
 		adjacencies = [[0 for groupTo in Group] for groupFrom in Group]
 		for package in self.getPackages():
@@ -475,11 +647,18 @@ class EcosystemDataManager(object):
 							adjacencies[licenseFrom.getGroup().value][licenseTo.getGroup().value] += 1
 		return adjacencies
 
+	"""
+	this function is internally used for group both NONE and UNDEFINED group as one.
+	"""
 	def resolveGroup(self, group):
 		if group == Group.NONE or group == Group.UNDEFINED:
 			return Group.NONE
 		return group
 
+	"""
+	returns a dictionary adjacency matrix of the most frequent patterns of license groups evolution.
+	size can be informed, so each adjacency dicitionary patterns will be truncated.
+	"""
 	def extractEvolutionPatterns(self, size = None):
 		adjacencies = {groupFrom.name: {groupTo.name: {} for groupTo in Group} for groupFrom in Group}
 		for package in self.getPackages():
@@ -516,49 +695,86 @@ class EcosystemDataManager(object):
 					adjacencies[groupFrom][groupTo] = adjacencies[groupFrom][groupTo][:size]
 		return adjacencies
 
+	"""
+	this function is internally used to increment dicionary key.
+	if the key are not in the dictionary keys, key will be initialized.
+	"""
 	def addDictKey(self, dictionary, key):
 		try:
 			dictionary[key] += 1
 		except Exception as e:
 			dictionary[key] = 1
+		return dictionary
 
-	def getMostPopularIregularPackages(self, size = None):
-		iregularPackages = [package for package in self.getMostPopularPackages() if package.isIregular()]
+	"""
+	returns the most popular packages that are irregular.
+	popularity is measured by getMostPopularPackages() funcition.
+	"""
+	def getMostPopularIrregularPackages(self, size = None):
+		irregularPackages = [package for package in self.getMostPopularPackages() if package.isIrregular()]
 		if size:
-			iregularPackages = iregularPackages[:size]
-		return iregularPackages
+			irregularPackages = irregularPackages[:size]
+		return irregularPackages
 
+	"""
+	clone licenses on a originalLicenses file.
+	this funcition already saves data on disk.
+	"""
 	def backupLicenses(self):
 		self.attributes["VersionsHasOriginalLicenses"] = self.get("VersionsHasLicenses")
 		self.save("VersionsHasOriginalLicenses")
 
-	def evaluateInLicenses(self, inLicenses):
-		if not inLicenses:
+	"""
+	this function is shared to Package.evaluate() and Dependency.evaluate() functions.
+	inLicenses must be informed as a list of licenses objects and
+	groups can be informed as a list of groups that gonna be threated as irregular
+	dependency ones.
+	"""
+	def evaluateInLicenses(self, inLicenses, groups = [Group.NONE, Group.UNDEFINED, Group.UNAPPROVED]):
+		if Group.NONE in groups and not inLicenses:
 			return True
 		for inLicense in inLicenses:
-			if inLicense.getGroup() == Group.UNDEFINED:
+			if Group.UNDEFINED in groups and inLicense.getGroup() == Group.UNDEFINED:
 				return True
-			if inLicense.getGroup() == Group.UNAPPROVED:
+			if Group.UNAPPROVED in groups and inLicense.getGroup() == Group.UNAPPROVED:
 				return True
-			# if inLicense.getGroup() == Group.MISUSED:
-			# 	return True
+			if Group.MISUSED in groups and inLicense.getGroup() == Group.MISUSED:
+				return True
 		return False
 
+	"""
+	returns the name of ecosystem, same as folder that contains their files.
+	"""
 	def getName(self):
 		return self.ecosystem
 
+	"""
+	returns the LRR metric list
+	"""
 	def getLocalRegularityRates(self):
 		return self.get("VersionsHasLocalRegularityRate")
 
+	"""
+	returns the GRR metric list
+	"""
 	def getGlobalRegularityRates(self):
 		return self.get("VersionsHasGlobalRegularityRate")
 
+	"""
+	returns the GRM metric list
+	"""
 	def getGlobalRegularityMeans(self):
 		return self.get("VersionsHasGlobalRegularityMean")
 
+	"""
+	returns the licenses matrix
+	"""
 	def getLicensesPerVersion(self):
 		return self.get("VersionsHasLicenses")
 
+	"""
+	override print function
+	"""
 	def __str__(self):
 		return self.ecosystem + " at " + self.home
 

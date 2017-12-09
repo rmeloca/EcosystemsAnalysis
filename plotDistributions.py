@@ -12,7 +12,7 @@ def plotHistogram(vector, name_histogram):
 		x = vector,
 		xbins=dict(
 			start=1,
-			end=50,
+			# end=50,
 			size=0.5
 		)
 	)
@@ -27,7 +27,7 @@ def plotHistograms(vectors, name_histogram):
 			name = vector,
 			xbins=dict(
 				start=0,
-				end=2,
+				# end=2,
 				size=0.1,
 			)
 		)
@@ -123,29 +123,20 @@ def plotPackageHistory(package, chartName):
 	setName = ["Local Regularity Rate", "Global Regularity Rate", "Global Regularity Mean"]
 	plotMultScatterChart(setName, versionsName, [listLocalRegularityRate, listGlobalRegularityRate, listGlobalRegularityMean], chartName)
 
-def plotNumberDependenciesBetweenPackages(ecosystemDataManager):
-	packages = ecosystemDataManager.getPackages()
-	lenVersionsDependencies = []
-	for package in packages:
-		for version in package.getVersions():		
-			lenVersionDependencies = len(version.getDependencies())
-			lenVersionsDependencies.append(lenVersionDependencies)
-	return lenVersionsDependencies
-
 def popularVersionHistory(package, chartName):
-	versionsOcurrences = []
+	versionsOccurrences = []
 	localRegularityRate = []
 	globalRegularityRate = []
 	globalRegularityMean = []
 	nameVersions = []
 	for version in package.getHistory():
 		if version.getDatetime():
-			versionsOcurrences.append(len(version.getOcurrences()))
+			versionsOccurrences.append(len(version.getOccurrences()))
 			nameVersions.append("version = " + version.getName())
 			localRegularityRate.append(version.getLocalRegularityRate())
 			globalRegularityRate.append(version.getGlobalRegularityRate())
 			globalRegularityMean.append(version.getGlobalRegularityMean())
-	x = [i for i in range(len(versionsOcurrences))]
+	x = [i for i in range(len(versionsOccurrences))]
 	trace0 = go.Scatter(
     	x=x,
     	y=localRegularityRate,
@@ -153,7 +144,7 @@ def popularVersionHistory(package, chartName):
 		text=nameVersions,
     	mode='markers',
     	marker=dict(
-    	    size = versionsOcurrences,
+    	    size = versionsOccurrences,
 			sizemode ='area',
     		)
 	)
@@ -164,7 +155,7 @@ def popularVersionHistory(package, chartName):
 		text=nameVersions,
     	mode='markers',
     	marker=dict(
-    	    size = versionsOcurrences,
+    	    size = versionsOccurrences,
 			sizemode ='area'
     		)
 	)
@@ -175,7 +166,7 @@ def popularVersionHistory(package, chartName):
 		text=nameVersions,
     	mode='markers',
     	marker=dict(
-    	    size = versionsOcurrences,
+    	    size = versionsOccurrences,
 			sizemode ='area'
     		)
 	)
@@ -208,7 +199,7 @@ if __name__ == '__main__':
 		pass
 	ecosystem = sys.argv[1]
 	ecosystemDataManager = EcosystemDataManager(ecosystem)
-	iregularPackages = None
+	irregularPackages = None
 	if "package-size" in options:
 		packageSizeDistribution = [len(package) for package in ecosystemDataManager.getPackages()]
 		plotBoxPlot(packageSizeDistribution, "visualizations/" + ecosystem + '_boxplot_packageSizeDistribution.html')
@@ -218,17 +209,18 @@ if __name__ == '__main__':
 		if not mostPopularSize:
 			print("<most-popular-size> not provided. Default size will be used")
 			mostPopularSize = 10
-		iregularPackages = ecosystemDataManager.getMostPopularIregularPackages(mostPopularSize)
-		iregularPackagesHasLocalRegularityRates = {iregularPackage.getName(): iregularPackage.getLocalRegularityRates() for iregularPackage in iregularPackages}
+		irregularPackages = ecosystemDataManager.getMostPopularIrregularPackages(mostPopularSize)
+		irregularPackagesHasLocalRegularityRates = {irregularPackage.getName(): irregularPackage.getLocalRegularityRates() for irregularPackage in irregularPackages}
 		try: 
-			plotMultBoxPlot(iregularPackagesHasLocalRegularityRates, "visualizations/" + ecosystem + '_boxplot_regularityRateVersions.html')
-			plotHistograms(iregularPackagesHasLocalRegularityRates, "visualizations/" + ecosystem + '_histogram_regularityRateVersions.html')
+			plotMultBoxPlot(irregularPackagesHasLocalRegularityRates, "visualizations/" + ecosystem + '_boxplot_regularityRateVersions.html')
+			plotHistograms(irregularPackagesHasLocalRegularityRates, "visualizations/" + ecosystem + '_histogram_regularityRateVersions.html')
 		except Exception as e:
 			pass
 	if "licenses" in options:
 		licensePerVersion = [len(licenses) for licenses in ecosystemDataManager.getLicensesPerVersion()]
-		plotHistogram(licensePerVersion, "visualizations/" + ecosystem + '_boxplot_licensesPerVersion.html')
-		licenses = ecosystemDataManager.getMostPopularLicenses(25, unknown = True)
+		plotBoxPlot(licensePerVersion, "visualizations/" + ecosystem + '_boxplot_licensesPerVersion.html')
+		licenses = ecosystemDataManager.getMostPopularLicenses(25)
+		licenses = licenses[4]
 		plotMostPopularLicenses([str(k) for k, v in licenses], [v for k, v in licenses], "visualizations/" + ecosystem + "_bars_mostPopularLicenses.html")
 		plotMostPopularLicenses([str(k) for k, v in licenses], [math.log10(v) for k, v in licenses], "visualizations/" + ecosystem + "_bars_log10_mostPopularLicenses.html")
 	if "metrics" in options:
@@ -242,14 +234,17 @@ if __name__ == '__main__':
 		if package:
 			package = ecosystemDataManager.getPackage(package)
 		else:
-			print("<package> not provided. Most popular and iregular package will be used to plot their history")
-			if not iregularPackages:
-				iregularPackages = ecosystemDataManager.getMostPopularIregularPackages(1)
+			print("<package> not provided. Most popular and irregular package will be used to plot their history")
+			if not irregularPackages:
+				irregularPackages = ecosystemDataManager.getMostPopularIrregularPackages(1)
 			try:
-				package = iregularPackages[0]
+				package = irregularPackages[0]
 				plotPackageHistory(package, "visualizations/" + ecosystem + "_" + package.getName() + '_regularity_rate_bars.html')
 				popularVersionHistory(package, "visualizations/" + ecosystem + "_" + package.getName() + '_popular_version.html')
 			except Exception as e:
 				pass
 	if "number-dependencies" in options:
-		plotBoxPlot(plotNumberDependenciesBetweenPackages(ecosystemDataManager), "visualizations/" + ecosystem+"_number_dependencies_between_packages")
+		versionsHasDependencies = [len(version.getDependencies()) for package in ecosystemDataManager.getPackages() for version in package.getVersions()]
+		plotBoxPlot(versionsHasDependencies, "visualizations/" + ecosystem+"_dependencies_between_packages")
+	if "groups" in options:
+		plotMultBarsChart([1,2], [2,3], [3], "teste.html")

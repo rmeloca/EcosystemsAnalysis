@@ -10,14 +10,14 @@ def generate(version):
 	VISITED.append(version)
 	if not version.getDatetime():
 		return
-	color = "red" if version.isIregular() == True else "orange" if version.isAffected() == True else "blue"
+	color = "red" if version.isIrregular() == True else "orange" if version.isAffected() == True else "blue"
 	licenses = ", ".join([str(l) for l in version.getLicenses()])
 	if not licenses:
 		licenses = "none"
 	FILE.write("\"" + str(version) + "\\n" + licenses + "\"" + "[color="+color+"]" + ";")
 	for d in version.getDependencies():
 		inV = d.getInVersion()
-		if inV.isAffected() == False and inV.isIregular() == False and d.isIregular() == False:
+		if inV.isAffected() == False and inV.isIrregular() == False and d.isIrregular() == False:
 			continue
 		outV = d.getOutVersion()
 		outL = ", ".join([str(l) for l in outV.getLicenses()])
@@ -26,7 +26,7 @@ def generate(version):
 		inL = ", ".join([str(l) for l in inV.getLicenses()])
 		if not inL:
 			inL = "none"
-		color = "red" if d.isIregular() == True else "green" if d.isIregular() == False else "gray"
+		color = "red" if d.isIrregular() == True else "green" if d.isIrregular() == False else "gray"
 		FILE.write("\"" + str(outV) + "\\n" + outL + "\"" + "->" + "\"" + str(inV) + "\\n" + inL + "\"" + "[color=" + color + "]" + ";")
 		generate(inV)
 

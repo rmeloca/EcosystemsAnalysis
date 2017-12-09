@@ -3,19 +3,19 @@ from ecosystemDataManager.ecosystemDataManager import EcosystemDataManager
 from ecosystemDataManager.package import Package
 from ecosystemDataManager.version import Version
 from ecosystemDataManager.dependency import Dependency
-from ecosystemDataManager.ocurrence import Ocurrence
+from ecosystemDataManager.occurrence import Occurrence
 
 PARENT_VERTICES = []
-OCURRENCE_EDGES = []
+OCCURRENCE_EDGES = []
 DESCENDENT_VERTICES = []
 DEPENDENCY_EDGES = []
 FILE = None
 
-def getOcurrences(entity):
+def getOccurrences(entity):
 	if type(entity) == Version:
-		return entity.getOcurrences()
+		return entity.getOccurrences()
 	elif type(entity) == Package:
-		return entity.getPackagesOcurrences()
+		return entity.getPackagesOccurrences()
 	else:
 		raise Exception
 
@@ -28,20 +28,20 @@ def getDependencies(entity):
 		raise Exception
 
 def getInVersion(entity):
-	if type(entity) == Dependency or type(entity) == Ocurrence:
+	if type(entity) == Dependency or type(entity) == Occurrence:
 		return entity.getInVersion()
 	elif type(entity) == Package:
 		return entity
 	else:
 		raise Exception
 
-def generateOcurrences(entity):
+def generateOccurrences(entity):
 	if entity in PARENT_VERTICES:
 		return
 	PARENT_VERTICES.append(entity)
-	for ocurrence in getOcurrences(entity):
-		OCURRENCE_EDGES.append((getInVersion(ocurrence), entity))
-		generateOcurrences(getInVersion(ocurrence))
+	for occurrence in getOccurrences(entity):
+		OCCURRENCE_EDGES.append((getInVersion(occurrence), entity))
+		generateOccurrences(getInVersion(occurrence))
 
 def generateDependencies(entity):
 	if entity in DESCENDENT_VERTICES:
@@ -57,7 +57,7 @@ def getAttributes(entity):
 	if type(entity) == Version:
 		globalRegularityRate = entity.getGlobalRegularityRate()
 	else:
-		globalRegularityRate = 0 if entity.isIregular() else 1
+		globalRegularityRate = 0 if entity.isIrregular() else 1
 	if (globalRegularityRate == 0):
 		r = 249
 		g = 22
@@ -89,7 +89,7 @@ def getAttributes(entity):
 
 def generateGraph(entity):
 	generateDependencies(entity)
-	generateOcurrences(entity)
+	generateOccurrences(entity)
 	FILE.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
 	FILE.write("<gexf xmlns=\"http://www.gexf.net/1.2draft\" xmlns:viz=\"http://www.gexf.net/1.1draft/viz\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.gexf.net/1.2draft http://www.gexf.net/1.2draft/gexf.xsd\" version=\"1.2\">")
 	FILE.write("<graph>")
@@ -112,11 +112,11 @@ def generateGraph(entity):
 	FILE.write("</nodes>")
 	FILE.write("<edges>")
 	i = 0
-	for edge in OCURRENCE_EDGES:
+	for edge in OCCURRENCE_EDGES:
 		r = 249
 		g = 22
 		b = 22
-		if (edge[1].isIregular()):
+		if (edge[1].isIrregular()):
 			r = 49
 			g = 249
 			b = 22
@@ -126,7 +126,7 @@ def generateGraph(entity):
 		r = 249
 		g = 22
 		b = 22
-		if (edge[0].isIregular()):
+		if (edge[0].isIrregular()):
 			r = 49
 			g = 249
 			b = 22

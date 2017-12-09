@@ -19,7 +19,7 @@ if __name__ == '__main__':
 	except Exception as e:
 		file = open(file, "w")
 		file = csv.writer(file, delimiter = ';')
-		file.writerow(["ecosystem","package","version","licenses","dependencies","ocurrences","parents","downloads","localrate","globalrate","globalmean"])
+		file.writerow(["ecosystem","package","version","licenses","dependencies","occurrences","parents","downloads","localrate","globalrate","globalmean","email","author"])
 		print("file not loaded. initialized.")
 	ecosystem = sys.argv[1]
 	ecosystemDataManager = EcosystemDataManager(ecosystem)
@@ -27,4 +27,4 @@ if __name__ == '__main__':
 		for version in package.getVersions():
 			if not version.getDatetime():
 				continue
-			file.writerow([ecosystem,package,version,len(version.getLicenses()),len(version.getDependencies()),len(version.getOcurrences()),version.getContextSize(),version.getDownloads(),version.getLocalRegularityRate(),version.getGlobalRegularityRate(),version.getGlobalRegularityMean()])
+			file.writerow([ecosystem,package,version,len(version.getLicenses()),len(version.getDependencies()),len(version.getOccurrences()),version.getContextSize(),version.getDownloads(),version.getLocalRegularityRate(),version.getGlobalRegularityRate(),version.getGlobalRegularityMean(),version.getEmail(),version.getAuthor()])

@@ -23,6 +23,7 @@ class Dependency(object):
 	def set(self, attribute, value):
 		table = self.ecosystemDataManager.get(attribute)
 		table[self.outVersion.getIndex()][self.index] = value
+		return self
 
 	def get(self, attribute):
 		table = self.ecosystemDataManager.get(attribute)
@@ -42,21 +43,21 @@ class Dependency(object):
 	def getRequirements(self):
 		return self.get("DependenciesHasRequirements")
 
-	def isIregular(self):
-		return self.get("DependenciesAreIregular") == True
+	def isIrregular(self):
+		return self.get("DependenciesAreIrregular") == True
 
 	def isRegular(self):
-		return self.get("DependenciesAreIregular") == False
+		return self.get("DependenciesAreIrregular") == False
 
 	def evaluate(self):
 		if not self.inVersion.getDatetime():
-			iregular = None
-			self.set("DependenciesAreIregular", iregular)
+			irregular = None
+			self.set("DependenciesAreIrregular", irregular)
 			raise Exception
 		inLicenses = self.inVersion.getLicenses()
-		iregular = self.ecosystemDataManager.evaluateInLicenses(inLicenses)
-		self.set("DependenciesAreIregular", iregular)
-		return iregular
+		irregular = self.ecosystemDataManager.evaluateInLicenses(inLicenses)
+		self.set("DependenciesAreIrregular", irregular)
+		return irregular
 
 	def __hash__(self):
 		return self.index

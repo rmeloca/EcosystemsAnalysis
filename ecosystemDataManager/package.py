@@ -19,6 +19,7 @@ class Package(object):
 	def set(self, attribute, value):
 		table = self.ecosystemDataManager.get(attribute)
 		table[self.index] = value
+		return self
 
 	def get(self, attribute):
 		table = self.ecosystemDataManager.get(attribute)
@@ -77,8 +78,8 @@ class Package(object):
 			self.ecosystemDataManager.get("VersionsHasLicenses").append([])
 			self.ecosystemDataManager.get("LicensesHasGroup").append([])
 			self.ecosystemDataManager.get("VersionsHasDependencies").append([])
-			self.ecosystemDataManager.get("VersionsHasOcurrences").append([])
-			self.ecosystemDataManager.get("DependenciesAreIregular").append([])
+			self.ecosystemDataManager.get("VersionsHasOccurrences").append([])
+			self.ecosystemDataManager.get("DependenciesAreIrregular").append([])
 			self.ecosystemDataManager.get("DependenciesHasDelimiter").append([])
 			self.ecosystemDataManager.get("DependenciesHasRequirements").append([])
 		finally:
@@ -169,13 +170,13 @@ class Package(object):
 			dependencies = list(dependencies)
 		return dependencies
 	
-	def getOcurrences(self):
-		ocurrences = []
+	def getOccurrences(self):
+		occurrences = []
 		for version in self.getVersions():
-			ocurrences += version.getOcurrences()
-		ocurrences = set(ocurrences)
-		ocurrences = list(ocurrences)
-		return ocurrences
+			occurrences += version.getOccurrences()
+		occurrences = set(occurrences)
+		occurrences = list(occurrences)
+		return occurrences
 
 	def getDescendents(self):
 		descendents = []
@@ -205,12 +206,12 @@ class Package(object):
 		packages = list(packages)
 		return packages
 
-	def getPackagesOcurrences(self):
-		indexes = self.get("PackagesHasOcurrences")
-		ocurrences = [self.ecosystemDataManager.getPackageByIndex(index) for index in indexes]
-		ocurrences = set(ocurrences)
-		ocurrences = list(ocurrences)
-		return ocurrences
+	def getPackagesOccurrences(self):
+		indexes = self.get("PackagesHasOccurrences")
+		occurrences = [self.ecosystemDataManager.getPackageByIndex(index) for index in indexes]
+		occurrences = set(occurrences)
+		occurrences = list(occurrences)
+		return occurrences
 		
 	def getPackagesDescendents(self):
 		packages = [descendent.getPackage() for descendent in self.getDescendents()]
@@ -242,7 +243,7 @@ class Package(object):
 		return [version.getLocalRegularityRate() for version in self.getVersions()]
 
 	def getMostPopularVersions(self, size = None):
-		popularity = {version: len(version.getOcurrences()) for version in self.getVersions()}
+		popularity = {version: len(version.getOccurrences()) for version in self.getVersions()}
 		popularity = sorted(popularity.items(), key = lambda x: x[1], reverse = True)
 		if size:
 			popularity = popularity[:size]
@@ -255,25 +256,25 @@ class Package(object):
 		inLicenses = dependency.getLicenses()
 		return self.ecosystemDataManager.evaluateInLicenses(inLicenses)
 
-	def isIregular(self):
+	def isIrregular(self):
 		for version in self.getVersions():
-			if version.isIregular():
+			if version.isIrregular():
 				return True
 		return False
 
 	def isRegular(self):
 		for version in self.getVersions():
-			if version.isIregular():
+			if version.isIrregular():
 				return False
 		return True
 
-	def getIregularVersions(self):
-		return [version for version in self.getVersions() if version.isIregular()]
+	def getIrregularVersions(self):
+		return [version for version in self.getVersions() if version.isIrregular()]
 
 	def getRegularVersions(self):
 		versions = self.getVersions()
-		iregularVersions = self.getIregularVersions()
-		return list(set(versions) - set(iregularVersions))
+		irregularVersions = self.getIrregularVersions()
+		return list(set(versions) - set(irregularVersions))
 
 	def isAffected(self):
 		for version in self.getVersions():

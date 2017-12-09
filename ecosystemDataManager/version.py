@@ -1,5 +1,5 @@
 from .dependency import Dependency
-from .ocurrence import Ocurrence
+from .occurrence import Occurrence
 from .license import License
 
 class Version(object):
@@ -24,6 +24,7 @@ class Version(object):
 	def set(self, attribute, value):
 		table = self.ecosystemDataManager.get(attribute)
 		table[self.index] = value
+		return self
 
 	def get(self, attribute):
 		table = self.ecosystemDataManager.get(attribute)
@@ -139,22 +140,22 @@ class Version(object):
 		if version.getIndex() in versionsHasDependencies[self.index]:
 			dependencyIndex = versionsHasDependencies[self.index].index(version.getIndex())
 		else:
-			versionsHasOcurrences = self.ecosystemDataManager.get("VersionsHasOcurrences")
+			versionsHasOccurrences = self.ecosystemDataManager.get("VersionsHasOccurrences")
 			dependenciesHasDelimiter = self.ecosystemDataManager.get("DependenciesHasDelimiter")
 			dependenciesHasRequirements = self.ecosystemDataManager.get("DependenciesHasRequirements")
-			dependenciesAreIregular = self.ecosystemDataManager.get("DependenciesAreIregular")
+			dependenciesAreIrregular = self.ecosystemDataManager.get("DependenciesAreIrregular")
 
 			dependencyIndex = len(versionsHasDependencies[self.index])
 			versionsHasDependencies[self.index].append(version.getIndex())
-			versionsHasOcurrences[version.getIndex()].append(self.getIndex())
+			versionsHasOccurrences[version.getIndex()].append(self.getIndex())
 			dependenciesHasDelimiter[self.index].append(None)
 			dependenciesHasRequirements[self.index].append(None)
-			dependenciesAreIregular[self.index].append(None)
-		packagesHasOcurrences = self.ecosystemDataManager.get("PackagesHasOcurrences")
-		if self.package.getIndex() in packagesHasOcurrences[version.getPackage().getIndex()]:
+			dependenciesAreIrregular[self.index].append(None)
+		packagesHasOccurrences = self.ecosystemDataManager.get("PackagesHasOccurrences")
+		if self.package.getIndex() in packagesHasOccurrences[version.getPackage().getIndex()]:
 			pass
 		else:
-			packagesHasOcurrences[version.getPackage().getIndex()].append(self.package.getIndex())
+			packagesHasOccurrences[version.getPackage().getIndex()].append(self.package.getIndex())
 		return Dependency(self.ecosystemDataManager, self, version, dependencyIndex)
 
 	def manageRecursion(self, start):
@@ -185,21 +186,21 @@ class Version(object):
 			return descendents
 		return dependencies
 
-	def getOcurrences(self, recursive = False, start = True):
+	def getOccurrences(self, recursive = False, start = True):
 		if recursive:
 			goOn = self.manageRecursion(start)
 			if not goOn:
 				return []
-		versionsHasOcurrences =  self.ecosystemDataManager.get("VersionsHasOcurrences")
-		indexes = versionsHasOcurrences[self.index]
-		ocurrences =  [Ocurrence(self.ecosystemDataManager, self, Version(self.ecosystemDataManager, None, ocurrence)) for ocurrence in indexes]
+		versionsHasOccurrences =  self.ecosystemDataManager.get("VersionsHasOccurrences")
+		indexes = versionsHasOccurrences[self.index]
+		occurrences =  [Occurrence(self.ecosystemDataManager, self, Version(self.ecosystemDataManager, None, occurrence)) for occurrence in indexes]
 		if recursive:
 			parents = []
-			parents += ocurrences
-			for ocurrence in ocurrences:
-				parents += ocurrence.getInVersion().getOcurrences(True, False)
+			parents += occurrences
+			for occurrence in occurrences:
+				parents += occurrence.getInVersion().getOccurrences(True, False)
 			return parents
-		return ocurrences
+		return occurrences
 
 	def getDescendents(self, start = True):
 		goOn = self.manageRecursion(start)
@@ -218,11 +219,11 @@ class Version(object):
 		goOn = self.manageRecursion(start)
 		if not goOn:
 			return []
-		ocurrences = self.getOcurrences()
+		occurrences = self.getOccurrences()
 		parents = []
-		for ocurrence in ocurrences:
-			parents.append(ocurrence.getInVersion())
-			parents += ocurrence.getInVersion().getParents(False)
+		for occurrence in occurrences:
+			parents.append(occurrence.getInVersion())
+			parents += occurrence.getInVersion().getParents(False)
 		parents = set(parents)
 		parents = list(parents)
 		return parents
@@ -255,17 +256,17 @@ class Version(object):
 		self.ecosystemDataManager.heights[self] = height
 		return height
 
-	def isIregular(self):
+	def isIrregular(self):
 		dependencies = self.getDependencies()
 		for dependency in dependencies:
-			if dependency.isIregular():
+			if dependency.isIrregular():
 				return True
 		return False
 
 	def isRegular(self):
 		dependencies = self.getDependencies()
 		for dependency in dependencies:
-			if dependency.isIregular():
+			if dependency.isIrregular():
 				return False
 		return True
 
@@ -274,13 +275,13 @@ class Version(object):
 			return True
 		return False
 
-	def getIregularDependencies(self):
-		return [dependency for dependency in self.getDependencies() if dependency.isIregular()]
+	def getIrregularDependencies(self):
+		return [dependency for dependency in self.getDependencies() if dependency.isIrregular()]
 
 	def getRegularDependencies(self):
 		dependencies = self.getDependencies()
-		iregularDependencies = self.getIregularDependencies()
-		return list(set(dependencies) - set(iregularDependencies))
+		irregularDependencies = self.getIrregularDependencies()
+		return list(set(dependencies) - set(irregularDependencies))
 
 	def calculateLocalRegularityRate(self):
 		try:
