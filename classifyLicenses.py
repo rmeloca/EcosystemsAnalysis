@@ -34,6 +34,14 @@ if __name__ == '__main__':
 	except Exception as e:
 		print("Unlisted not loaded")
 		unlisted = []
+	incomplete = "incomplete.json"
+	try:
+		with open(incomplete) as file:
+			incomplete = json.load(file)
+			print("incomplete loaded")
+	except Exception as e:
+		print("incomplete not loaded")
+		incomplete = []
 
 	versionsHasLicenses = ecosystemDataManager.get("VersionsHasLicenses")
 	licensesHasGroup = ecosystemDataManager.get("LicensesHasGroup")
@@ -42,7 +50,7 @@ if __name__ == '__main__':
 		for j in range(len(version)):
 			license = version[j]
 			if license == "none":
-				licensesHasGroup[i][j] = Group.UNDEFINED.value
+				licensesHasGroup[i][j] = Group.NONE.value
 			elif license == "file":
 				licensesHasGroup[i][j] = Group.FILE.value
 			elif license == "copyright":
@@ -51,6 +59,8 @@ if __name__ == '__main__':
 				licensesHasGroup[i][j] = Group.UNAPPROVED.value
 			elif license in osi:
 				licensesHasGroup[i][j] = Group.KNOWN.value
+			elif license in incomplete:
+				licensesHasGroup[i][j] = Group.UNDEFINED.value
 			else:
 				licensesHasGroup[i][j] = Group.MISUSED.value
 	ecosystemDataManager.save("LicensesHasGroup")
