@@ -3,7 +3,10 @@ from .occurrence import Occurrence
 from .license import License
 
 class Version(object):
-	"""docstring for Version"""
+	"""
+	This function is internally called for initialization of the class and set all attributes.
+	If haven't set ecosystemDataManager or index requested this class cound't be initialized.
+	"""
 	def __init__(self, ecosystemDataManager, package, index):
 		super(Version, self).__init__()
 		if not ecosystemDataManager or index == None:
@@ -14,10 +17,7 @@ class Version(object):
 			package = self.ecosystemDataManager.getPackageByIndex(versionsHasPackage[index])
 		self.package = package
 		self.index = index
-	"""
-	This function is internally called for initialization of the class and set all attributes.
-	If haven't set ecosystemDataManager or index requested this class cound't be initialized.
-	"""
+
 	def getIndex(self):
 		return self.index
 
@@ -33,11 +33,12 @@ class Version(object):
 		table = self.ecosystemDataManager.get(attribute)
 		return table[self.index]
 
-	def getName(self):
-		return self.get("VersionsHasIndex")
 	"""
 	This function is internally called to return the version name itself 
 	"""
+	def getName(self):
+		return self.get("VersionsHasIndex")
+
 	def setDatetime(self, datetime):
 		self.set("VersionsHasDatetime", datetime)
 		return self
@@ -242,7 +243,6 @@ class Version(object):
 	def getHeight(self, start = True):
 		goOn = self.manageRecursion(start)
 		if not goOn:
-			print("cycle at", self)
 			return 0
 		dependencies =  self.getDependencies()
 		if not dependencies:
@@ -324,20 +324,22 @@ class Version(object):
 		self.set("VersionsHasGlobalRegularityMean", globalRegularityMean)
 		return globalRegularityMean
 
-	def __hash__(self):
-		return self.index
 	"""
 	This overwritten function is internally called to return the self index for hash
+	"""
+	def __hash__(self):
+		return self.index
+
+	"""
+	This overwritten function is internally called to compare this license with other license by license Index
 	"""
 	def __eq__(self, other):
 		if type(other) != type(self):
 			return False
 		return other.getIndex() == self.getIndex()
-	"""
-	This overwritten function is internally called to compare this license with other license by license Index
-	"""
-	def __str__(self):
-		return self.getPackage().getName() + "@" + str(self.getName())
+
 	"""
 	This overwritten function is internally called to return license Name
 	"""
+	def __str__(self):
+		return self.getPackage().getName() + "@" + str(self.getName())

@@ -71,6 +71,7 @@ class Package(object):
 	"""
 	def getTags(self):
 		return self.get("PackagesHasTags")
+
 	"""
 	This function is internally called to return version by requested index
 	"""
@@ -81,6 +82,7 @@ class Package(object):
 			return Version(self.ecosystemDataManager, self, index)
 		except Exception as e:
 			raise e
+
 	def resolve(self, strVersion):
 		versions = self.getVersions()
 		for version in versions:
