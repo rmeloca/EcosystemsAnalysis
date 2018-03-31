@@ -555,7 +555,7 @@ class EcosystemDataManager(object):
 			if not datetime:
 				continue
 			if not version:
-				self.addDictKey(distribution, "-1")
+				self.addDictKey(distribution, Group.NONE.value)
 			for group in version:
 				self.addDictKey(distribution, group)
 		return distribution
@@ -577,6 +577,19 @@ class EcosystemDataManager(object):
 				continue
 			size = len(version)
 			self.addDictKey(distribution, size)
+		return distribution
+
+	"""
+	returns the propotion of groups of the latest version only
+	"""
+	def latestVersionsGroupsProportion(self):
+		distribution = {}
+		for package in self.getPackages():
+			try:
+				for license in package.getLatestVersion().getLicenses():
+					self.addDictKey(distribution, license.getGroup().name)
+			except Exception as e:
+				pass
 		return distribution
 
 	"""
@@ -648,14 +661,6 @@ class EcosystemDataManager(object):
 		return adjacencies
 
 	"""
-	this function is internally used for group both NONE and UNDEFINED group as one.
-	"""
-	def resolveGroup(self, group):
-		if group == Group.NONE or group == Group.UNDEFINED:
-			return Group.NONE
-		return group
-
-	"""
 	returns a dictionary adjacency matrix of the most frequent patterns of license groups evolution.
 	size can be informed, so each adjacency dicitionary patterns will be truncated.
 	"""
@@ -675,11 +680,11 @@ class EcosystemDataManager(object):
 				if not licensesFrom and licensesTo:
 					for licenseTo in licensesTo:
 						group = licenseTo.getGroup()
-						self.addDictKey(adjacencies[Group.NONE.name][self.resolveGroup(group).name], "none" + "->" + str(licenseTo))
+						self.addDictKey(adjacencies[Group.NONE.name][group.name], "none" + "->" + str(licenseTo))
 				elif not licensesTo:
 					for licenseFrom in licensesFrom:
 						group = licenseFrom.getGroup()
-						self.addDictKey(adjacencies[self.resolveGroup(group).name][Group.NONE.name], str(licenseFrom) + "->" + "none")
+						self.addDictKey(adjacencies[group.name][Group.NONE.name], str(licenseFrom) + "->" + "none")
 				else:
 					for licenseFrom in licensesFrom:
 						for licenseTo in licensesTo:
@@ -687,7 +692,7 @@ class EcosystemDataManager(object):
 							groupTo = licenseTo.getGroup()
 							if licenseFrom == licenseTo:
 								continue
-							self.addDictKey(adjacencies[self.resolveGroup(groupFrom).name][self.resolveGroup(groupTo).name], str(licenseFrom) + "->" + str(licenseTo))
+							self.addDictKey(adjacencies[groupFrom.name][groupTo.name], str(licenseFrom) + "->" + str(licenseTo))
 		for groupFrom in adjacencies.keys():
 			for groupTo in adjacencies.keys():
 				adjacencies[groupFrom][groupTo] = sorted(adjacencies[groupFrom][groupTo].items(), key=lambda x: x[1], reverse = True)
@@ -730,15 +735,11 @@ class EcosystemDataManager(object):
 	groups can be informed as a list of groups that gonna be threated as irregular
 	dependency ones.
 	"""
-	def evaluateInLicenses(self, inLicenses, groups = [Group.NONE, Group.UNDEFINED, Group.UNAPPROVED]):
+	def evaluateInLicenses(self, inLicenses, groups = [Group.NONE, Group.UNDEFINED, Group.UNAPPROVED, Group.MISUSED, Group.COPYRIGHT]):
 		if Group.NONE in groups and not inLicenses:
 			return True
 		for inLicense in inLicenses:
-			if Group.UNDEFINED in groups and inLicense.getGroup() == Group.UNDEFINED:
-				return True
-			if Group.UNAPPROVED in groups and inLicense.getGroup() == Group.UNAPPROVED:
-				return True
-			if Group.MISUSED in groups and inLicense.getGroup() == Group.MISUSED:
+			if inLicense.getGroup() in groups:
 				return True
 		return False
 
