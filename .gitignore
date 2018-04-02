@@ -3,13 +3,11 @@ fetchAll.sh
 schedule.cron
 /npm
 /visualizations
-*.csv
-*.json
+/data
+/images
 *.html
 *.gexf
-*.html
 *.png
 *.dot
 *.pdf
-/data
 *.mwb.bak
